@@ -1,4 +1,4 @@
-namespace BiteAI.Services.Validation.Result;
+namespace BiteAI.Services.Validation.Errors;
 
 public enum ErrorType
 {
