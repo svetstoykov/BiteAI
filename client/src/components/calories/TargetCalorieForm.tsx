@@ -1,10 +1,13 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { TargetCalorieFormData } from "../../models/calorie";
 import CalorieService from "../../services/calorie-service";
-import React from "react";
 import { BaseCalorieForm } from "./BaseCalorieForm";
 
-export function TargetCaloriesForm() {
+interface TargetCalorieFormProps {
+  setIsLoading: (loading: boolean) => void;
+}
+
+export function TargetCaloriesForm({ setIsLoading }: TargetCalorieFormProps) {
   const [formData, setFormData] = useState<TargetCalorieFormData>({
     weightKg: 0,
     heightCm: 0,
@@ -15,7 +18,6 @@ export function TargetCaloriesForm() {
     targetWeeks: 0,
   });
 
-  const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<number | null>(null);
   const calorieService = new CalorieService();
 
@@ -24,6 +26,14 @@ export function TargetCaloriesForm() {
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
     }));
   };
 
@@ -51,7 +61,11 @@ export function TargetCaloriesForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <BaseCalorieForm formData={formData} onInputChange={handleInputChange} />
+      <BaseCalorieForm
+        formData={formData}
+        onInputChange={handleInputChange}
+        onSelectChange={handleSelectChange}
+      />
 
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -63,7 +77,7 @@ export function TargetCaloriesForm() {
             name="targetWeightKg"
             value={formData.targetWeightKg}
             onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-pastel-green focus:border-pastel-green focus:outline-none"
             required
           />
         </div>
@@ -77,19 +91,11 @@ export function TargetCaloriesForm() {
             min="4"
             value={formData.targetWeeks}
             onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-pastel-green focus:border-pastel-green focus:outline-none"
             required
           />
         </div>
       </div>
-
-      <button
-        type="submit"
-        className="w-full px-4 py-2 font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-        disabled={isLoading}
-      >
-        {isLoading ? "Calculating..." : "Calculate Target"}
-      </button>
 
       {result && (
         <div className="p-4 mt-4 rounded-md bg-gray-50">

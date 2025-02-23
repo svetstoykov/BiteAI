@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import backgroundImage from "../assets/backgrounds/7475073_3685696.jpg";
 
 interface LayoutProps {

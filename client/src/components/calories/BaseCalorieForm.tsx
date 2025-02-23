@@ -1,13 +1,13 @@
-import React from "react";
 import { ChangeEvent } from "react";
 import { MetabolicProfileDto } from "../../models/calorie";
 
 export interface BaseFormProps {
   formData: MetabolicProfileDto;
   onInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onSelectChange: (e: ChangeEvent<HTMLSelectElement>) => void;
 }
 
-export const BaseCalorieForm = ({ formData, onInputChange }: BaseFormProps) => {
+export const BaseCalorieForm = ({ formData, onInputChange, onSelectChange }: BaseFormProps) => {
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
@@ -20,7 +20,7 @@ export const BaseCalorieForm = ({ formData, onInputChange }: BaseFormProps) => {
             name="weightKg"
             value={formData.weightKg}
             onChange={onInputChange}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-pastel-green focus:border-pastel-green focus:outline-none"
             required
           />
         </div>
@@ -33,7 +33,7 @@ export const BaseCalorieForm = ({ formData, onInputChange }: BaseFormProps) => {
             name="heightCm"
             value={formData.heightCm}
             onChange={onInputChange}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-pastel-green focus:border-pastel-green focus:outline-none"
             required
           />
         </div>
@@ -47,7 +47,7 @@ export const BaseCalorieForm = ({ formData, onInputChange }: BaseFormProps) => {
             name="age"
             value={formData.age}
             onChange={onInputChange}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-pastel-green focus:border-pastel-green focus:outline-none"
             required
           />
         </div>
@@ -62,24 +62,25 @@ export const BaseCalorieForm = ({ formData, onInputChange }: BaseFormProps) => {
             max="7"
             value={formData.exerciseDaysPerWeek}
             onChange={onInputChange}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-pastel-green focus:border-pastel-green focus:outline-none"
             required
           />
         </div>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <input
-          type="checkbox"
-          id="isMale"
-          name="isMale"
-          checked={formData.isMale}
-          onChange={onInputChange}
-          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-        />
-        <label htmlFor="isMale" className="text-sm font-medium text-gray-700">
-          Male
+      <div className="flex flex-col space-y-1">
+        <label htmlFor="gender" className="text-sm font-medium text-gray-700">
+          Gender
         </label>
+        <select
+          id="gender"
+          name="gender"
+          onChange={onSelectChange}
+          className="w-full p-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pastel-green focus:border-transparent"
+        >
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
       </div>
     </>
   );
