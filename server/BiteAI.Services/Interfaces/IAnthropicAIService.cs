@@ -5,5 +5,5 @@ namespace BiteAI.Services.Interfaces;
 
 public interface IAnthropicAIService
 {
-    Task<Result<PeriodMealPlan?>> PlanMealForWeek(int days, int dailyCalorieTarget, bool isVegetarian);
+    Task<Result<MealPlan?>> PlanMealForWeek(int days, int dailyCalorieTarget, bool isVegetarian);
 }

@@ -1,5 +1,13 @@
+import { ToastContainer } from "react-toastify";
+import HomePage from "./components/HomePage";
+
 function App() {
-  return <div>app</div>;
+  return (
+    <>
+      <HomePage />
+      <ToastContainer />
+    </>
+  );
 }
 
 export default App;

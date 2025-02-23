@@ -13,12 +13,26 @@ builder.Services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+var corsOrigins = builder.Configuration.GetSection("CorsOrigins").Get<Dictionary<string, string[]>>()!;
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DevelopmentPolicy", policy =>
+    {
+        policy.WithOrigins(corsOrigins["Development"])
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseCors("DevelopmentPolicy");
 }
 
 app.UseHttpsRedirection();

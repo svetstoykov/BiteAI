@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BiteAI.API.Controllers;
 
-public class CalorieController : BaseApiController
+public class CaloriesController : BaseApiController
 {
     private readonly ICalorieService _calorieService;
 
-    public CalorieController(ICalorieService calorieService)
+    public CaloriesController(ICalorieService calorieService)
     {
         this._calorieService = calorieService;
     }

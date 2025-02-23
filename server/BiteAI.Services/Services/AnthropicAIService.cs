@@ -4,8 +4,8 @@ using Anthropic.SDK.Constants;
 using Anthropic.SDK.Messaging;
 using BiteAI.Services.Entities;
 using BiteAI.Services.Interfaces;
+using BiteAI.Services.Validation.Errors;
 using BiteAI.Services.Validation.Result;
-using Error = BiteAI.Services.Validation.Errors.Error;
 
 namespace BiteAI.Services.Services;
 
@@ -18,7 +18,7 @@ public class AnthropicAIService : IAnthropicAIService
         this._anthropicClient = anthropicClient;
     }
 
-    public async Task<Result<PeriodMealPlan?>> PlanMealForWeek(int days, int dailyCalorieTarget, bool isVegetarian)
+    public async Task<Result<MealPlan?>> PlanMealForWeek(int days, int dailyCalorieTarget, bool isVegetarian)
     {
         var dietType = isVegetarian ? "vegetarian" : "regular";
 
@@ -45,18 +45,18 @@ public class AnthropicAIService : IAnthropicAIService
             var contentResult = firstResult.Message?.ToString();
 
             if (contentResult == null)
-                return Result.Fail<PeriodMealPlan?>(Error.ExternalServiceError(
+                return Result.Fail<MealPlan?>(OperationError.ExternalServiceError(
                     "Failed to generate response from AI service",
                     "AI_NO_RESPONSE"));
 
-            PeriodMealPlan? periodMealPlan;
+            MealPlan? periodMealPlan;
             try
             {
-                periodMealPlan = JsonSerializer.Deserialize<PeriodMealPlan>(contentResult);
+                periodMealPlan = JsonSerializer.Deserialize<MealPlan>(contentResult);
             }
             catch (Exception e)
             {
-                return Result.Fail<PeriodMealPlan?>(Error.InternalError(
+                return Result.Fail<MealPlan?>(OperationError.InternalError(
                     "Failed to parse response from AI service", "RESPONSE_PARSE_ERROR"));
             }
 
@@ -64,7 +64,7 @@ public class AnthropicAIService : IAnthropicAIService
         }
         catch (Exception ex)
         {
-            return Result.Fail<PeriodMealPlan?>(Error.ExternalServiceError(
+            return Result.Fail<MealPlan?>(OperationError.ExternalServiceError(
                 "External service failed to process meal plan request",
                 "AI_SERVICE_ERROR"));
         }

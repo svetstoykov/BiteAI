@@ -59,7 +59,7 @@ public class CalorieService : ICalorieService
 
         if (Math.Abs(weeklyWeightChange) > MaxWeeklyWeightChangeKg)
         {
-            return Result.Fail<int>(Error.Validation(
+            return Result.Fail<int>(OperationError.Validation(
                 $"Weight change of {Math.Abs(weeklyWeightChange):F1} kg per week is not realistic. " +
                 $"Maximum recommended is {MaxWeeklyWeightChangeKg} kg per week."));
         }
@@ -75,7 +75,7 @@ public class CalorieService : ICalorieService
         var minSafeCalories = metabolicProfile.IsMale ? 1500 : 1200;
         if (targetCalories < minSafeCalories)
         {
-            return Result.Fail<int>(Error.Validation(
+            return Result.Fail<int>(OperationError.Validation(
                 $"Target calories ({targetCalories}) are below safe minimum of {minSafeCalories}. " +
                 "Consider a longer time period to reach your goal."));
         }
@@ -86,16 +86,16 @@ public class CalorieService : ICalorieService
     private Result ValidateMetabolicProfile(MetabolicProfileDto request)
     {
         if (request.WeightKg is < MinWeightKg or > MaxWeightKg)
-            return Result.Fail(Error.Validation($"Weight must be between {MinWeightKg} and {MaxWeightKg} kg"));
+            return Result.Fail(OperationError.Validation($"Weight must be between {MinWeightKg} and {MaxWeightKg} kg"));
 
         if (request.HeightCm is < MinHeightCm or > MaxHeightCm)
-            return Result.Fail(Error.Validation($"Height must be between {MinHeightCm} and {MaxHeightCm} cm"));
+            return Result.Fail(OperationError.Validation($"Height must be between {MinHeightCm} and {MaxHeightCm} cm"));
 
         if (request.Age is < MinAge or > MaxAge)
-            return Result.Fail(Error.Validation($"Age must be between {MinAge} and {MaxAge} years"));
+            return Result.Fail(OperationError.Validation($"Age must be between {MinAge} and {MaxAge} years"));
 
         if (request.ExerciseDaysPerWeek is < MinExerciseDays or > MaxExerciseDays)
-            return Result.Fail(Error.Validation($"Exercise days must be between {MinExerciseDays} and {MaxExerciseDays}"));
+            return Result.Fail(OperationError.Validation($"Exercise days must be between {MinExerciseDays} and {MaxExerciseDays}"));
 
         return Result.Success();
     }
@@ -107,10 +107,10 @@ public class CalorieService : ICalorieService
             return basicValidation;
 
         if (request.TargetWeeks < MinTargetWeeks)
-            return Result.Fail(Error.Validation($"Target period must be at least {MinTargetWeeks} weeks"));
+            return Result.Fail(OperationError.Validation($"Target period must be at least {MinTargetWeeks} weeks"));
 
         if (request.TargetWeightKg is < MinWeightKg or > MaxWeightKg)
-            return Result.Fail(Error.Validation($"Target weight must be between {MinWeightKg} and {MaxWeightKg} kg"));
+            return Result.Fail(OperationError.Validation($"Target weight must be between {MinWeightKg} and {MaxWeightKg} kg"));
 
         return Result.Success();
     }

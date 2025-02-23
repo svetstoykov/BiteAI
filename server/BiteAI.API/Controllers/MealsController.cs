@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BiteAI.API.Controllers;
 
-public class MealController : BaseApiController
+public class MealsController : BaseApiController
 {
     private readonly IAnthropicAIService _anthropicService;
 
-    public MealController(IAnthropicAIService anthropicService)
+    public MealsController(IAnthropicAIService anthropicService)
     {
         this._anthropicService = anthropicService;
     }
