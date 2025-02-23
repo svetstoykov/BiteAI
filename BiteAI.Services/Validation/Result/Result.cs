@@ -38,6 +38,26 @@ public class Result
         result.AddError(error);
         return result;
     }
+    
+    public static Result<T> ErrorFromResult<T>(Result input)
+    {
+        var result = new Result<T>(default);
+
+        foreach (var error in input.Errors) 
+            result.AddError(error);
+        
+        return result;
+    }
+    
+    public static Result ErrorFromResult(Result input)
+    {
+        var result = new Result();
+
+        foreach (var error in input.Errors) 
+            result.AddError(error);
+        
+        return result;
+    }
 }
 
 public class Result<T> : Result
