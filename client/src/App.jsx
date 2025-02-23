@@ -1,13 +1,22 @@
 import { ToastContainer } from "react-toastify";
-import HomePage from "./components/HomePage";
+import { CalculationForm } from "./components/CalculationForm";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { LoginForm } from "./components/LoginForm";
+import NotFoundPage from "./components/NotFoundPage";
+import Layout from "./components/Layout";
 
-function App() {
+export default function App() {
   return (
-    <>
-      <HomePage />
-      <ToastContainer />
-    </>
+    <BrowserRouter>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Navigate to="/calculate" replace />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/calculate" element={<CalculationForm />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+        <ToastContainer />
+      </Layout>
+    </BrowserRouter>
   );
 }
-
-export default App;
