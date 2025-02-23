@@ -11,15 +11,15 @@ public class FirestoreRepository<T> : IRepository<T> where T : IEntity
 
     public FirestoreRepository(FirestoreDb db)
     {
-        _db = db;
-        _collectionName = typeof(T).Name.ToLower() + "s"; // Convention: Collection name is plural of type name
+        this._db = db;
+        this._collectionName = typeof(T).Name.ToLower() + "s"; // Convention: Collection name is plural of type name
     }
 
-    private CollectionReference Collection => _db.Collection(_collectionName);
+    private CollectionReference Collection => this._db.Collection(this._collectionName);
 
     public async Task<T> GetByIdAsync(string id)
     {
-        var docRef = Collection.Document(id);
+        var docRef = this.Collection.Document(id);
         var snapshot = await docRef.GetSnapshotAsync();
 
         if (!snapshot.Exists)
@@ -32,7 +32,7 @@ public class FirestoreRepository<T> : IRepository<T> where T : IEntity
 
     public async Task<IEnumerable<T>> GetAllAsync()
     {
-        var snapshot = await Collection.GetSnapshotAsync();
+        var snapshot = await this.Collection.GetSnapshotAsync();
         return snapshot.Documents.Select(d =>
         {
             var entity = d.ConvertTo<T>();
@@ -46,7 +46,7 @@ public class FirestoreRepository<T> : IRepository<T> where T : IEntity
         // Note: Firestore doesn't support LINQ directly
         // This implementation fetches all and filters in memory
         // For production, you'd want to use Firestore queries based on your needs
-        var all = await GetAllAsync();
+        var all = await this.GetAllAsync();
         return all.Where(predicate.Compile());
     }
 
@@ -54,12 +54,12 @@ public class FirestoreRepository<T> : IRepository<T> where T : IEntity
     {
         if (string.IsNullOrEmpty(entity.Id))
         {
-            var docRef = await Collection.AddAsync(entity);
+            var docRef = await this.Collection.AddAsync(entity);
             entity.Id = docRef.Id;
         }
         else
         {
-            await Collection.Document(entity.Id).SetAsync(entity);
+            await this.Collection.Document(entity.Id).SetAsync(entity);
         }
 
         return entity;
@@ -70,18 +70,18 @@ public class FirestoreRepository<T> : IRepository<T> where T : IEntity
         if (string.IsNullOrEmpty(entity.Id))
             throw new ArgumentException("Entity must have an Id for updates");
 
-        await Collection.Document(entity.Id).SetAsync(entity, SetOptions.MergeAll);
+        await this.Collection.Document(entity.Id).SetAsync(entity, SetOptions.MergeAll);
         return entity;
     }
 
     public async Task DeleteAsync(string id)
     {
-        await Collection.Document(id).DeleteAsync();
+        await this.Collection.Document(id).DeleteAsync();
     }
 
     public async Task<bool> ExistsAsync(string id)
     {
-        var docRef = Collection.Document(id);
+        var docRef = this.Collection.Document(id);
         var snapshot = await docRef.GetSnapshotAsync();
         return snapshot.Exists;
     }

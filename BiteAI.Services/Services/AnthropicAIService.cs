@@ -1,8 +1,11 @@
+using System.Text.Json;
 using Anthropic.SDK;
 using Anthropic.SDK.Constants;
 using Anthropic.SDK.Messaging;
 using BiteAI.Services.Entities;
 using BiteAI.Services.Interfaces;
+using BiteAI.Services.Validation.Result;
+using Error = BiteAI.Services.Validation.Errors.Error;
 
 namespace BiteAI.Services.Services;
 
@@ -12,22 +15,21 @@ public class AnthropicAIService : IAnthropicAIService
 
     public AnthropicAIService(AnthropicClient anthropicClient)
     {
-        _anthropicClient = anthropicClient;
+        this._anthropicClient = anthropicClient;
     }
 
-    public async Task<WeeklyMealPlan> PlanMealForWeek(int targetWeeklyCalories, bool isVegetarian)
+    public async Task<Result<PeriodMealPlan?>> PlanMealForWeek(int days, int dailyCalorieTarget, bool isVegetarian)
     {
-        var dailyCalorieTarget = targetWeeklyCalories / 7;
         var dietType = isVegetarian ? "vegetarian" : "regular";
 
         var prompt = $$"""
-                       Create a 7-day meal plan with {{dailyCalorieTarget}} daily calories ({{dietType}} diet).
+                       Create a {{days}}-day meal plan with {{dailyCalorieTarget}} daily calories ({{dietType}} diet).
                        For each day, provide breakfast, lunch, and dinner with exact calories and macros (protein, carbs, fat in grams).
                        Format the response as a valid JSON object matching this C# class structure:
 
-                       public class WeeklyMealPlan {
+                       public class PeriodMealPlan {
                            public List<MealDay> Days { get; set; }
-                           public int TotalWeeklyCalories { get; set; }
+                           public int TotalPeriodCalories { get; set; }
                            public bool IsVegetarian { get; set; }
                        }
 
@@ -54,10 +56,9 @@ public class AnthropicAIService : IAnthropicAIService
         {
             var messages = new List<Message>()
             {
-                new Message(RoleType.User, prompt),
+                new(RoleType.User, prompt),
             };
 
-            
             var parameters = new MessageParameters()
             {
                 Messages = messages,
@@ -67,15 +68,33 @@ public class AnthropicAIService : IAnthropicAIService
                 Temperature = 0.7m,
             };
 
-            var firstResult = await _anthropicClient.Messages.GetClaudeMessageAsync(parameters);
+            var firstResult = await this._anthropicClient.Messages.GetClaudeMessageAsync(parameters);
 
-            firstResult.Message.ToString();
+            var contentResult = firstResult.Message?.ToString();
 
-            return null;
+            if (contentResult == null)
+                return Result.Fail<PeriodMealPlan?>(Error.ExternalServiceError(
+                    "Failed to generate response from AI service",
+                    "AI_NO_RESPONSE"));
+
+            PeriodMealPlan? periodMealPlan = null;
+            try
+            {
+                periodMealPlan = JsonSerializer.Deserialize<PeriodMealPlan>(contentResult);
+            }
+            catch (Exception e)
+            {
+                return Result.Fail<PeriodMealPlan?>(Error.InternalError(
+                    "Failed to parse response from AI service", "RESPONSE_PARSE_ERROR"));
+            }
+
+            return Result.Success(periodMealPlan);
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("Failed to generate meal plan", ex);
+            return Result.Fail<PeriodMealPlan?>(Error.ExternalServiceError(
+                "External service failed to process meal plan request",
+                "AI_SERVICE_ERROR"));
         }
     }
 }
