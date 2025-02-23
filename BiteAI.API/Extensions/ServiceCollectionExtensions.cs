@@ -9,6 +9,13 @@ namespace BiteAI.API.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    {
+        services.AddScoped<ICalorieService, CalorieService>();
+
+        return services;
+    }
+    
     public static IServiceCollection AddFirebaseServices(
         this IServiceCollection services,
         IConfiguration configuration)

@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services
     .AddOpenApi()
+    .AddApplicationServices()
     .AddFirebaseServices(builder.Configuration)
     .AddAnthropicService(builder.Configuration);
 

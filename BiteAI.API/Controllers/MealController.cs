@@ -28,10 +28,4 @@ public class MealController : BaseApiController
 
         return result.IsFailure ? this.ToErrorResult(result) : this.Ok(result.Data);
     }
-
-    [HttpGet("calculate-calories")]
-    public async Task<IActionResult> CalculateCalories(int weightInKgs, int height)
-    {
-        throw new NotImplementedException();
-    }
 }

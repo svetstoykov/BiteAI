@@ -1,10 +1,11 @@
 using BiteAI.Services.Contracts;
+using BiteAI.Services.Interfaces;
 using BiteAI.Services.Validation.Errors;
 using BiteAI.Services.Validation.Result;
 
 namespace BiteAI.Services.Services;
 
-public class CalorieService
+public class CalorieService : ICalorieService
 {
     // Constants
     private const double MinWeightKg = 40;

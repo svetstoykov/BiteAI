@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BiteAI.API.Controllers.Base;
 
+[ApiController]
+[Route("api/[controller]")]
 public class BaseApiController : ControllerBase
 {
     public IActionResult ToErrorResult(Result result)
@@ -13,11 +15,11 @@ public class BaseApiController : ControllerBase
 
         return error.Type switch
         {
-            ErrorType.NotFound => new NotFoundObjectResult(error.Message),
-            ErrorType.Validation => new BadRequestObjectResult(error.Message),
-            ErrorType.Unauthorized => new UnauthorizedObjectResult(error.Message),
-            ErrorType.BadRequest => new BadRequestObjectResult(error.Message),
-            ErrorType.Conflict => new ConflictObjectResult(error.Message),
+            ErrorType.NotFound => new NotFoundObjectResult(error),
+            ErrorType.Validation => new BadRequestObjectResult(error),
+            ErrorType.Unauthorized => new UnauthorizedObjectResult(error),
+            ErrorType.BadRequest => new BadRequestObjectResult(error),
+            ErrorType.Conflict => new ConflictObjectResult(error),
             ErrorType.Timeout => new StatusCodeResult(StatusCodes.Status504GatewayTimeout),
             ErrorType.ExternalServiceError => new StatusCodeResult(StatusCodes.Status502BadGateway),
             _ => new ObjectResult(response)
