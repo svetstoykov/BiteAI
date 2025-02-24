@@ -1,17 +1,17 @@
 import { toast } from "react-toastify";
-import { ApiResponse } from "../models/api";
 import {
   CaloricIntakeForWeightGoalsDto,
   CalorieGoalsFormData,
   TargetCalorieFormData,
 } from "../models/calorie";
+import apiClient from "./api-client";
 
 export default class CalorieService {
   private readonly baseUrl = "http://localhost:5036";
 
   private async makeRequest<T>(
     endpoint: string,
-    params: Record<string, any>,
+    params: object,
     errorMessage: string
   ): Promise<T | undefined> {
     try {
@@ -20,17 +20,17 @@ export default class CalorieService {
       );
       const url = `${this.baseUrl}${endpoint}?${queryParams}`;
 
-      const response = await fetch(url);
-      const content: ApiResponse<T> = await response.json();
+      const response = await apiClient.get<T>(url);
 
-      if (!response.ok) {
-        toast.error(`${errorMessage} ${content.message}`);
+      if (!response.isSuccess) {
+        toast.error(`${errorMessage} ${response.message}`);
         return;
       }
 
-      return content.data;
-    } catch (error) {
-      toast.error(error ?? `An error occurred while ${errorMessage.toLowerCase()}`);
+      return response.data;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Operation error";
+      toast.error(errorMessage);
     }
   }
 

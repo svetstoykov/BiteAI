@@ -81,7 +81,7 @@ public class OperationErrorsController : BaseApiController
             CreatedAt = DateTime.UtcNow
         };
 
-        return this.Ok(new ApiResponse<TestData>("Operation completed successfully", data));
+        return this.Ok(new ApiResponse<TestData>(success: true, "Operation completed successfully", data));
     }
 
     public class TestData

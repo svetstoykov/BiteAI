@@ -1,14 +1,17 @@
 namespace BiteAI.API.Models;
 
-public class ApiResponse<T>
+internal sealed class ApiResponse<T>
 {
-    public ApiResponse(string message, T? data = default)
+    public ApiResponse(bool success, string? message = null, T? data = default)
     {
-        this.Message = message ?? throw new ArgumentNullException(nameof(message));
+        this.Message = message;
         this.Data = data;
+        this.Success = success;
     }
 
-    public T? Data { get; set; }
+    public T? Data { get; private set; }
 
-    public string? Message { get; protected set; }
+    public string? Message { get; private set; }
+    
+    public bool Success { get; private set; }
 }

@@ -13,7 +13,7 @@ public class BaseApiController : ControllerBase
     protected IActionResult ToErrorResult(Result result)
     {
         var error = result.Errors.First();
-        var response = new ApiResponse<object>(error.Message);
+        var response = new ApiResponse<object>(success: false, message: error.Message);
 
         return error.Type switch
         {
