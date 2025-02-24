@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+@theme {
+  --color-pastel-green: #8eb15c;
+  --color-off-white: #F5F0E6;
+  --color-pastel-dark-green: #457a6a;
+  --font-atkinson: 'Atkinson Hyperlegible', sans-serif;
+}

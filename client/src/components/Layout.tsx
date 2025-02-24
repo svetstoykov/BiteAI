@@ -7,7 +7,7 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   return (
-    <main>
+    <main className="font-atkinson">
       <img
         className="object-cover absolute -z-5 w-full h-full min-h-[70svh]"
         alt="Hero Background"
