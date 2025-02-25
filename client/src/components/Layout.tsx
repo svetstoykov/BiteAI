@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import backgroundImage from "../assets/backgrounds/7475073_3685696.jpg";
+import backgroundImage from "../assets/backgrounds/31242293_7811438.jpg";
 
 interface LayoutProps {
   children: ReactNode;
@@ -7,13 +7,25 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   return (
-    <main className="font-atkinson">
+    <main className="font-atkinson min-h-screen flex flex-col relative overflow-x-hidden">
       <img
-        className="object-cover absolute -z-5 w-full h-full min-h-[70svh]"
+        className="object-cover fixed inset-0 -z-5 w-full h-full min-h-[100vh]"
         alt="Hero Background"
         src={backgroundImage}
       />
-      <div className="relative z-10">
+
+      {/* BiteAI Header - Fixed at top */}
+      <header className="w-full py-6 flex justify-center z-20 bg-gradient-to-b from-amber-50/90 to-transparent">
+        <div className="flex items-center">
+          <h1 className="text-6xl font-thin">
+            <span className="text-amber-900">Bite</span>
+            <span className="text-amber-500">AI</span>
+          </h1>
+        </div>
+      </header>
+
+      {/* Content area - scrollable with padding for header */}
+      <div className="flex-1 flex justify-center items-start z-10 pt-8 pb-8 px-4">
         {children}
       </div>
     </main>
