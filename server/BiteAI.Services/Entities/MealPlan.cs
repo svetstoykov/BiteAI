@@ -1,3 +1,5 @@
+using BiteAI.Services.Enums;
+
 namespace BiteAI.Services.Entities;
 
 public class MealPlan
@@ -11,18 +13,8 @@ public class MealPlan
         
     public required string UserId { get; set; }
     
+    public required ApplicationUser ApplicationUser { get; set; }
+    
     public virtual ICollection<MealDay> MealDays { get; set; } = new List<MealDay>();
 }
     
-public enum DietType
-{
-    Standard = 0,
-    Vegetarian = 1,
-    Vegan = 2,
-    Keto = 3,
-    LowCarb = 4,
-    Paleo = 5,
-    Mediterranean = 6,
-    GlutenFree = 7,
-    DairyFree = 8
-}

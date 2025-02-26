@@ -23,7 +23,7 @@ public static class DatabaseServiceExtension
                 b => b.MigrationsAssembly("BiteAI.Infrastructure")));
 
         // Configure Identity
-        services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+        services.AddIdentity<IdentityAccount, IdentityRole>(options =>
             {
                 // Password settings
                 options.Password.RequireDigit = true;

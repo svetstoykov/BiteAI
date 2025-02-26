@@ -1,5 +1,4 @@
 using BiteAI.API.Controllers.Base;
-using BiteAI.API.Models;
 using BiteAI.Services.Contracts;
 using BiteAI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;

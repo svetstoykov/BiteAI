@@ -46,7 +46,7 @@ if (app.Environment.IsDevelopment())
         
     // Seed default roles
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityAccount>>();
         
     await SeedDefaultRoles(roleManager);
     await SeedDefaultAdmin(userManager, builder.Configuration);
@@ -78,7 +78,7 @@ async Task SeedDefaultRoles(RoleManager<IdentityRole> roleManager)
 }
 
 // Seed default admin method
-async Task SeedDefaultAdmin(UserManager<ApplicationUser> userManager, IConfiguration configuration)
+async Task SeedDefaultAdmin(UserManager<IdentityAccount> userManager, IConfiguration configuration)
 {
     // Check if admin user exists
     var adminEmail = configuration["DefaultAdmin:Email"] ?? 
@@ -87,22 +87,65 @@ async Task SeedDefaultAdmin(UserManager<ApplicationUser> userManager, IConfigura
     
     if (adminUser == null)
     {
-        var admin = new ApplicationUser
-        {
-            UserName = configuration["DefaultAdmin:UserName"] ?? "admin",
-            Email = adminEmail,
-            FirstName = configuration["DefaultAdmin:FirstName"] ?? "Admin",
-            LastName = configuration["DefaultAdmin:LastName"] ?? "User",
-            EmailConfirmed = true
-        };
+        using var scope = app.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         
-        var adminPassword = configuration["DefaultAdmin:Password"] ?? 
-            throw new InvalidOperationException("DefaultAdmin:Password not configured");
-        var result = await userManager.CreateAsync(admin, adminPassword);
+        // Start a transaction to ensure both entities are created
+        using var transaction = await dbContext.Database.BeginTransactionAsync();
         
-        if (result.Succeeded)
+        try
         {
-            await userManager.AddToRoleAsync(admin, "Admin");
+            var userId = Guid.NewGuid().ToString();
+            
+            // Create ApplicationUser
+            var applicationUser = new BiteAI.Services.Entities.ApplicationUser
+            {
+                Id = userId,
+                FirstName = configuration["DefaultAdmin:FirstName"] ?? "Admin",
+                LastName = configuration["DefaultAdmin:LastName"] ?? "User",
+                Email = adminEmail,
+                Username = configuration["DefaultAdmin:UserName"] ?? "admin",
+                CreatedAt = DateTime.UtcNow,
+                Gender = BiteAI.Services.Enums.Gender.Male,  // Default value
+                ActivityLevel = BiteAI.Services.Enums.ActivityLevel.NotSpecified
+            };
+            
+            // Add ApplicationUser to database
+            await dbContext.ApplicationUsers.AddAsync(applicationUser);
+            await dbContext.SaveChangesAsync();
+            
+            // Create IdentityAccount
+            var identityAccount = new IdentityAccount
+            {
+                Id = userId,
+                UserName = configuration["DefaultAdmin:UserName"] ?? "admin",
+                Email = adminEmail,
+                EmailConfirmed = true,
+                ApplicationUserId = userId
+            };
+            
+            // Create the identity account with password
+            var adminPassword = configuration["DefaultAdmin:Password"] ?? 
+                throw new InvalidOperationException("DefaultAdmin:Password not configured");
+            var result = await userManager.CreateAsync(identityAccount, adminPassword);
+            
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(identityAccount, "Admin");
+                await transaction.CommitAsync();
+            }
+            else
+            {
+                await transaction.RollbackAsync();
+                // Log the error or handle it appropriately
+                Console.WriteLine($"Failed to create admin user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            // Log the error or handle it appropriately
+            Console.WriteLine($"Error seeding admin user: {ex.Message}");
         }
     }
 }
