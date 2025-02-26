@@ -1,5 +1,3 @@
-using BiteAI.Services.Validation.Result;
-
 namespace BiteAI.Services.Validation.Errors;
 
 public class OperationError
