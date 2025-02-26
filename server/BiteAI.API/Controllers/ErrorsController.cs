@@ -1,11 +1,14 @@
 using BiteAI.API.Controllers.Base;
 using BiteAI.API.Models;
+using BiteAI.API.Models.DTOs.Errors;
 using BiteAI.Services.Validation.Errors;
 using BiteAI.Services.Validation.Result;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BiteAI.API.Controllers;
 
+[AllowAnonymous]
 public class OperationErrorsController : BaseApiController
 {
     [HttpGet("not-found")]
@@ -74,20 +77,23 @@ public class OperationErrorsController : BaseApiController
     [HttpGet("success")]
     public IActionResult TestSuccess()
     {
-        var data = new TestData
+        var result = Result.Success("Test success");
+
+        return this.ToActionResult(result);
+    }
+    
+    [HttpGet("success-data")]
+    public IActionResult TestSuccessWithData()
+    {
+        var data = new TestData()
         {
             Id = 1,
-            Name = "Test",
+            Name = "Test name",
             CreatedAt = DateTime.UtcNow
         };
-
-        return this.Ok(new ApiResponse<TestData>(success: true, "Operation completed successfully", data));
-    }
-
-    public class TestData
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; }
+        
+        var result = Result.Success(data, "Test success");
+        
+        return this.ToActionResult(result);
     }
 }

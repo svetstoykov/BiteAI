@@ -1,5 +1,10 @@
+using BiteAI.API.Controllers.Base;
+using BiteAI.API.Models;
+using BiteAI.API.Models.DTOs.UserProfile;
 using BiteAI.Infrastructure.Data;
 using BiteAI.Infrastructure.Models;
+using BiteAI.Services.Validation.Errors;
+using BiteAI.Services.Validation.Result;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,10 +13,8 @@ using System.Security.Claims;
 
 namespace BiteAI.API.Controllers;
 
-[Route("api/[controller]")]
-[ApiController]
 [Authorize]
-public class UserProfileController : ControllerBase
+public class UserProfileController : BaseApiController
 {
     private readonly AppDbContext _dbContext;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -28,46 +31,49 @@ public class UserProfileController : ControllerBase
     public async Task<IActionResult> GetUserProfile()
     {
         var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
+        if (string.IsNullOrEmpty(userId))
+            return this.ToErrorResult(Result.Fail(OperationError.Unauthorized("User ID not found.")));
+
         var user = await this._dbContext.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Id == userId);
-                
-        if (user == null)
-        {
-            return this.NotFound();
-        }
 
-        return this.Ok(new
+        if (user == null)
+            return this.ToErrorResult(Result.Fail(OperationError.NotFound("User profile not found")));
+
+        var userProfile = new UserProfileDto
         {
-            user.Id,
-            user.FirstName,
-            user.LastName,
-            user.Email,
-            user.UserName,
-            user.Gender,
-            user.Age,
-            user.Weight,
-            user.Height,
-            user.ActivityLevel,
-            user.CreatedAt,
-            user.LastLoginAt
-        });
+            Id = user.Id,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email,
+            UserName = user.UserName,
+            Gender = user.Gender,
+            Age = user.Age,
+            Weight = user.Weight,
+            Height = user.Height,
+            ActivityLevel = user.ActivityLevel,
+            CreatedAt = user.CreatedAt,
+            LastLoginAt = user.LastLoginAt
+        };
+
+        return this.Ok(new ApiResponse<UserProfileDto>(
+            success: true,
+            data: userProfile
+        ));
     }
 
     [HttpPut]
     public async Task<IActionResult> UpdateUserProfile([FromBody] UserProfileUpdateDto model)
     {
-        var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier) ??
-                     throw new UnauthorizedAccessException("User ID not found in claims");
-            
+        var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return this.ToErrorResult(Result.Fail(OperationError.Unauthorized("User ID not found in claims")));
+
         var user = await this._userManager.FindByIdAsync(userId);
         if (user == null)
-        {
-            return this.NotFound();
-        }
+            return this.ToErrorResult(Result.Fail(OperationError.NotFound("User profile not found")));
 
-        // Update properties
         user.FirstName = model.FirstName;
         user.LastName = model.LastName;
         user.Gender = model.Gender;
@@ -79,20 +85,14 @@ public class UserProfileController : ControllerBase
         var result = await this._userManager.UpdateAsync(user);
         if (!result.Succeeded)
         {
-            return this.BadRequest(result.Errors);
+            var errorMessage = string.Join(", ", result.Errors.Select(e => e.Description));
+            return this.ToErrorResult(Result.Fail(OperationError.Validation(errorMessage)));
         }
 
-        return this.NoContent();
+        return this.Ok(new ApiResponse<bool>(
+            success: true,
+            message: "User profile updated successfully",
+            data: true
+        ));
     }
-}
-
-public class UserProfileUpdateDto
-{
-    public required string FirstName { get; set; }
-    public required string LastName { get; set; }
-    public Gender Gender { get; set; }
-    public int? Age { get; set; }
-    public double? Weight { get; set; }
-    public double? Height { get; set; }
-    public ActivityLevel ActivityLevel { get; set; }
 }

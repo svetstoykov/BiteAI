@@ -1,9 +1,11 @@
 using BiteAI.API.Controllers.Base;
 using BiteAI.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BiteAI.API.Controllers;
 
+[Authorize]
 public class MealsController : BaseApiController
 {
     private readonly IAnthropicAIService _anthropicService;
@@ -18,7 +20,7 @@ public class MealsController : BaseApiController
     {
         var result = await this._anthropicService.PlanMealForWeek(days: 7, dailyTargetCalories, isVegetarian);
 
-        return result.IsFailure ? this.ToErrorResult(result) : this.Ok(result.Data);
+        return this.ToActionResult(result);
     }
 
     [HttpPost("daily-meal-plan")]
@@ -26,6 +28,6 @@ public class MealsController : BaseApiController
     {
         var result = await this._anthropicService.PlanMealForWeek(days: 1, dailyTargetCalories, isVegetarian);
 
-        return result.IsFailure ? this.ToErrorResult(result) : this.Ok(result.Data);
+        return this.ToActionResult(result);
     }
 }

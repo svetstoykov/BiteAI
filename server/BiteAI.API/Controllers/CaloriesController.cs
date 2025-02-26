@@ -1,10 +1,13 @@
 using BiteAI.API.Controllers.Base;
+using BiteAI.API.Models;
 using BiteAI.Services.Contracts;
 using BiteAI.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BiteAI.API.Controllers;
 
+[Authorize]
 public class CaloriesController : BaseApiController
 {
     private readonly ICalorieService _calorieService;
@@ -32,8 +35,8 @@ public class CaloriesController : BaseApiController
         };
 
         var result = this._calorieService.CalculateCalorieGoals(request);
-        
-        return result.IsFailure ? this.ToErrorResult(result) : this.Ok(result.Data);
+
+        return this.ToActionResult(result);
     }
 
     [HttpGet("calculate-target-daily-calories")]
@@ -64,6 +67,6 @@ public class CaloriesController : BaseApiController
 
         var result = this._calorieService.CalculateTargetDailyCalories(request);
         
-        return result.IsFailure ? this.ToErrorResult(result) : this.Ok(result.Data);
+        return this.ToActionResult(result);
     }
 }

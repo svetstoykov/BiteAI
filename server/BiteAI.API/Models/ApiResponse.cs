@@ -1,6 +1,6 @@
 namespace BiteAI.API.Models;
 
-internal sealed class ApiResponse<T>
+public sealed class ApiResponse<T>
 {
     public ApiResponse(bool success, string? message = null, T? data = default)
     {

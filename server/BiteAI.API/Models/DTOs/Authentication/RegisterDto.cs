@@ -1,19 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using BiteAI.Infrastructure.Models;
 
-namespace BiteAI.API.Models;
+namespace BiteAI.API.Models.DTOs.Authentication;
 
-public class LoginDTO
-{
-    [Required(ErrorMessage = "Email is required")]
-    [EmailAddress]
-    public required string Email { get; set; }
 
-    [Required(ErrorMessage = "Password is required")]
-    public required string Password { get; set; }
-}
-
-public class RegisterDTO
+public class RegisterDto
 {
     [Required(ErrorMessage = "First name is required")]
     public required string FirstName { get; set; }
@@ -43,16 +34,4 @@ public class RegisterDTO
     public double? Weight { get; set; }
     public double? Height { get; set; }
     public ActivityLevel ActivityLevel { get; set; } = ActivityLevel.NotSpecified;
-}
-
-public class LoginResponseDTO
-{
-    public required string Token { get; set; }
-    public string? RefreshToken { get; set; }
-    public required string FirstName { get; set; }
-    public required string LastName { get; set; }
-    public required string Email { get; set; }
-    public required string UserName { get; set; }
-    public DateTime TokenExpiration { get; set; }
-    public Guid UserId { get; set; }
 }
