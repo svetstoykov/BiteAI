@@ -1,4 +1,5 @@
 using BiteAI.Infrastructure.Models;
+using BiteAI.Services.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,13 +20,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
         base.OnModelCreating(builder);
             
-        // Customize the ASP.NET Identity model
-        builder.Entity<ApplicationUser>()
-            .HasMany(e => e.MealPlans)
-            .WithOne(e => e.User)
-            .HasForeignKey(e => e.UserId)
-            .IsRequired();
-            
         // Configure MealPlan -> MealDay relationship
         builder.Entity<MealPlan>()
             .HasMany(mp => mp.MealDays)
@@ -34,7 +28,13 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
                 
-        // Configure MealDay -> Meal relationship
+        builder.Entity<MealPlan>()
+            .HasOne<ApplicationUser>()
+            .WithMany(u => u.MealPlans)
+            .HasForeignKey(m => m.UserId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
+        
         builder.Entity<MealDay>()
             .HasMany(md => md.Meals)
             .WithOne(m => m.MealDay)

@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using BiteAI.API.Controllers.Base;
-using BiteAI.API.Models.DTOs.Authentication;
+using BiteAI.Services.Contracts.Authentication;
 using BiteAI.Services.Validation.Errors;
 using BiteAI.Services.Validation.Result;
 using Microsoft.AspNetCore.Authorization;

@@ -1,6 +1,5 @@
 using BiteAI.API.Controllers.Base;
 using BiteAI.API.Models;
-using BiteAI.API.Models.DTOs.UserProfile;
 using BiteAI.Infrastructure.Data;
 using BiteAI.Infrastructure.Models;
 using BiteAI.Services.Validation.Errors;
@@ -10,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using BiteAI.Services.Contracts.UserProfile;
 
 namespace BiteAI.API.Controllers;
 

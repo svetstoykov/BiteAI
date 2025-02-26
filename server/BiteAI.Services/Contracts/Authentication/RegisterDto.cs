@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using BiteAI.Infrastructure.Models;
+using BiteAI.Services.Enums;
 
-namespace BiteAI.API.Models.DTOs.Authentication;
+namespace BiteAI.Services.Contracts.Authentication;
 
 
 public class RegisterDto
@@ -28,8 +28,8 @@ public class RegisterDto
     [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
     public required string ConfirmPassword { get; set; }
         
-    // Optional user profile fields
     public Gender Gender { get; set; }
+    
     public int? Age { get; set; }
     public double? Weight { get; set; }
     public double? Height { get; set; }

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace BiteAI.API.Models.DTOs.Authentication;
+namespace BiteAI.Services.Contracts.Authentication;
 
 public class LoginDto
 {

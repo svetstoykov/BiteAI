@@ -1,6 +1,6 @@
-using BiteAI.Infrastructure.Models;
+using BiteAI.Services.Enums;
 
-namespace BiteAI.API.Models.DTOs.UserProfile;
+namespace BiteAI.Services.Contracts.UserProfile;
 
 public class UserProfileUpdateDto
 {

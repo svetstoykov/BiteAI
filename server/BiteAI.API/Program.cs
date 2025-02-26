@@ -40,18 +40,16 @@ if (app.Environment.IsDevelopment())
     app.UseCors("DevelopmentPolicy");
     
     // Automatically apply migrations in development
-    using (var scope = app.Services.CreateScope())
-    {
-        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        dbContext.Database.Migrate();
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
         
-        // Seed default roles
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    // Seed default roles
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         
-        await SeedDefaultRoles(roleManager);
-        await SeedDefaultAdmin(userManager, builder.Configuration);
-    }
+    await SeedDefaultRoles(roleManager);
+    await SeedDefaultAdmin(userManager, builder.Configuration);
 }
 
 app.UseHttpsRedirection();
