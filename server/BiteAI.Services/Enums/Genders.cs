@@ -1,6 +1,6 @@
 namespace BiteAI.Services.Enums;
 
-public enum Gender
+public enum Genders
 {
     Male = 1,
     Female = 2

@@ -1,6 +1,6 @@
 namespace BiteAI.Services.Enums;
 
-public enum ActivityLevel
+public enum ActivityLevels
 {
     NotSpecified = 0,
     Sedentary = 1,     // Little to no exercise

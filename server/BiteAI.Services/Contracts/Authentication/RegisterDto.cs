@@ -28,10 +28,10 @@ public class RegisterDto
     [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
     public required string ConfirmPassword { get; set; }
         
-    public Gender Gender { get; set; }
+    public Genders Gender { get; set; }
     
-    public int? Age { get; set; }
-    public double? Weight { get; set; }
-    public double? Height { get; set; }
-    public ActivityLevel ActivityLevel { get; set; } = ActivityLevel.NotSpecified;
+    public int Age { get; set; }
+    public double WeightInKg { get; set; }
+    public double HeightInCm { get; set; }
+    public ActivityLevels ActivityLevels { get; set; } = ActivityLevels.NotSpecified;
 }

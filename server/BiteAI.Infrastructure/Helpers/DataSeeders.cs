@@ -44,8 +44,8 @@ public class DataSeeders
                 Username = configuration["DefaultAdmin:UserName"] ?? "admin",
                 Password = password,
                 ConfirmPassword = password,
-                Gender = BiteAI.Services.Enums.Gender.Male, 
-                ActivityLevel = BiteAI.Services.Enums.ActivityLevel.NotSpecified
+                Gender = BiteAI.Services.Enums.Genders.Male, 
+                ActivityLevels = BiteAI.Services.Enums.ActivityLevels.NotSpecified
             };
 
             

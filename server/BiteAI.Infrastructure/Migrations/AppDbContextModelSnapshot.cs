@@ -22,7 +22,7 @@ namespace BiteAI.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("BiteAI.Infrastructure.Models.ApplicationUser", b =>
+            modelBuilder.Entity("BiteAI.Infrastructure.Models.IdentityAccount", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -30,18 +30,9 @@ namespace BiteAI.Infrastructure.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ActivityLevel")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("Age")
-                        .HasColumnType("integer");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -50,22 +41,8 @@ namespace BiteAI.Infrastructure.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Gender")
-                        .HasColumnType("integer");
-
-                    b.Property<double?>("Height")
-                        .HasColumnType("double precision");
-
                     b.Property<DateTime?>("LastLoginAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
@@ -100,9 +77,6 @@ namespace BiteAI.Infrastructure.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
-                    b.Property<double?>("Weight")
-                        .HasColumnType("double precision");
-
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -115,29 +89,244 @@ namespace BiteAI.Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("BiteAI.Infrastructure.Models.Meal", b =>
+            modelBuilder.Entity("BiteAI.Services.Entities.ApplicationUser", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ActivityLevels")
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<int>("Age")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("integer");
+
+                    b.Property<double>("HeightInCm")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<double>("WeightInKg")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityLevels");
+
+                    b.HasIndex("Gender");
+
+                    b.ToTable("ApplicationUsers");
+                });
+
+            modelBuilder.Entity("BiteAI.Services.Entities.Enums.ActivityLevelTypeEntity", b =>
+                {
+                    b.Property<int>("Value")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Value");
+
+                    b.ToTable("ActivityLevels");
+
+                    b.HasData(
+                        new
+                        {
+                            Value = 0,
+                            Name = "NotSpecified"
+                        },
+                        new
+                        {
+                            Value = 1,
+                            Name = "Sedentary"
+                        },
+                        new
+                        {
+                            Value = 2,
+                            Name = "LightlyActive"
+                        },
+                        new
+                        {
+                            Value = 3,
+                            Name = "ModeratelyActive"
+                        },
+                        new
+                        {
+                            Value = 4,
+                            Name = "VeryActive"
+                        },
+                        new
+                        {
+                            Value = 5,
+                            Name = "ExtraActive"
+                        });
+                });
+
+            modelBuilder.Entity("BiteAI.Services.Entities.Enums.DietTypeEntity", b =>
+                {
+                    b.Property<int>("Value")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Value");
+
+                    b.ToTable("DietTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Value = 0,
+                            Name = "Standard"
+                        },
+                        new
+                        {
+                            Value = 1,
+                            Name = "Vegetarian"
+                        },
+                        new
+                        {
+                            Value = 2,
+                            Name = "Vegan"
+                        },
+                        new
+                        {
+                            Value = 3,
+                            Name = "Keto"
+                        },
+                        new
+                        {
+                            Value = 4,
+                            Name = "LowCarb"
+                        },
+                        new
+                        {
+                            Value = 5,
+                            Name = "Paleo"
+                        },
+                        new
+                        {
+                            Value = 6,
+                            Name = "Mediterranean"
+                        },
+                        new
+                        {
+                            Value = 7,
+                            Name = "GlutenFree"
+                        },
+                        new
+                        {
+                            Value = 8,
+                            Name = "DairyFree"
+                        });
+                });
+
+            modelBuilder.Entity("BiteAI.Services.Entities.Enums.GenderTypeEntity", b =>
+                {
+                    b.Property<int>("Value")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Value");
+
+                    b.ToTable("Genders");
+
+                    b.HasData(
+                        new
+                        {
+                            Value = 1,
+                            Name = "Male"
+                        },
+                        new
+                        {
+                            Value = 2,
+                            Name = "Female"
+                        });
+                });
+
+            modelBuilder.Entity("BiteAI.Services.Entities.Enums.MealTypeEntity", b =>
+                {
+                    b.Property<int>("Value")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Value");
+
+                    b.ToTable("MealTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Value = 0,
+                            Name = "Breakfast"
+                        },
+                        new
+                        {
+                            Value = 1,
+                            Name = "Lunch"
+                        },
+                        new
+                        {
+                            Value = 2,
+                            Name = "Dinner"
+                        },
+                        new
+                        {
+                            Value = 3,
+                            Name = "Snack"
+                        });
+                });
+
+            modelBuilder.Entity("BiteAI.Services.Entities.Meal", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
 
                     b.Property<int>("Calories")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Carbs")
+                    b.Property<int>("CarbsInGrams")
                         .HasColumnType("integer");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Fat")
+                    b.Property<int>("FatInGrams")
                         .HasColumnType("integer");
 
-                    b.Property<int>("MealDayId")
-                        .HasColumnType("integer");
+                    b.Property<string>("MealDayId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("MealType")
                         .HasColumnType("integer");
@@ -146,7 +335,7 @@ namespace BiteAI.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Protein")
+                    b.Property<int>("ProteinInGrams")
                         .HasColumnType("integer");
 
                     b.Property<string>("Recipe")
@@ -157,16 +346,15 @@ namespace BiteAI.Infrastructure.Migrations
 
                     b.HasIndex("MealDayId");
 
-                    b.ToTable("Meal");
+                    b.HasIndex("MealType");
+
+                    b.ToTable("Meals");
                 });
 
-            modelBuilder.Entity("BiteAI.Infrastructure.Models.MealDay", b =>
+            modelBuilder.Entity("BiteAI.Services.Entities.MealDay", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
@@ -174,8 +362,9 @@ namespace BiteAI.Infrastructure.Migrations
                     b.Property<int>("DayNumber")
                         .HasColumnType("integer");
 
-                    b.Property<int>("MealPlanId")
-                        .HasColumnType("integer");
+                    b.Property<string>("MealPlanId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("TotalCalories")
                         .HasColumnType("integer");
@@ -184,16 +373,17 @@ namespace BiteAI.Infrastructure.Migrations
 
                     b.HasIndex("MealPlanId");
 
-                    b.ToTable("MealDay");
+                    b.ToTable("MealDays");
                 });
 
-            modelBuilder.Entity("BiteAI.Infrastructure.Models.MealPlan", b =>
+            modelBuilder.Entity("BiteAI.Services.Entities.MealPlan", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
@@ -217,9 +407,13 @@ namespace BiteAI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("DietType");
+
                     b.HasIndex("UserId");
 
-                    b.ToTable("MealPlan");
+                    b.ToTable("MealPlans");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -354,20 +548,58 @@ namespace BiteAI.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("BiteAI.Infrastructure.Models.Meal", b =>
+            modelBuilder.Entity("BiteAI.Infrastructure.Models.IdentityAccount", b =>
                 {
-                    b.HasOne("BiteAI.Infrastructure.Models.MealDay", "MealDay")
+                    b.HasOne("BiteAI.Services.Entities.ApplicationUser", "ApplicationUser")
+                        .WithOne()
+                        .HasForeignKey("BiteAI.Infrastructure.Models.IdentityAccount", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+                });
+
+            modelBuilder.Entity("BiteAI.Services.Entities.ApplicationUser", b =>
+                {
+                    b.HasOne("BiteAI.Services.Entities.Enums.ActivityLevelTypeEntity", "ActivityLevelRelation")
+                        .WithMany("ApplicationUsers")
+                        .HasForeignKey("ActivityLevels")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BiteAI.Services.Entities.Enums.GenderTypeEntity", "GenderRelation")
+                        .WithMany("ApplicationUsers")
+                        .HasForeignKey("Gender")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ActivityLevelRelation");
+
+                    b.Navigation("GenderRelation");
+                });
+
+            modelBuilder.Entity("BiteAI.Services.Entities.Meal", b =>
+                {
+                    b.HasOne("BiteAI.Services.Entities.MealDay", "MealDay")
                         .WithMany("Meals")
                         .HasForeignKey("MealDayId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BiteAI.Services.Entities.Enums.MealTypeEntity", "MealTypeRelation")
+                        .WithMany("Meals")
+                        .HasForeignKey("MealType")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("MealDay");
+
+                    b.Navigation("MealTypeRelation");
                 });
 
-            modelBuilder.Entity("BiteAI.Infrastructure.Models.MealDay", b =>
+            modelBuilder.Entity("BiteAI.Services.Entities.MealDay", b =>
                 {
-                    b.HasOne("BiteAI.Infrastructure.Models.MealPlan", "MealPlan")
+                    b.HasOne("BiteAI.Services.Entities.MealPlan", "MealPlan")
                         .WithMany("MealDays")
                         .HasForeignKey("MealPlanId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -376,15 +608,29 @@ namespace BiteAI.Infrastructure.Migrations
                     b.Navigation("MealPlan");
                 });
 
-            modelBuilder.Entity("BiteAI.Infrastructure.Models.MealPlan", b =>
+            modelBuilder.Entity("BiteAI.Services.Entities.MealPlan", b =>
                 {
-                    b.HasOne("BiteAI.Infrastructure.Models.ApplicationUser", "User")
+                    b.HasOne("BiteAI.Services.Entities.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BiteAI.Services.Entities.Enums.DietTypeEntity", "DietTypeRelation")
+                        .WithMany("MealPlans")
+                        .HasForeignKey("DietType")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BiteAI.Services.Entities.ApplicationUser", null)
                         .WithMany("MealPlans")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("DietTypeRelation");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -398,7 +644,7 @@ namespace BiteAI.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("BiteAI.Infrastructure.Models.ApplicationUser", null)
+                    b.HasOne("BiteAI.Infrastructure.Models.IdentityAccount", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -407,7 +653,7 @@ namespace BiteAI.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("BiteAI.Infrastructure.Models.ApplicationUser", null)
+                    b.HasOne("BiteAI.Infrastructure.Models.IdentityAccount", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -422,7 +668,7 @@ namespace BiteAI.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BiteAI.Infrastructure.Models.ApplicationUser", null)
+                    b.HasOne("BiteAI.Infrastructure.Models.IdentityAccount", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -431,24 +677,44 @@ namespace BiteAI.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("BiteAI.Infrastructure.Models.ApplicationUser", null)
+                    b.HasOne("BiteAI.Infrastructure.Models.IdentityAccount", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BiteAI.Infrastructure.Models.ApplicationUser", b =>
+            modelBuilder.Entity("BiteAI.Services.Entities.ApplicationUser", b =>
                 {
                     b.Navigation("MealPlans");
                 });
 
-            modelBuilder.Entity("BiteAI.Infrastructure.Models.MealDay", b =>
+            modelBuilder.Entity("BiteAI.Services.Entities.Enums.ActivityLevelTypeEntity", b =>
+                {
+                    b.Navigation("ApplicationUsers");
+                });
+
+            modelBuilder.Entity("BiteAI.Services.Entities.Enums.DietTypeEntity", b =>
+                {
+                    b.Navigation("MealPlans");
+                });
+
+            modelBuilder.Entity("BiteAI.Services.Entities.Enums.GenderTypeEntity", b =>
+                {
+                    b.Navigation("ApplicationUsers");
+                });
+
+            modelBuilder.Entity("BiteAI.Services.Entities.Enums.MealTypeEntity", b =>
                 {
                     b.Navigation("Meals");
                 });
 
-            modelBuilder.Entity("BiteAI.Infrastructure.Models.MealPlan", b =>
+            modelBuilder.Entity("BiteAI.Services.Entities.MealDay", b =>
+                {
+                    b.Navigation("Meals");
+                });
+
+            modelBuilder.Entity("BiteAI.Services.Entities.MealPlan", b =>
                 {
                     b.Navigation("MealDays");
                 });

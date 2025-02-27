@@ -42,8 +42,6 @@ public class UserProfileController : BaseApiController
 
             // Access the ApplicationUser
             var applicationUser = identityAccount.ApplicationUser;
-            if (applicationUser == null)
-                return this.ToErrorResult(Result.Fail(OperationError.NotFound("User profile not found")));
 
             var userProfile = new UserProfileDto
             {
@@ -54,9 +52,9 @@ public class UserProfileController : BaseApiController
                 UserName = applicationUser.Username,
                 Gender = applicationUser.Gender,
                 Age = applicationUser.Age,
-                Weight = applicationUser.Weight,
-                Height = applicationUser.Height,
-                ActivityLevel = applicationUser.ActivityLevel,
+                Weight = applicationUser.WeightInKg,
+                Height = applicationUser.WeightInKg,
+                ActivityLevels = applicationUser.ActivityLevels,
                 CreatedAt = applicationUser.CreatedAt
             };
 
@@ -95,9 +93,9 @@ public class UserProfileController : BaseApiController
             applicationUser.LastName = model.LastName;
             applicationUser.Gender = model.Gender;
             applicationUser.Age = model.Age;
-            applicationUser.Weight = model.Weight;
-            applicationUser.Height = model.Height;
-            applicationUser.ActivityLevel = model.ActivityLevel;
+            applicationUser.WeightInKg = model.WeightInKg;
+            applicationUser.WeightInKg = model.HeightInCm;
+            applicationUser.ActivityLevels = model.ActivityLevels;
 
             // Save changes to ApplicationUser
             this._dbContext.ApplicationUsers.Update(applicationUser);

@@ -1,6 +1,7 @@
 using BiteAI.API.Extensions;
 using BiteAI.API.Middleware;
 using BiteAI.Infrastructure.Data;
+using BiteAI.Infrastructure.Extensions;
 using BiteAI.Infrastructure.Helpers;
 using BiteAI.Infrastructure.Models;
 using Microsoft.AspNetCore.Identity;

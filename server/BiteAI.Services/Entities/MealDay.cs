@@ -1,16 +1,15 @@
+using BiteAI.Services.Entities.Base;
+
 namespace BiteAI.Services.Entities;
 
-public class MealDay
+public class MealDay : BaseIdentifiableEntity
 {
-    public int Id { get; set; }
     public int DayNumber { get; set; }
     public DateTime Date { get; set; }
     public int TotalCalories { get; set; }
         
-    // Foreign key for meal plan
-    public int MealPlanId { get; set; }
+    public string MealPlanId { get; set; } = null!;
     public virtual MealPlan? MealPlan { get; set; }
         
-    // Navigation properties
     public virtual ICollection<Meal> Meals { get; set; } = new List<Meal>();
 }

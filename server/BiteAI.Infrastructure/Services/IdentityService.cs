@@ -62,9 +62,9 @@ public class IdentityService : IIdentityService
             Username = model.Username,
             Gender = model.Gender,
             Age = model.Age,
-            Weight = model.Weight,
-            Height = model.Height,
-            ActivityLevel = model.ActivityLevel,
+            WeightInKg = model.WeightInKg,
+            HeightInCm = model.HeightInCm,
+            ActivityLevels = model.ActivityLevels,
             CreatedAt = DateTime.UtcNow
         };
 
