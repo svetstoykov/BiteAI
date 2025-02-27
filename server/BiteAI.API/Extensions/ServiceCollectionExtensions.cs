@@ -1,4 +1,5 @@
 using Anthropic.SDK;
+using BiteAI.Infrastructure.Services;
 using BiteAI.Services.Interfaces;
 using BiteAI.Services.Services;
 using FirebaseAdmin;
@@ -9,43 +10,17 @@ namespace BiteAI.API.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<ICalorieService, CalorieService>();
+        services.AddScoped<IIdentityService, IdentityService>();
+
+        services.AddAnthropicService(configuration);
 
         return services;
     }
     
-    public static IServiceCollection AddFirebaseServices(
-        this IServiceCollection services,
-        IConfiguration configuration)
-    {
-        var credentialsPath = Path.Combine(Environment.CurrentDirectory, "firebase-credentials.json");
-
-        if (!File.Exists(credentialsPath))
-            throw new FileNotFoundException("Could not find firebase-credentials.json");
-        
-        var firebaseApp = FirebaseApp.Create(new AppOptions
-        {
-            ProjectId = configuration["Firebase:ProjectId"],
-            Credential = GoogleCredential.FromFile(credentialsPath)
-        });
-
-        // Initialize Firestore
-        var firestoreDb = new FirestoreDbBuilder
-        {
-            ProjectId = configuration["Firebase:ProjectId"],
-            CredentialsPath = credentialsPath
-        }.Build();
-
-        // Register FirebaseApp and FirestoreDb as singletons
-        services.AddSingleton(firebaseApp);
-        services.AddSingleton(firestoreDb);
-
-        return services;
-    }
-    
-    public static IServiceCollection AddAnthropicService(
+    private static IServiceCollection AddAnthropicService(
         this IServiceCollection services,
         IConfiguration configuration)
     {

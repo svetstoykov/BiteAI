@@ -11,7 +11,6 @@ public class AppDbContext : IdentityDbContext<IdentityAccount>
     {
     }
 
-    // DbSets for domain entities
     public DbSet<MealPlan> MealPlans { get; set; }
     public DbSet<MealDay> MealDays { get; set; }
     public DbSet<Meal> Meals { get; set; }
@@ -21,20 +20,21 @@ public class AppDbContext : IdentityDbContext<IdentityAccount>
     {
         base.OnModelCreating(builder);
         
-        // Configure IdentityAccount <-> ApplicationUser 1:1 relationship
         builder.Entity<IdentityAccount>()
             .HasOne(ia => ia.ApplicationUser)
             .WithOne()
-            .HasForeignKey<IdentityAccount>(ia => ia.ApplicationUserId)
+            .HasForeignKey<IdentityAccount>(ia => ia.Id)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Always include ApplicationUser when loading IdentityAccount
         builder.Entity<IdentityAccount>()
             .Navigation(ia => ia.ApplicationUser)
             .AutoInclude();
-            
-        // Configure ApplicationUser -> MealPlan relationship
+
+        builder.Entity<IdentityAccount>()
+            .Property(p => p.Id)
+            .ValueGeneratedNever();
+        
         builder.Entity<ApplicationUser>()
             .HasMany(u => u.MealPlans)
             .WithOne()
@@ -42,7 +42,6 @@ public class AppDbContext : IdentityDbContext<IdentityAccount>
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
             
-        // Configure MealPlan -> MealDay relationship
         builder.Entity<MealPlan>()
             .HasMany(mp => mp.MealDays)
             .WithOne(md => md.MealPlan)
@@ -57,7 +56,6 @@ public class AppDbContext : IdentityDbContext<IdentityAccount>
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
                 
-        // Configure entities with required fields
         builder.Entity<ApplicationUser>()
             .Property(u => u.FirstName)
             .IsRequired();

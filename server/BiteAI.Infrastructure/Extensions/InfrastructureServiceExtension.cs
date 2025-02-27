@@ -9,19 +9,25 @@ using System.Text;
 
 namespace BiteAI.Infrastructure.Data;
 
-public static class DatabaseServiceExtension
+public static class InfrastructureServiceExtension
 {
-    public static IServiceCollection AddDatabaseServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection") ?? 
+        var connectionString = configuration.GetConnectionString("DefaultConnection") ??
                                throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-                
-        // Configure PostgreSQL database
+
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(
                 connectionString,
                 b => b.MigrationsAssembly("BiteAI.Infrastructure")));
 
+        services.AddIdentityServices(configuration);
+
+        return services;
+    }
+
+    private static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
+    {
         // Configure Identity
         services.AddIdentity<IdentityAccount, IdentityRole>(options =>
             {
@@ -66,8 +72,7 @@ public static class DatabaseServiceExtension
                     ValidIssuer = configuration["JWT:Issuer"],
                     ValidAudience = configuration["JWT:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration["JWT:Secret"] ?? 
-                                               throw new InvalidOperationException("JWT:Secret not configured"))
+                        Encoding.UTF8.GetBytes(configuration["JWT:Secret"] ?? throw new InvalidOperationException("JWT:Secret not configured"))
                     ),
                     ClockSkew = TimeSpan.Zero
                 };

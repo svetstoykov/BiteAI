@@ -3,12 +3,14 @@ using System.Security.Claims;
 using System.Text;
 using BiteAI.Infrastructure.Data;
 using BiteAI.Infrastructure.Models;
+using BiteAI.Services.Constants;
 using BiteAI.Services.Contracts.Authentication;
 using BiteAI.Services.Entities;
 using BiteAI.Services.Interfaces;
 using BiteAI.Services.Validation.Errors;
 using BiteAI.Services.Validation.Result;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -35,18 +37,29 @@ public class IdentityService : IIdentityService
 
     public async Task<Result<RegisterResponseDto>> RegisterUserAsync(RegisterDto model)
     {
+        var emailExists = await this._dbContext.ApplicationUsers
+            .AnyAsync(u => u.Email == model.Email);
+        
+        if (emailExists)
+            return Result.Fail<RegisterResponseDto>(OperationError.Conflict($"Username '{model.Username}' already exists"));
+        
+        var usernameExists = await this._dbContext.ApplicationUsers
+            .AnyAsync(u => u.Username == model.Username);
+        
+        if (usernameExists)
+            return Result.Fail<RegisterResponseDto>(OperationError.Conflict($"Email '{model.Email}' already exists"));
+        
         await using var transaction = await this._dbContext.Database.BeginTransactionAsync();
 
         var userId = Guid.NewGuid().ToString();
 
-        // Create the ApplicationUser (domain entity)
         var applicationUser = new ApplicationUser
         {
             Id = userId,
             FirstName = model.FirstName,
             LastName = model.LastName,
             Email = model.Email,
-            Username = model.UserName,
+            Username = model.Username,
             Gender = model.Gender,
             Age = model.Age,
             Weight = model.Weight,
@@ -61,12 +74,10 @@ public class IdentityService : IIdentityService
         var identityAccount = new IdentityAccount
         {
             Id = userId,
-            UserName = model.UserName,
-            Email = model.Email,
-            ApplicationUserId = userId
+            UserName = model.Username,
+            Email = model.Email
         };
 
-        // Create the identity account with password
         var result = await this._userManager.CreateAsync(identityAccount, model.Password);
         if (!result.Succeeded)
         {
@@ -75,7 +86,7 @@ public class IdentityService : IIdentityService
             return Result.Fail<RegisterResponseDto>(OperationError.Validation(errorMessage));
         }
 
-        await this._userManager.AddToRoleAsync(identityAccount, "User");
+        await this._userManager.AddToRoleAsync(identityAccount, Roles.User);
 
         await transaction.CommitAsync();
 
@@ -126,8 +137,8 @@ public class IdentityService : IIdentityService
             new(ClaimTypes.NameIdentifier, identityAccount.Id),
             new(ClaimTypes.Name, identityAccount.UserName ?? string.Empty),
             new(ClaimTypes.Email, identityAccount.Email ?? string.Empty),
-            new("FirstName", applicationUser.FirstName),
-            new("LastName", applicationUser.LastName)
+            new(nameof(ApplicationUser.FirstName), applicationUser.FirstName),
+            new(nameof(ApplicationUser.LastName), applicationUser.LastName)
         };
 
         // Add roles to claims
