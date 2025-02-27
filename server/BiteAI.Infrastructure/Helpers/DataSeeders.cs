@@ -45,7 +45,7 @@ public class DataSeeders
                 Password = password,
                 ConfirmPassword = password,
                 Gender = BiteAI.Services.Enums.Genders.Male, 
-                ActivityLevels = BiteAI.Services.Enums.ActivityLevels.NotSpecified
+                ActivityLevel = BiteAI.Services.Enums.ActivityLevels.NotSpecified
             };
 
             

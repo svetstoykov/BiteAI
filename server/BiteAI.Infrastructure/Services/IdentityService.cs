@@ -64,7 +64,7 @@ public class IdentityService : IIdentityService
             Age = model.Age,
             WeightInKg = model.WeightInKg,
             HeightInCm = model.HeightInCm,
-            ActivityLevels = model.ActivityLevels,
+            ActivityLevels = model.ActivityLevel,
             CreatedAt = DateTime.UtcNow
         };
 
