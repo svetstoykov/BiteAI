@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import apiClient from "../services/api-client";
-import { useCalorieStore } from "../stores/calorie-store";
+import { CalorieCalculationGoalsFormData } from "../../models/calorie";
+import { useCalorieStore } from "../../stores/calorie-store";
+import { CalorieService } from "../../services/calorie-service";
+import { toast } from "react-toastify";
+import BackButton from "../common/BackButton";
 
 export default function CalorieCalculationForm() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const calculationType = searchParams.get("type") as "calories" | "weight";
-  const setResults = useCalorieStore(state => state.setResults);
+  const setResults = useCalorieStore((state) => state.setResults);
 
   // Redirect if no calculation type is specified
   useEffect(() => {
@@ -32,6 +35,7 @@ export default function CalorieCalculationForm() {
   // Form state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const calorieService = new CalorieService();
 
   const handleBack = () => {
     navigate("/setup");
@@ -43,42 +47,45 @@ export default function CalorieCalculationForm() {
     setError(null);
 
     try {
-      // Convert form values to appropriate types
-      const formData = {
+      const isWeightTarget = calculationType === "weight";
+      const targetWeeksValue: number | null = isWeightTarget
+        ? parseInt(targetWeeks)
+        : null;
+      const targetWeightKgValue: number | null = isWeightTarget
+        ? parseInt(targetWeightKg)
+        : null;
+
+      const formData: CalorieCalculationGoalsFormData = {
         weightKg: parseFloat(weightKg),
         heightCm: parseFloat(heightCm),
         age: parseInt(age),
         exerciseDaysPerWeek: parseInt(exerciseDaysPerWeek),
         isMale,
+        targetWeeks: targetWeeksValue,
+        targetWeightKg: targetWeightKgValue,
       };
 
-      // Add target weight specific params if applicable
-      if (calculationType === "weight") {
-        Object.assign(formData, {
-          targetWeightKg: parseFloat(targetWeightKg),
-          targetWeeks: parseInt(targetWeeks),
-        });
+      const calculationResult = await calorieService.calculateCalories(
+        formData,
+        calculationType
+      );
+      
+      if (calculationResult.error) {
+        toast.error(calculationResult.error);
+        setIsSubmitting(false);
+        return;
       }
 
-      // Determine which endpoint to call
-      const endpoint =
-        calculationType === "calories"
-          ? "/calories/calculate-goals"
-          : "/calories/calculate-target-daily-calories";
-
-      // Call the API
-      const response = await apiClient.get(endpoint, { params: formData });
-      
       setResults(
-        response.data, 
-        calculationType, 
-        calculationType === "weight" ? targetWeightKg : null,
-        calculationType === "weight" ? targetWeeks : null
+        calculationResult.caloricGoalsDto,
+        calculationResult.targetIntakeCalories,
+        calculationType,
+        targetWeightKgValue,
+        targetWeeksValue
       );
 
       // Navigate to results page with data
-      navigate('/results');
-      
+      navigate("/results");
     } catch (err: any) {
       setError(err.response?.data?.message || "Something went wrong. Please try again.");
       setIsSubmitting(false);
@@ -254,10 +261,7 @@ export default function CalorieCalculationForm() {
 
               {/* Target Timeframe */}
               <div>
-                <label
-                  htmlFor="targetWeeks"
-                  className="block text-gray-600 text-sm mb-1"
-                >
+                <label htmlFor="targetWeeks" className="block text-gray-600 text-sm mb-1">
                   Target Timeframe
                 </label>
                 <select
@@ -283,13 +287,7 @@ export default function CalorieCalculationForm() {
 
         {/* Form Buttons */}
         <div className="flex justify-between items-center mt-5">
-          <button
-            type="button"
-            onClick={handleBack}
-            className="text-gray-700 px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-100 transition-colors duration-300 text-sm"
-          >
-            Back
-          </button>
+          <BackButton handleBack={handleBack}/>
 
           <button
             type="submit"
@@ -316,23 +314,23 @@ export default function CalorieCalculationForm() {
 
 // Modern spinner component
 const SpinnerIcon = ({ className }: { className?: string }) => (
-  <svg 
-    className={className} 
-    xmlns="http://www.w3.org/2000/svg" 
-    fill="none" 
+  <svg
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
     viewBox="0 0 24 24"
   >
-    <circle 
-      className="opacity-25" 
-      cx="12" 
-      cy="12" 
-      r="10" 
-      stroke="currentColor" 
+    <circle
+      className="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
       strokeWidth="4"
     />
-    <path 
-      className="opacity-75" 
-      fill="currentColor" 
+    <path
+      className="opacity-75"
+      fill="currentColor"
       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
     />
   </svg>

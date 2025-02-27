@@ -31,7 +31,6 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-
 export const get = async <T>(
   url: string,
   config?: AxiosRequestConfig

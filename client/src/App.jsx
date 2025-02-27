@@ -1,8 +1,7 @@
-import { ToastContainer } from "react-toastify";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginForm from "./components/LoginForm";
-import CalorieCalculationForm from "./components/CalorieCalculationForm";
-import CalorieResults from "./components/CalorieResults";
+import CalorieCalculationForm from "./components/calories/CalorieCalculationForm";
+import CalorieResults from "./components/calories/CalorieResults";
 import TargetSetup from "./components/TargetSetup";
 import NotFoundPage from "./components/NotFoundPage";
 import TransitionRoutes from "./components/common/TransitionRoutes";
@@ -20,7 +19,6 @@ export default function App() {
          <Route path="/results" element={<CalorieResults />} />
          <Route path="*" element={<NotFoundPage />} />
        </TransitionRoutes>
-       <ToastContainer />
      </Layout>
    </BrowserRouter>
   );

@@ -1,56 +1,54 @@
-import { toast } from "react-toastify";
 import {
   CaloricIntakeForWeightGoalsDto,
-  CalorieGoalsFormData,
-  TargetCalorieFormData,
+  CalorieCalculationResult,
+  MetabolicProfileDto,
 } from "../models/calorie";
 import apiClient from "./api-client";
 
-export default class CalorieService {
-  private readonly baseUrl = "http://localhost:5036";
-
-  private async makeRequest<T>(
-    endpoint: string,
-    params: object,
-    errorMessage: string
-  ): Promise<T | undefined> {
+export class CalorieService {
+  public async calculateCalories(
+    formData: MetabolicProfileDto,
+    calculationType: "calories" | "weight"
+  ): Promise<CalorieCalculationResult> {
     try {
-      const queryParams = new URLSearchParams(
-        Object.entries(params).map(([key, value]) => [key, String(value)])
-      );
-      const url = `${this.baseUrl}${endpoint}?${queryParams}`;
+      let caloricGoalsDto: CaloricIntakeForWeightGoalsDto | null = null;
+      let targetIntakeCalories: number | null = null;
 
-      const response = await apiClient.get<T>(url);
+      if (calculationType === "calories") {
+        const response = await apiClient.get<CaloricIntakeForWeightGoalsDto>(
+          "/calories/calculate-goals",
+          { params: formData }
+        );
 
-      if (!response.isSuccess) {
-        toast.error(`${errorMessage} ${response.message}`);
-        return;
+        if (response.success) {
+          caloricGoalsDto = response.data;
+        } else {
+          throw new Error(response.message);
+        }
+      } else {
+        const response = await apiClient.get<number>(
+          "/calories/calculate-target-daily-calories",
+          { params: formData }
+        );
+
+        if (response.success) {
+          targetIntakeCalories = response.data;
+        } else {
+          throw new Error(response.message);
+        }
       }
 
-      return response.data;
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Operation error";
-      toast.error(errorMessage);
+      return {
+        caloricGoalsDto,
+        targetIntakeCalories,
+        error: null,
+      };
+    } catch (err: any) {
+      return {
+        caloricGoalsDto: null,
+        targetIntakeCalories: null,
+        error: err.response.data.message || "Something went wrong. Please try again.",
+      };
     }
-  }
-
-  public async calculateTargetDailyCalories(
-    request: TargetCalorieFormData
-  ): Promise<number | undefined> {
-    return this.makeRequest<number>(
-      "/api/calories/calculate-target-daily-calories",
-      request,
-      "Failed to calculate calories."
-    );
-  }
-
-  public async calculateCalorieGoals(
-    request: CalorieGoalsFormData
-  ): Promise<CaloricIntakeForWeightGoalsDto | undefined> {
-    return this.makeRequest<CaloricIntakeForWeightGoalsDto>(
-      "/api/calories/calculate-goals",
-      request,
-      "Failed to calculate calorie goals."
-    );
   }
 }

@@ -1,38 +1,44 @@
 // src/stores/calorieStore.ts
 import { create } from 'zustand';
+import { CaloricIntakeForWeightGoalsDto } from '../models/calorie';
 
 interface CalorieState {
-  results: any;
+  caloricIntakeGoals: CaloricIntakeForWeightGoalsDto | null;
+  targetCaloricIntake: number | null;
   calculationType: 'calories' | 'weight' | null;
-  targetWeightKg: string | null;
-  targetWeeks: string | null;
+  targetWeightKg: number | null;
+  targetWeeks: number | null;
   
   // Actions
   setResults: (
-    results: any, 
+    caloricIntakeGoals: CaloricIntakeForWeightGoalsDto | null, 
+    targetCaloricIntake: number | null,
     calculationType: 'calories' | 'weight', 
-    targetWeightKg: string | null,
-    targetWeeks: string | null
+    targetWeightKg: number | null,
+    targetWeeks: number | null
   ) => void;
   
   resetResults: () => void;
 }
 
 export const useCalorieStore = create<CalorieState>((set) => ({
-  results: null,
+  caloricIntakeGoals: null,
+  targetCaloricIntake: null,
   calculationType: null,
   targetWeightKg: null,
   targetWeeks: null,
   
-  setResults: (results, calculationType, targetWeightKg = null, targetWeeks = null) => set({
-    results,
+  setResults: (caloricIntakeGoals, targetCaloricIntake, calculationType, targetWeightKg = null, targetWeeks = null) => set({
+    caloricIntakeGoals,
+    targetCaloricIntake,
     calculationType,
     targetWeightKg,
     targetWeeks
   }),
   
   resetResults: () => set({
-    results: null,
+    caloricIntakeGoals: null,
+    targetCaloricIntake: null,
     calculationType: null,
     targetWeightKg: null,
     targetWeeks: null

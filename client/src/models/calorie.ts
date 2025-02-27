@@ -8,12 +8,10 @@ export interface MetabolicProfileDto {
   isMale: boolean;
 }
 
-export interface TargetCalorieFormData extends MetabolicProfileDto {
-  targetWeightKg: number;
-  targetWeeks: number;
+export interface CalorieCalculationGoalsFormData extends MetabolicProfileDto {
+  targetWeightKg: number | null;
+  targetWeeks: number | null;
 }
-
-export interface CalorieGoalsFormData extends MetabolicProfileDto {}
 
 export interface WeightGoalPlanDto {
   metabolicProfile: MetabolicProfileDto;
@@ -29,6 +27,8 @@ export interface CaloricIntakeForWeightGoalsDto {
   gainOneKgCalories: number;
 }
 
-// Form state type that can handle both types of calculations
-export type CalorieFormData = MetabolicProfileDto &
-  Partial<Pick<TargetCalorieFormData, "targetWeightKg" | "targetWeeks">>;
+export interface CalorieCalculationResult {
+  caloricGoalsDto: CaloricIntakeForWeightGoalsDto | null;
+  targetIntakeCalories: number | null;
+  error: string | null;
+}

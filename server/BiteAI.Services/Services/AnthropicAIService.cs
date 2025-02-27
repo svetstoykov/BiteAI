@@ -3,6 +3,7 @@ using Anthropic.SDK;
 using Anthropic.SDK.Constants;
 using Anthropic.SDK.Messaging;
 using BiteAI.Services.Entities;
+using BiteAI.Services.Enums;
 using BiteAI.Services.Interfaces;
 using BiteAI.Services.Validation.Errors;
 using BiteAI.Services.Validation.Result;
@@ -18,10 +19,8 @@ public class AnthropicAIService : IAnthropicAIService
         this._anthropicClient = anthropicClient;
     }
 
-    public async Task<Result<MealPlan?>> PlanMealForWeek(int days, int dailyCalorieTarget, bool isVegetarian)
+    public async Task<Result<MealPlan?>> PlanMealForWeek(int days, int dailyCalorieTarget, DietTypes dietType)
     {
-        var dietType = isVegetarian ? "vegetarian" : "regular";
-
         var prompt = GenerateAIPrompt(days, dailyCalorieTarget, dietType);
 
         try
@@ -70,7 +69,7 @@ public class AnthropicAIService : IAnthropicAIService
         }
     }
 
-    private static string GenerateAIPrompt(int days, int dailyCalorieTarget, string dietType)
+    private static string GenerateAIPrompt(int days, int dailyCalorieTarget, DietTypes dietType)
     {
         var prompt = $$"""
                        Create a {{days}}-day meal plan with {{dailyCalorieTarget}} daily calories ({{dietType}} diet).
