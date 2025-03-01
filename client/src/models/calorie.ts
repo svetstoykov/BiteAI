@@ -30,5 +30,4 @@ export interface CaloricIntakeForWeightGoalsDto {
 export interface CalorieCalculationResult {
   caloricGoalsDto: CaloricIntakeForWeightGoalsDto | null;
   targetIntakeCalories: number | null;
-  error: string | null;
 }

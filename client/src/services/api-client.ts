@@ -3,10 +3,13 @@ import { ApiResponse } from "../models/api";
 
 // Ensure you have defined VITE_API_BASE_URL in your .env file.
 const baseURL = import.meta.env.VITE_API_BASE_URL;
-if(!baseURL) {
-  throw new Error("API base url is not defined in .env file");
+if (!baseURL) {
+  throw new Error("API base URL is not defined in .env file");
 }
 
+/**
+ * Axios instance configured with the base API URL.
+ */
 const axiosInstance: AxiosInstance = axios.create({
   baseURL,
 });
@@ -18,33 +21,50 @@ axiosInstance.interceptors.response.use(
     // Log detailed error information
     if (error.response) {
       // The server responded with a status code outside the range of 2xx
-      console.error('API Error:', error.response.data);
+      console.error("API Error:", error.response.data);
     } else if (error.request) {
       // The request was made but no response was received
-      console.error('Network Error:', error.request);
+      console.error("Network Error:", error.request);
     } else {
       // Something else happened while setting up the request
-      console.error('Error:', error.message);
+      console.error("Error:", error.message);
     }
-    // Optionally, you can transform the error to match your ApiResponse interface
     return Promise.reject(error);
   }
 );
 
-export const get = async <T>(
+/**
+ * Sends a GET request to the specified endpoint.
+ *
+ * @template ResponseData - The expected shape of the response data.
+ * @param url - The API endpoint to fetch data from.
+ * @param config - Optional Axios request configuration.
+ * @returns A promise resolving to the API response.
+ */
+export const get = async <ResponseData>(
   url: string,
   config?: AxiosRequestConfig
-): Promise<ApiResponse<T>> => {
-  const response: AxiosResponse<ApiResponse<T>> = await axiosInstance.get(url, config);
+): Promise<ApiResponse<ResponseData>> => {
+  const response: AxiosResponse<ApiResponse<ResponseData>> = await axiosInstance.get(url, config);
   return response.data;
 };
 
-export const post = async <T, U>(
+/**
+ * Sends a POST request with a payload to the specified endpoint.
+ *
+ * @template ResponseData - The expected shape of the response data.
+ * @template RequestPayload - The type of the request payload being sent.
+ * @param url - The API endpoint.
+ * @param payload - The data to send in the request body.
+ * @param config - Optional Axios request configuration.
+ * @returns A promise resolving to the API response.
+ */
+export const post = async <ResponseData, RequestPayload>(
   url: string,
-  payload: U,
+  payload: RequestPayload,
   config?: AxiosRequestConfig
-): Promise<ApiResponse<T>> => {
-  const response: AxiosResponse<ApiResponse<T>> = await axiosInstance.post(
+): Promise<ApiResponse<ResponseData>> => {
+  const response: AxiosResponse<ApiResponse<ResponseData>> = await axiosInstance.post(
     url,
     payload,
     config
@@ -52,12 +72,22 @@ export const post = async <T, U>(
   return response.data;
 };
 
-export const put = async <T, U>(
+/**
+ * Sends a PUT request with a payload to update a resource.
+ *
+ * @template ResponseData - The expected shape of the response data.
+ * @template RequestPayload - The type of the request payload being sent.
+ * @param url - The API endpoint.
+ * @param payload - The data to update.
+ * @param config - Optional Axios request configuration.
+ * @returns A promise resolving to the API response.
+ */
+export const put = async <ResponseData, RequestPayload>(
   url: string,
-  payload: U,
+  payload: RequestPayload,
   config?: AxiosRequestConfig
-): Promise<ApiResponse<T>> => {
-  const response: AxiosResponse<ApiResponse<T>> = await axiosInstance.put(
+): Promise<ApiResponse<ResponseData>> => {
+  const response: AxiosResponse<ApiResponse<ResponseData>> = await axiosInstance.put(
     url,
     payload,
     config
@@ -65,16 +95,25 @@ export const put = async <T, U>(
   return response.data;
 };
 
-// DELETE request (renamed to 'remove' to avoid conflict with reserved word)
-export const remove = async <T>(
+/**
+ * Sends a DELETE request to remove a resource.
+ *
+ * @template ResponseData - The expected shape of the response data.
+ * @param url - The API endpoint.
+ * @param config - Optional Axios request configuration.
+ * @returns A promise resolving to the API response.
+ */
+export const remove = async <ResponseData>(
   url: string,
   config?: AxiosRequestConfig
-): Promise<ApiResponse<T>> => {
-  const response: AxiosResponse<ApiResponse<T>> = await axiosInstance.delete(url, config);
+): Promise<ApiResponse<ResponseData>> => {
+  const response: AxiosResponse<ApiResponse<ResponseData>> = await axiosInstance.delete(url, config);
   return response.data;
 };
 
-// Export all the methods as a single httpClient object
+/**
+ * Exported HTTP client containing all request methods.
+ */
 const apiClient = {
   get,
   post,

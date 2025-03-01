@@ -70,15 +70,17 @@ export default function CalorieCalculationForm() {
         calculationType
       );
       
-      if (calculationResult.error) {
-        toast.error(calculationResult.error);
+      if (calculationResult.isSuccess === false) {
+        toast.error(calculationResult.message);
         setIsSubmitting(false);
         return;
       }
 
+      const data = calculationResult.data!;
+
       setResults(
-        calculationResult.caloricGoalsDto,
-        calculationResult.targetIntakeCalories,
+        data.caloricGoalsDto,
+        data.targetIntakeCalories,
         calculationType,
         targetWeightKgValue,
         targetWeeksValue

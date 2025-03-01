@@ -16,7 +16,6 @@ export default function TargetSetup() {
 
   const handleNextClick = () => {
     if (!selectedSection) {
-      // If no section is selected, prompt the user to select one
       alert("Please select a calculation method before continuing.");
       return;
     }
@@ -34,7 +33,6 @@ export default function TargetSetup() {
         Select how you'd like us to determine your daily calorie targets
       </p>
 
-      {/* Option 1: Multiple Calorie Scenarios */}
       <div className="mb-3 sm:mb-4">
         <div 
           className={`bg-gray-50 rounded-xl shadow-sm border overflow-hidden
@@ -42,7 +40,6 @@ export default function TargetSetup() {
               ? "border-gray-300 ring-1 ring-gray-300" 
               : "border-gray-200 hover:border-gray-300"}`}
         >
-          {/* Header - Always visible */}
           <div
             className="p-4 sm:p-5 flex justify-between items-center cursor-pointer"
             onClick={() => handleSectionClick("calories")}
@@ -67,7 +64,6 @@ export default function TargetSetup() {
             </div>
           </div>
           
-          {/* Content - Conditionally visible */}
           <div 
             className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out
               ${selectedSection === "calories" 
@@ -83,7 +79,6 @@ export default function TargetSetup() {
         </div>
       </div>
 
-      {/* Option 2: Target Weight Calculator */}
       <div className="mb-6">
         <div 
           className={`bg-gray-50 rounded-xl shadow-sm border overflow-hidden
@@ -91,7 +86,6 @@ export default function TargetSetup() {
               ? "border-gray-300 ring-1 ring-gray-300" 
               : "border-gray-200 hover:border-gray-300"}`}
         >
-          {/* Header - Always visible */}
           <div
             className="p-4 sm:p-5 flex justify-between items-center cursor-pointer"
             onClick={() => handleSectionClick("weight")}
@@ -116,7 +110,6 @@ export default function TargetSetup() {
             </div>
           </div>
           
-          {/* Content - Conditionally visible */}
           <div 
             className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out
               ${selectedSection === "weight" 
@@ -135,7 +128,6 @@ export default function TargetSetup() {
         </div>
       </div>
 
-      {/* Continue Button */}
       <div className="flex justify-center">
         <button
           onClick={handleNextClick}

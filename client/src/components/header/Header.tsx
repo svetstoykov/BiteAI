@@ -1,7 +1,8 @@
 // Header.tsx
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
-import NavMenu from "./header/NavMenu";
+import NavMenu from "./NavMenu";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   isLoggedIn?: boolean;
@@ -14,10 +15,9 @@ interface NavItem {
 }
 
 const Header: React.FC<HeaderProps> = ({ 
-  isLoggedIn = false, 
-  userName = "User" 
-}) => {
+  isLoggedIn = false}) => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   // Prevent scrolling when menu is open
   useEffect(() => {
@@ -35,17 +35,11 @@ const Header: React.FC<HeaderProps> = ({
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Navigation handlers
   const handleNavigate = (path: string): void => {
-    console.log(`Navigating to: ${path}`);
-    // You can integrate with your router here, e.g.:
-    // navigate(path) or window.location.href = path
+    navigate(path);
   };
 
   const handleLogout = (): void => {
-    console.log("Logging out");
-    // Add your logout logic here
-    // Then navigate to home or login page
     handleNavigate("/");
   };
 

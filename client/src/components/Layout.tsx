@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import backgroundImage from "../assets/backgrounds/28563543_background_flower_3_07.jpg";
 import { ToastContainer } from "react-toastify";
-import Header from "./Header";
+import Header from "./header/Header";
 
 interface LayoutProps {
   children: ReactNode;
@@ -18,7 +18,6 @@ const Layout = ({ children }: LayoutProps) => {
 
       <Header/>
 
-      {/* Content area - scrollable with padding for header */}
       <div className="max-w-[450px] sm:max-w-[700px] z-10 pt-8 pb-8 px-4">
         {children}
       </div>
