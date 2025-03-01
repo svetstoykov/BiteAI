@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
-import backgroundImage from "../assets/backgrounds/15229163_v848-noon-24c.jpg";
+import backgroundImage from "../assets/backgrounds/28563543_background_flower_3_07.jpg";
 import { ToastContainer } from "react-toastify";
+import Header from "./Header";
 
 interface LayoutProps {
   children: ReactNode;
@@ -15,18 +16,10 @@ const Layout = ({ children }: LayoutProps) => {
         src={backgroundImage}
       />
 
-      {/* BiteAI Header - Fixed at top */}
-      <header className="w-full py-6 flex justify-center z-20 bg-gradient-to-b from-amber-50/90 to-transparent">
-        <div className="flex items-center">
-          <h1 className="text-6xl font-thin">
-            <span className="text-amber-900">Bite</span>
-            <span className="text-amber-500">AI</span>
-          </h1>
-        </div>
-      </header>
+      <Header/>
 
       {/* Content area - scrollable with padding for header */}
-      <div className="min-w-[600px] z-10 pt-8 pb-8 px-4">
+      <div className="max-w-[450px] sm:max-w-[700px] z-10 pt-8 pb-8 px-4">
         {children}
       </div>
       <ToastContainer />

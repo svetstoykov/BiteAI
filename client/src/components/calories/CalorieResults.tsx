@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, ChevronLeft } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useCalorieStore } from "../../stores/calorie-store";
 import SingleCaloriesResultTab from "./SingleCaloriesResultTab";
 import { DietTypeDescriptions, DietTypes } from "../../models/meals";
