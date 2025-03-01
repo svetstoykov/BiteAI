@@ -1,5 +1,6 @@
-import { use, useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "../common/Input";
+import { clearFieldErrors } from "../../helpers/component-helper";
 
 interface RegisterFormProps {
   onSubmit?: (
@@ -11,67 +12,43 @@ interface RegisterFormProps {
 }
 
 export default function RegisterForm({ onSubmit }: RegisterFormProps = {}) {
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [username, setUsername] = useState<string>("");
-  const [errors, setErrors] = useState<{
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    username?: string;
-  }>({});
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    username: "",
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const clearError = (field: string) => {
-    setErrors((prev) => ({ ...prev, [field]: undefined }));
+  useEffect(() => {
+    clearFieldErrors(formData, setErrors);
+  }, [formData]);
+
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newErrors: {
-      firstName?: string;
-      lastName?: string;
-      email?: string;
-      username?: string;
-    } = {};
+    const newErrors: Record<string, string> = {};
 
-    // Validate first name
-    if (!firstName) {
-      newErrors.firstName = "First name is required";
-    }
-
-    // Validate last name
-    if (!lastName) {
-      newErrors.lastName = "Last name is required";
-    }
-
-    // Validate email
-    if (!email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
+    if (!formData.firstName) newErrors.firstName = "First name is required";
+    if (!formData.lastName) newErrors.lastName = "Last name is required";
+    if (!formData.email) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(formData.email))
       newErrors.email = "Please enter a valid email";
-    }
-
-    // Validate username
-    if (!username) {
-      newErrors.username = "Username is required";
-    } else if (username.length < 3) {
+    if (!formData.username) newErrors.username = "Username is required";
+    else if (formData.username.length < 3)
       newErrors.username = "Username must be at least 3 characters";
-    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
-    // Clear errors
     setErrors({});
-
-    // Call the onSubmit prop if provided
-    if (onSubmit) {
-      onSubmit(firstName, lastName, email, username);
-    }
+    onSubmit?.(formData.firstName, formData.lastName, formData.email, formData.username);
   };
 
   return (
@@ -81,63 +58,19 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps = {}) {
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* First Name Field */}
-        <Input
-          id="firstName"
-          type="text"
-          value={firstName}
-          onChange={(e) => {
-            setFirstName(e.target.value);
-            clearError("firstName");
-          }}
-          label="First Name"
-          placeholder="John"
-          error={errors.firstName}
-        />
+        {Object.keys(formData).map((field) => (
+          <Input
+            key={field}
+            id={field}
+            type={field === "email" ? "email" : "text"}
+            value={formData[field as keyof typeof formData]}
+            onChange={(e) => handleChange(field, e.target.value)}
+            label={field.charAt(0).toUpperCase() + field.slice(1)}
+            placeholder={field === "email" ? "you@domain.com" : ""}
+            error={errors[field]}
+          />
+        ))}
 
-        {/* Last Name Field */}
-        <Input
-          id="lastName"
-          type="text"
-          value={lastName}
-          onChange={(e) => {
-            setLastName(e.target.value);
-            clearError("lastName");
-          }}
-          label="Last Name"
-          placeholder="Doe"
-          error={errors.lastName}
-        />
-
-        {/* Email Field */}
-        <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value)
-            clearError("email")
-          }}
-          label="Email"
-          placeholder="you@domain.com"
-          error={errors.email}
-        />
-
-        {/* Username Field */}
-        <Input
-          id="username"
-          type="text"
-          value={username}
-          onChange={(e) => {
-            setUsername(e.target.value);
-            clearError("username");
-          }}
-          label="Username"
-          placeholder="johndoe"
-          error={errors.username}
-        />
-
-        {/* Submit Button */}
         <div>
           <button
             type="submit"
@@ -147,7 +80,6 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps = {}) {
           </button>
         </div>
 
-        {/* Login Link */}
         <div className="text-center text-sm">
           Already have an account?{" "}
           <a

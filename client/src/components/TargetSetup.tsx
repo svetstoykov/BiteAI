@@ -65,7 +65,7 @@ export default function TargetSetup() {
           </div>
           
           <div 
-            className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out
+            className={`overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out
               ${selectedSection === "calories" 
                 ? "max-h-48 sm:max-h-64 opacity-100" 
                 : "max-h-0 opacity-0"}`}

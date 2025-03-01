@@ -9,5 +9,17 @@
   --color-bright-leaf-green: #88CC00;
   --color-dark-charcoal: #333333;
   --color-moss-green: #808274;
+  --color-dusty-pink: #c89c98;
   --font-atkinson: 'Atkinson Hyperlegible', sans-serif;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+input[type=number] {
+    -moz-appearance:textfield; /* Firefox */
 }

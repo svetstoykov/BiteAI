@@ -6,12 +6,37 @@ import { useCalorieStore } from "../../stores/calorie-store";
 import { CalorieService } from "../../services/calorie-service";
 import { toast } from "react-toastify";
 import BackButton from "../common/BackButton";
+import Input from "../common/Input";
+import Select from "../common/Select";
 
 export default function CalorieCalculationForm() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const calculationType = searchParams.get("type") as "calories" | "weight";
   const setResults = useCalorieStore((state) => state.setResults);
+
+  // Dropdown options
+  const exerciseOptions = [
+    { value: "0", label: "Sedentary (0 days)" },
+    { value: "1", label: "Very Light (1 day)" },
+    { value: "2", label: "Light (2 days)" },
+    { value: "3", label: "Moderate (3 days)" },
+    { value: "4", label: "Active (4 days)" },
+    { value: "5", label: "Very Active (5 days)" },
+    { value: "6", label: "Extra Active (6 days)" },
+    { value: "7", label: "Athlete (7 days)" },
+  ];
+
+  const timeframeOptions = [
+    { value: "4", label: "1 month (4 weeks)" },
+    { value: "8", label: "2 months (8 weeks)" },
+    { value: "12", label: "3 months (12 weeks)" },
+    { value: "16", label: "4 months (16 weeks)" },
+    { value: "20", label: "5 months (20 weeks)" },
+    { value: "24", label: "6 months (24 weeks)" },
+    { value: "36", label: "9 months (36 weeks)" },
+    { value: "48", label: "1 year (48 weeks)" },
+  ];
 
   // Redirect if no calculation type is specified
   useEffect(() => {
@@ -69,7 +94,7 @@ export default function CalorieCalculationForm() {
         formData,
         calculationType
       );
-      
+
       if (calculationResult.isSuccess === false) {
         toast.error(calculationResult.message);
         setIsSubmitting(false);
@@ -126,60 +151,39 @@ export default function CalorieCalculationForm() {
 
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             {/* First row: Weight and Height */}
-            <div>
-              <label htmlFor="weight" className="block text-gray-600 text-sm mb-1">
-                Current Weight (kg)
-              </label>
-              <input
-                type="number"
-                id="weight"
-                value={weightKg}
-                onChange={(e) => setWeightKg(e.target.value)}
-                min="30"
-                max="250"
-                required
-                className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-300 focus:border-transparent text-sm"
-                placeholder="e.g. 70"
-              />
-            </div>
+            <Input
+              id="weight"
+              type="number"
+              value={weightKg}
+              onChange={(e) => setWeightKg(e.target.value)}
+              label="Current Weight (kg)"
+              placeholder="e.g. 80"
+              error={undefined}
+            />
 
-            <div>
-              <label htmlFor="height" className="block text-gray-600 text-sm mb-1">
-                Height (cm)
-              </label>
-              <input
-                type="number"
-                id="height"
-                value={heightCm}
-                onChange={(e) => setHeightCm(e.target.value)}
-                min="100"
-                max="250"
-                required
-                className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-300 focus:border-transparent text-sm"
-                placeholder="e.g. 175"
-              />
-            </div>
+            <Input
+              id="height"
+              type="number"
+              value={heightCm}
+              onChange={(e) => setHeightCm(e.target.value)}
+              label="Height (cm)"
+              placeholder="e.g. 175"
+              error={undefined}
+            />
 
             {/* Second row: Age and Gender */}
-            <div>
-              <label htmlFor="age" className="block text-gray-600 text-sm mb-1">
-                Age
-              </label>
-              <input
-                type="number"
-                id="age"
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
-                min="18"
-                max="100"
-                required
-                className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-300 focus:border-transparent text-sm"
-                placeholder="e.g. 35"
-              />
-            </div>
+            <Input
+              id="age"
+              type="number"
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
+              label="Age"
+              placeholder="e.g. 35"
+              error={undefined}
+            />
 
             <div>
-              <label className="block text-gray-600 text-sm mb-1">Gender</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
               <div className="flex gap-3 p-1">
                 <label className="flex items-center text-sm text-gray-700">
                   <input
@@ -205,27 +209,15 @@ export default function CalorieCalculationForm() {
             </div>
 
             {/* Third row: Exercise level - spans full width */}
-            <div className="col-span-2">
-              <label htmlFor="exercise" className="block text-gray-600 text-sm mb-1">
-                Exercise Days Per Week
-              </label>
-              <select
-                id="exercise"
-                value={exerciseDaysPerWeek}
-                onChange={(e) => setExerciseDaysPerWeek(e.target.value)}
-                required
-                className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-300 focus:border-transparent text-sm"
-              >
-                <option value="0">Sedentary (0 days)</option>
-                <option value="1">Very Light (1 day)</option>
-                <option value="2">Light (2 days)</option>
-                <option value="3">Moderate (3 days)</option>
-                <option value="4">Active (4 days)</option>
-                <option value="5">Very Active (5 days)</option>
-                <option value="6">Extra Active (6 days)</option>
-                <option value="7">Athlete (7 days)</option>
-              </select>
-            </div>
+            <Select
+              id="exercise"
+              value={exerciseDaysPerWeek}
+              onChange={(e) => setExerciseDaysPerWeek(e.target.value)}
+              label="Exercise Days Per Week"
+              options={exerciseOptions}
+              required={true}
+              className="col-span-2"
+            />
           </div>
         </div>
 
@@ -241,55 +233,32 @@ export default function CalorieCalculationForm() {
 
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               {/* Target Weight */}
-              <div>
-                <label
-                  htmlFor="targetWeight"
-                  className="block text-gray-600 text-sm mb-1"
-                >
-                  Target Weight (kg)
-                </label>
-                <input
-                  type="number"
-                  id="targetWeight"
-                  value={targetWeightKg}
-                  onChange={(e) => setTargetWeightKg(e.target.value)}
-                  min="30"
-                  max="250"
-                  required
-                  className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-300 focus:border-transparent text-sm"
-                  placeholder="e.g. 65"
-                />
-              </div>
+              <Input
+                id="targetWeight"
+                type="number"
+                value={targetWeightKg}
+                onChange={(e) => setTargetWeightKg(e.target.value)}
+                label="Target Weight (kg)"
+                placeholder="e.g. 65"
+                error={undefined}
+              />
 
               {/* Target Timeframe */}
-              <div>
-                <label htmlFor="targetWeeks" className="block text-gray-600 text-sm mb-1">
-                  Target Timeframe
-                </label>
-                <select
-                  id="targetWeeks"
-                  value={targetWeeks}
-                  onChange={(e) => setTargetWeeks(e.target.value)}
-                  required
-                  className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-300 focus:border-transparent text-sm"
-                >
-                  <option value="4">1 month (4 weeks)</option>
-                  <option value="8">2 months (8 weeks)</option>
-                  <option value="12">3 months (12 weeks)</option>
-                  <option value="16">4 months (16 weeks)</option>
-                  <option value="20">5 months (20 weeks)</option>
-                  <option value="24">6 months (24 weeks)</option>
-                  <option value="36">9 months (36 weeks)</option>
-                  <option value="48">1 year (48 weeks)</option>
-                </select>
-              </div>
+              <Select
+                id="targetWeeks"
+                value={targetWeeks}
+                onChange={(e) => setTargetWeeks(e.target.value)}
+                label="Target Timeframe"
+                options={timeframeOptions}
+                required={true}
+              />
             </div>
           </div>
         )}
 
         {/* Form Buttons */}
         <div className="flex justify-between items-center mt-5">
-          <BackButton handleBack={handleBack}/>
+          <BackButton handleBack={handleBack} />
 
           <button
             type="submit"

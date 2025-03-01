@@ -14,8 +14,7 @@ interface NavItem {
   onClick: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ 
-  isLoggedIn = false}) => {
+const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -47,12 +46,12 @@ const Header: React.FC<HeaderProps> = ({
     { label: "Profile", onClick: () => handleNavigate("/profile") },
     { label: "Meal Plan", onClick: () => handleNavigate("/meal-plan") },
     { label: "Goals", onClick: () => handleNavigate("/goals") },
-    { label: "Logout", onClick: handleLogout }
+    { label: "Logout", onClick: handleLogout },
   ];
 
   const loggedOutNavItems: NavItem[] = [
     { label: "Login", onClick: () => handleNavigate("/login") },
-    { label: "Register", onClick: () => handleNavigate("/register") }
+    { label: "Register", onClick: () => handleNavigate("/register") },
   ];
 
   const navItems: NavItem[] = isLoggedIn ? loggedInNavItems : loggedOutNavItems;
@@ -60,7 +59,10 @@ const Header: React.FC<HeaderProps> = ({
   return (
     <header className="w-full z-20 bg-gradient-to-b from-white/10 to-transparent">
       <div className="p-5 mx-auto flex justify-between items-center">
-        <div className="flex items-center">
+        <div
+          className="cursor-pointer flex items-center"
+          onClick={() => handleNavigate("/")}
+        >
           <h1 className="text-4xl">
             <span className="font-thin">Bite</span>
             <span>AI</span>
@@ -68,10 +70,7 @@ const Header: React.FC<HeaderProps> = ({
         </div>
 
         <div className="hidden md:flex items-center space-x-2">
-          <NavMenu 
-            items={navItems} 
-            orientation="horizontal" 
-          />
+          <NavMenu items={navItems} orientation="horizontal" />
         </div>
 
         <div className="md:hidden">
@@ -94,10 +93,7 @@ const Header: React.FC<HeaderProps> = ({
         }`}
       >
         <div className="flex flex-col h-full py-20 space-y-6 overflow-y-auto">
-          <NavMenu 
-            items={navItems} 
-            orientation="vertical" 
-          />
+          <NavMenu items={navItems} orientation="vertical" />
         </div>
       </div>
     </header>
@@ -113,7 +109,9 @@ interface MenuToggleButtonProps {
 const MenuToggleButton: React.FC<MenuToggleButtonProps> = ({ isOpen, onClick }) => (
   <button
     onClick={onClick}
-    className={`p-2 hover:${isOpen ? 'bg-gray-200' : 'bg-white/20'} transition-colors z-50 relative duration-300`}
+    className={`p-2 hover:${
+      isOpen ? "bg-gray-200" : "bg-white/20"
+    } transition-colors z-50 relative duration-300`}
   >
     {isOpen ? <X size={25} /> : <Menu size={25} />}
   </button>
