@@ -58,12 +58,12 @@ const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
 
   return (
     <header className="w-full z-20 bg-gradient-to-b from-white/10 to-transparent">
-      <div className="p-5 mx-auto flex justify-between items-center">
+      <div className="p-8 mx-auto flex justify-between items-center">
         <div
           className="cursor-pointer flex items-center"
           onClick={() => handleNavigate("/")}
         >
-          <h1 className="text-4xl">
+          <h1 className="text-6xl">
             <span className="font-thin">Bite</span>
             <span>AI</span>
           </h1>

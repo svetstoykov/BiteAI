@@ -2,13 +2,15 @@
 
 @theme {
   --color-pastel-green: #8eb15c;
-  --color-off-white: #F5F0E6;
+  --color-soft-ivory: #F5F5F0;
+  --color-eggshell: #F0EAE0;
   --color-pastel-dark-green: #457a6a;
   --color-soft-lime: #F2F9E9;
   --color-citrus-orange: #FFA600;
   --color-bright-leaf-green: #88CC00;
   --color-dark-charcoal: #333333;
   --color-moss-green: #808274;
+  --color-soft-taupe: #E0DCD3;
   --color-dusty-pink: #c89c98;
   --font-atkinson: 'Atkinson Hyperlegible', sans-serif;
 }
@@ -22,4 +24,10 @@ input::-webkit-inner-spin-button {
 
 input[type=number] {
     -moz-appearance:textfield; /* Firefox */
+}
+
+@layer components {
+  .bite-container {
+    @apply shadow-lg rounded-2xl bg-gradient-to-b from-white to-gray-100 border-3 border-black/80;
+  }
 }

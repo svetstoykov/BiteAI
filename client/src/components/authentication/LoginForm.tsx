@@ -47,8 +47,8 @@ export default function LoginForm({ onSubmit }: LoginFormProps = {}) {
   };
 
   return (
-    <div className="min-w-md mx-auto p-6 rounded-lg bg-white shadow-md">
-      <h2 className="text-3xl font-thin text-center text-gray-800 mb-6">Log In</h2>
+    <div className="min-w-md mx-auto p-6 bite-container">
+      <h2 className="text-4xl font-thin text-center text-gray-800 mb-6">Log In</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         <Input
           id="email"
@@ -85,7 +85,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps = {}) {
         <div>
           <button
             type="submit"
-            className="hover:bg-gray-100 flex justify-center mx-auto py-2 px-10 border rounded-2xl border-gray-300 shadow-sm text-sm transition duration-300"
+            className="cursor-pointer hover:bg-eggshell/80 flex justify-center mx-auto py-2 px-10 border rounded-2xl border-gray-300 shadow-sm text-sm transition duration-300"
           >
             Sign in
           </button>
