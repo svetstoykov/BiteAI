@@ -10,6 +10,50 @@ export enum DietTypes {
   DairyFree = 8
 }
 
+export enum MealTypes
+{
+    Breakfast = 0,
+    Lunch = 1,
+    Dinner = 2,
+    Snack = 3
+}
+
+export interface Meal {
+  id: string;
+  name: string;
+  description: string;
+  recipe: string;
+  calories: number;
+  proteinInGrams: number;
+  carbsInGrams: number;
+  fatInGrams: number;
+  mealType: MealTypes
+}
+
+export interface MealDay {
+  id: string;
+  dayNumber: number;
+  date: string;
+  totalCalories: number;
+  meals: Meal[];
+}
+
+export interface MealPlan {
+  id: string;
+  name: string;
+  createdDate: string;
+  dailyCalories: number;
+  dietType: DietTypes;
+  durationDays: number;
+  userId: string;
+  mealDays: MealDay[];
+}
+
+export interface MealPlanRequest {
+  dailyTargetCalories: number;
+  dietType: DietTypes;
+}
+
 // Descriptions for enum values
 export const DietTypeDescriptions: Record<DietTypes, string> = {
   [DietTypes.Standard]: "Standard",

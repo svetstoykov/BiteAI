@@ -1,4 +1,4 @@
-namespace BiteAI.API.Models.DTOs.Errors;
+namespace BiteAI.API.Models.Errors;
 
 public class TestData
 {

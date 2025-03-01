@@ -1,5 +1,5 @@
 using BiteAI.API.Models;
-using BiteAI.API.Models.DTOs.Errors;
+using BiteAI.API.Models.Errors;
 using BiteAI.Services.Validation.Errors;
 using BiteAI.Services.Validation.Result;
 using Microsoft.AspNetCore.Mvc;

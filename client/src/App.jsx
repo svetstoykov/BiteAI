@@ -7,6 +7,7 @@ import TargetSetup from "./components/TargetSetup";
 import NotFoundPage from "./components/NotFoundPage";
 import TransitionRoutes from "./components/common/TransitionRoutes";
 import Layout from "./components/Layout";
+import MealPlanComponent from "./components/meals/MealPlanComponent";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
          <Route path="/setup" element={<TargetSetup />} />
          <Route path="/calculate" element={<CalorieCalculationForm />} />
          <Route path="/results" element={<CalorieResults />} />
+         <Route path="/meal-plan" element={<MealPlanComponent />} />
          <Route path="*" element={<NotFoundPage />} />
        </TransitionRoutes>
      </Layout>

@@ -1,4 +1,5 @@
 using BiteAI.API.Controllers.Base;
+using BiteAI.API.Models.Meals;
 using BiteAI.Services.Enums;
 using BiteAI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -17,17 +18,17 @@ public class MealsController : BaseApiController
     }
 
     [HttpPost("weekly-meal-plan")]
-    public async Task<IActionResult> GenerateWeeklyMealPlan([FromQuery] int dailyTargetCalories, [FromQuery] DietTypes dietType)
+    public async Task<IActionResult> GenerateWeeklyMealPlan([FromBody] GenerateMealPlanRequestDto request)
     {
-        var result = await this._anthropicService.PlanMealForWeek(days: 7, dailyTargetCalories, dietType);
+        var result = await this._anthropicService.PlanMealForWeek(days: 7, request.DailyTargetCalories, request.DietType);
 
         return this.ToActionResult(result);
     }
 
     [HttpPost("daily-meal-plan")]
-    public async Task<IActionResult> GenerateDailyMealPlan([FromQuery] int dailyTargetCalories, [FromQuery] DietTypes dietType) 
+    public async Task<IActionResult> GenerateDailyMealPlan([FromBody] GenerateMealPlanRequestDto request)
     {
-        var result = await this._anthropicService.PlanMealForWeek(days: 1, dailyTargetCalories, dietType);
+        var result = await this._anthropicService.PlanMealForWeek(days: 1, request.DailyTargetCalories, request.DietType);
 
         return this.ToActionResult(result);
     }
