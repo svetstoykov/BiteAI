@@ -57,8 +57,8 @@ const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
   const navItems: NavItem[] = isLoggedIn ? loggedInNavItems : loggedOutNavItems;
 
   return (
-    <header className="w-full z-20 bg-gradient-to-b from-white/10 to-transparent">
-      <div className="p-8 mx-auto flex justify-between items-center">
+    <header className="w-full z-20">
+      <div className="p-10 mx-auto flex justify-between items-center">
         <div
           className="cursor-pointer flex items-center"
           onClick={() => handleNavigate("/")}

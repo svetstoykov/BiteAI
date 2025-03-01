@@ -62,6 +62,7 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps = {}) {
           <Input
             key={field}
             id={field}
+            required={true}
             type={field === "email" ? "email" : "text"}
             value={formData[field as keyof typeof formData]}
             onChange={(e) => handleChange(field, e.target.value)}
@@ -72,7 +73,7 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps = {}) {
         ))}
 
         <div>
-        <button
+          <button
             type="submit"
             className="cursor-pointer hover:bg-eggshell/80 flex justify-center mx-auto py-2 px-10 border rounded-2xl border-gray-300 shadow-sm text-sm transition duration-300"
           >

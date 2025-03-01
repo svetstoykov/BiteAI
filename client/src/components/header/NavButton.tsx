@@ -16,7 +16,7 @@ const NavButton: React.FC<NavButtonProps> = ({ label, onClick, className = "" })
   // Mobile styling vs desktop styling
   const styleClasses = isMobile
     ? "py-3 pl-4 text-start hover:bg-gray-200"
-    : "px-4 mx-2 py-2 hover:bg-eggshell/40 border-2 border-transparent hover:border-black/80 rounded-xl";
+    : "px-4 mx-1 py-2 hover:bg-eggshell/40 border-2 border-transparent hover:border-black/80 rounded-full";
 
   return (
     <button className={` ${baseClasses} ${styleClasses} ${className}`} onClick={onClick}>

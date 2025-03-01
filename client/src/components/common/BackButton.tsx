@@ -9,7 +9,7 @@ const BackButton = ({handleBack}: BackButtonProps) => {
     <button
       type="button"
       onClick={handleBack}
-      className="group inline-flex items-center text-gray-700 pr-4 pl-3 py-2 border border-gray-300 rounded-full hover:bg-gray-100 transition-colors duration-300 text-sm"
+      className="group inline-flex items-center text-gray-700 pr-4 pl-3 py-2 border border-gray-300 rounded-full hover:bg-gray-200 transition-colors duration-300"
     >
       <ChevronLeft className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform duration-300" />
       Back

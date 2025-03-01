@@ -38,7 +38,7 @@ export default function CalorieResults() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-5 sm:p-6 bg-white rounded-xl shadow-sm">
+    <div className="w-full max-w-3xl mx-auto p-5 sm:p-6 bite-container">
       <h1 className="text-3xl sm:text-4xl font-thin text-center mb-1 sm:mb-2 text-gray-800">
         Your Calorie Results
       </h1>
@@ -46,7 +46,7 @@ export default function CalorieResults() {
         Based on your information, we've calculated your personalized targets
       </p>
 
-      <div className="bg-gray-50 p-5 rounded-lg shadow-sm">
+      <div className="bg-gray-100 p-5 rounded-lg shadow-md">
         <h3 className="font-thin text-md mb-4 text-center">
           Click on any of the results to generate a personalized meal plan
         </h3>
@@ -73,7 +73,7 @@ export default function CalorieResults() {
                 calories={caloricIntakeGoals?.gainOneKgCalories ?? 0}
                 onClick={handleClickPlanMealForCalories}
               />
-              <div className="p-3 border hover:bg-gray-100 transition-all duration-150 border-gray-200 bg-white rounded-lg col-span-2">
+              <div className="cursor-pointer p-3 border hover:bg-gray-300 transition-all duration-300 border-gray-200 bg-white rounded-lg col-span-2">
                 <div className="text-xs text-gray-500">Maintain Weight</div>
                 <div className="text-xl font-bold text-gray-800">
                   {caloricIntakeGoals?.gainOneKgCalories} cal
@@ -106,7 +106,7 @@ export default function CalorieResults() {
                 id="dietType"
                 value={selectedDietType}
                 onChange={handleDietTypeChange}
-                className="hover:bg-gray-100 transition-colors duration-300 pr-8 pl-3 py-2 border border-gray-300 rounded-full text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 appearance-none bg-white"
+                className="hover:bg-gray-100 transition-colors duration-300 pr-8 pl-3 py-2 border border-gray-300 rounded-full text-gray-700 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 appearance-none bg-white"
               >
                 {enumToArray(DietTypes, DietTypeDescriptions).map((value) => (
                   <option key={value[0]} value={value[0]}>

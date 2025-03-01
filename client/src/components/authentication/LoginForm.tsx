@@ -53,6 +53,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps = {}) {
         <Input
           id="email"
           type="email"
+          required={true}
           value={formData.email}
           onChange={(e) => handleChange("email", e.target.value)}
           label="Email"
@@ -61,6 +62,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps = {}) {
         />
         <Input
           id="password"
+          required={true}
           type={showPassword ? "text" : "password"}
           value={formData.password}
           onChange={(e) => handleChange("password", e.target.value)}

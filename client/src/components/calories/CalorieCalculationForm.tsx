@@ -111,7 +111,6 @@ export default function CalorieCalculationForm() {
         targetWeeksValue
       );
 
-      // Navigate to results page with data
       navigate("/results");
     } catch (err: any) {
       setError(err.response?.data?.message || "Something went wrong. Please try again.");
@@ -139,7 +138,7 @@ export default function CalorieCalculationForm() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <div className="bg-gray-100 p-4 rounded-lg shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xl font-thin text-gray-800">Your Profile</h2>
             {calculationType === "weight" && (
@@ -154,6 +153,7 @@ export default function CalorieCalculationForm() {
             <Input
               id="weight"
               type="number"
+              required={true}
               value={weightKg}
               onChange={(e) => setWeightKg(e.target.value)}
               label="Current Weight (kg)"
@@ -164,6 +164,7 @@ export default function CalorieCalculationForm() {
             <Input
               id="height"
               type="number"
+              required={true}
               value={heightCm}
               onChange={(e) => setHeightCm(e.target.value)}
               label="Height (cm)"
@@ -176,6 +177,7 @@ export default function CalorieCalculationForm() {
               id="age"
               type="number"
               value={age}
+              required={true}
               onChange={(e) => setAge(e.target.value)}
               label="Age"
               placeholder="e.g. 35"
@@ -223,7 +225,7 @@ export default function CalorieCalculationForm() {
 
         {/* Target Weight Form Fields - Only shown for Target Weight calculation */}
         {calculationType === "weight" && (
-          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+          <div className="bg-gray-100 p-4 rounded-lg shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-xl font-thin text-gray-800">Your Goal</h2>
               <div className="text-xs px-2 py-1 bg-gray-200 rounded-full text-gray-700">
@@ -236,6 +238,7 @@ export default function CalorieCalculationForm() {
               <Input
                 id="targetWeight"
                 type="number"
+                required={calculationType === "weight" ? true : false}
                 value={targetWeightKg}
                 onChange={(e) => setTargetWeightKg(e.target.value)}
                 label="Target Weight (kg)"
@@ -263,7 +266,7 @@ export default function CalorieCalculationForm() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="group bg-gray-900 transition-all duration-300 hover:bg-black text-white px-5 py-2 rounded-full flex items-center gap-1 text-base font-medium disabled:opacity-70"
+            className="group bg-black transition-all duration-300 hover:bg-black/90 text-white px-5 py-2 rounded-full flex items-center gap-1 text-base font-medium disabled:opacity-70"
           >
             {isSubmitting ? (
               <>
