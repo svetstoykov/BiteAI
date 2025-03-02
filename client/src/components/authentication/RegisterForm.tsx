@@ -1,54 +1,42 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Input from "../common/Input";
-import { clearFieldErrors } from "../../helpers/component-helper";
+import { AuthenticationService } from "../../services/authentication-service";
+import { RegisterDto } from "../../models/authentication";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
-interface RegisterFormProps {
-  onSubmit?: (
-    firstName: string,
-    lastName: string,
-    email: string,
-    username: string
-  ) => void;
-}
-
-export default function RegisterForm({ onSubmit }: RegisterFormProps = {}) {
-  const [formData, setFormData] = useState({
+export default function RegisterForm() {
+  const [formData, setFormData] = useState<RegisterDto>({
     firstName: "",
     lastName: "",
     email: "",
     username: "",
+    password: "",
+    confirmPassword: "",
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    clearFieldErrors(formData, setErrors);
-  }, [formData]);
+  const authenticationService = new AuthenticationService();
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newErrors: Record<string, string> = {};
+    const result = await authenticationService.register(formData);
 
-    if (!formData.firstName) newErrors.firstName = "First name is required";
-    if (!formData.lastName) newErrors.lastName = "Last name is required";
-    if (!formData.email) newErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(formData.email))
-      newErrors.email = "Please enter a valid email";
-    if (!formData.username) newErrors.username = "Username is required";
-    else if (formData.username.length < 3)
-      newErrors.username = "Username must be at least 3 characters";
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (result.success) {
+      toast.success("Registration successful");
+      navigate("/login");
       return;
     }
 
-    setErrors({});
-    onSubmit?.(formData.firstName, formData.lastName, formData.email, formData.username);
+    toast.error(result.message);
   };
 
   return (
@@ -57,20 +45,77 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps = {}) {
         Create Account
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {Object.keys(formData).map((field) => (
-          <Input
-            key={field}
-            id={field}
-            required={true}
-            type={field === "email" ? "email" : "text"}
-            value={formData[field as keyof typeof formData]}
-            onChange={(e) => handleChange(field, e.target.value)}
-            label={field.charAt(0).toUpperCase() + field.slice(1)}
-            placeholder={field === "email" ? "you@domain.com" : ""}
-            error={errors[field]}
-          />
-        ))}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Input
+          id="firstName"
+          required={true}
+          type="text"
+          value={formData.firstName}
+          onChange={(e) => handleChange("firstName", e.target.value)}
+          label="First Name"
+          placeholder="John"
+        />
+        <Input
+          id="lastName"
+          required={true}
+          type="text"
+          value={formData.lastName}
+          onChange={(e) => handleChange("lastName", e.target.value)}
+          label="Last Name"
+          placeholder="Doe"
+        />
+        <Input
+          id="email"
+          required={true}
+          type="text"
+          value={formData.email}
+          onChange={(e) => handleChange("email", e.target.value)}
+          label="Email Address"
+          placeholder="you@domain.com"
+        />
+        <Input
+          id="username"
+          required={true}
+          type="text"
+          value={formData.username}
+          onChange={(e) => handleChange("username", e.target.value)}
+          label="Username"
+          placeholder="john_doe"
+        />
+        <Input
+          id="password"
+          required={true}
+          type={showPassword ? "text" : "password"}
+          value={formData.password}
+          onChange={(e) => handleChange("password", e.target.value)}
+          label="Password"
+          placeholder="••••••••"
+          icon={
+            showPassword ? (
+              <EyeOffIcon className="h-5 w-5" />
+            ) : (
+              <EyeIcon className="h-5 w-5" />
+            )
+          }
+          onIconClick={() => setShowPassword(!showPassword)}
+        />
+        <Input
+          id="confirmPassword"
+          required={true}
+          type={showConfirmPassword ? "text" : "password"}
+          value={formData.confirmPassword}
+          onChange={(e) => handleChange("confirmPassword", e.target.value)}
+          label="Confirm Password"
+          placeholder="••••••••"
+          icon={
+            showConfirmPassword ? (
+              <EyeOffIcon className="h-5 w-5" />
+            ) : (
+              <EyeIcon className="h-5 w-5" />
+            )
+          }
+          onIconClick={() => setShowConfirmPassword(!showConfirmPassword)}
+        />
 
         <div>
           <button

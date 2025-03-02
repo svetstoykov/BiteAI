@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import NavMenu from "./NavMenu";
 import { useNavigate } from "react-router-dom";
+import { AuthenticationService } from "../../services/authentication-service";
 
 interface HeaderProps {
   isLoggedIn?: boolean;
@@ -17,8 +18,8 @@ interface NavItem {
 const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const navigate = useNavigate();
+  const authenticationService = new AuthenticationService();
 
-  // Prevent scrolling when menu is open
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -54,7 +55,9 @@ const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
     { label: "Register", onClick: () => handleNavigate("/register") },
   ];
 
-  const navItems: NavItem[] = isLoggedIn ? loggedInNavItems : loggedOutNavItems;
+  const navItems: NavItem[] = authenticationService.isAuthenticated()
+    ? loggedInNavItems
+    : loggedOutNavItems;
 
   return (
     <header className="w-full z-20">

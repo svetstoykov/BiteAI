@@ -2,12 +2,12 @@
  * Represents a generic result type that encapsulates success, failure, message, and data.
  */
 export class ResultWithData<T> {
-  readonly isSuccess: boolean;
+  readonly success: boolean;
   readonly message: string;
   readonly data?: T;
 
-  private constructor(isSuccess: boolean, message: string, data?: T) {
-    this.isSuccess = isSuccess;
+  private constructor(success: boolean, message: string, data?: T) {
+    this.success = success;
     this.message = message;
     this.data = data;
   }
@@ -36,11 +36,11 @@ export class ResultWithData<T> {
  * Represents a result type without data.
  */
 export class Result {
-  readonly isSuccess: boolean;
+  readonly success: boolean;
   readonly message: string;
 
-  private constructor(isSuccess: boolean, message: string) {
-    this.isSuccess = isSuccess;
+  private constructor(success: boolean, message: string) {
+    this.success = success;
     this.message = message;
   }
 

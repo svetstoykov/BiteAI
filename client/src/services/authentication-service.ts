@@ -81,7 +81,7 @@ export class AuthenticationService {
     localStorage.setItem("auth_username", authData.userName);
     localStorage.setItem("auth_first_name", authData.firstName);
     localStorage.setItem("auth_last_name", authData.lastName);
-    localStorage.setItem("auth_expires_at", authData.tokenExpiration.toDateString());
+    localStorage.setItem("auth_expires_at", authData.tokenExpiration.toString());
   }
 
   /**

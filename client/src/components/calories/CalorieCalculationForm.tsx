@@ -95,7 +95,7 @@ export default function CalorieCalculationForm() {
         calculationType
       );
 
-      if (calculationResult.isSuccess === false) {
+      if (calculationResult.success === false) {
         toast.error(calculationResult.message);
         setIsSubmitting(false);
         return;

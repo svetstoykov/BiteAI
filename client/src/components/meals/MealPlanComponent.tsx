@@ -33,7 +33,7 @@ const MealPlanComponent: React.FC<MealPlanComponentProps> = ({ targetCalories, d
       try {
         const result = await mealService.generateWeeklyMealPlan(3000, DietTypes.Standard);
         
-        if (result.isSuccess && result.data) {
+        if (result.success && result.data) {
           setMealPlan(result.data);
         } else {
           toast.error(result.message || 'Failed to load meal plan');
@@ -86,7 +86,7 @@ const MealPlanComponent: React.FC<MealPlanComponentProps> = ({ targetCalories, d
     setIsLoading(true);
     try {
       const result = await mealService.generateWeeklyMealPlan(targetCalories, dietType);
-      if (result.isSuccess && result.data) {
+      if (result.success && result.data) {
         setMealPlan(result.data);
       } else {
         setError(result.message || 'Failed to generate new meal plan');

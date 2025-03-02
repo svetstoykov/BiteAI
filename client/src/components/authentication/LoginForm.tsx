@@ -1,49 +1,35 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import Input from "../common/Input";
-import Checkbox from "../common/Checkbox";
-import { clearFieldErrors } from "../../helpers/component-helper";
+import { AuthenticationService } from "../../services/authentication-service";
+import { LoginDto } from "../../models/authentication";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
-interface LoginFormProps {
-  onSubmit?: (email: string, password: string) => void;
-}
-
-export default function LoginForm({ onSubmit }: LoginFormProps = {}) {
-  const [formData, setFormData] = useState({
+export default function LoginForm() {
+  const [formData, setFormData] = useState<LoginDto>({
     email: "",
     password: "",
   });
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [rememberMe, setRememberMe] = useState<boolean>(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    clearFieldErrors(formData, setErrors);
-  }, [formData]);
+  const authenticationService = new AuthenticationService();
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.email) newErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(formData.email))
-      newErrors.email = "Please enter a valid email";
-    
-    if (!formData.password) newErrors.password = "Password is required";
-    else if (formData.password.length < 6)
-      newErrors.password = "Password must be at least 6 characters";
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+   
+    const result = await authenticationService.login(formData);
+    if (result.success) {
+      toast.success("Login successful");
+      navigate("/setup");
       return;
     }
-
-    setErrors({});
-    onSubmit?.(formData.email, formData.password);
+    toast.error(result.message);
   };
 
   return (
@@ -58,7 +44,6 @@ export default function LoginForm({ onSubmit }: LoginFormProps = {}) {
           onChange={(e) => handleChange("email", e.target.value)}
           label="Email"
           placeholder="you@domain.com"
-          error={errors.email}
         />
         <Input
           id="password"
@@ -68,7 +53,6 @@ export default function LoginForm({ onSubmit }: LoginFormProps = {}) {
           onChange={(e) => handleChange("password", e.target.value)}
           label="Password"
           placeholder="••••••••"
-          error={errors.password}
           icon={
             showPassword ? (
               <EyeOffIcon className="h-5 w-5" />
@@ -77,12 +61,6 @@ export default function LoginForm({ onSubmit }: LoginFormProps = {}) {
             )
           }
           onIconClick={() => setShowPassword(!showPassword)}
-        />
-        <Checkbox
-          id="remember-me"
-          checked={rememberMe}
-          onChange={(e) => setRememberMe(e.target.checked)}
-          label="Remember me"
         />
         <div>
           <button
@@ -95,7 +73,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps = {}) {
         <div className="text-center text-sm">
           Don't have an account?{" "}
           <a
-            href="#"
+            href="/register"
             className="text-moss-green hover:text-moss-green/80 transition-colors duration-300"
           >
             Create an account
