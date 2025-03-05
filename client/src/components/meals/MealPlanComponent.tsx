@@ -6,14 +6,13 @@ import { toast } from "react-toastify";
 import { AuthenticationService } from "../../services/authentication-service";
 import { data, useNavigate } from "react-router-dom";
 import { useCalorieStore } from "../../stores/calorie-store";
-import weeklyMealPlanData from "../../constants/data";
-import { Apple, Coffee, Soup, UtensilsCrossed, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Apple, Coffee, Soup, UtensilsCrossed, ChevronDown } from "lucide-react";
+import MealPlanPreparationSpinner from "./MealPlanPreparationSpinner";
 
 const MealPlanComponent = () => {
   const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeDay, setActiveDay] = useState<number>(0);
   const [expandedMeals, setExpandedMeals] = useState<{ [key: string]: boolean }>({});
   const navigate = useNavigate();
@@ -30,15 +29,18 @@ const MealPlanComponent = () => {
 
     const fetchMealPlan = async () => {
       setIsLoading(true);
-      setError(null);
 
       try {
-        //const result = await mealService.generateWeeklyMealPlan(dailyCalories!, dietType!);
+        const result = await mealService.generateWeeklyMealPlan(2800, DietTypes.Standard);
 
-        setMealPlan(weeklyMealPlanData);
+        if (result.success) {
+          setMealPlan(result.data!);
+          return;
+        }
+
+        toast.error(result.message);
       } catch (err) {
-        setError("An unexpected error occurred");
-        console.error(err);
+        toast.error("An unexpected error occurred");
       } finally {
         setIsLoading(false);
       }
@@ -72,7 +74,7 @@ const MealPlanComponent = () => {
     let totalFat = 0;
     let totalFiber = 0; // Assume we estimate fiber based on recipes
 
-    currentDay.meals.forEach((meal) => {
+    currentDay.dailyMeals.forEach((meal) => {
       totalCalories += meal.calories;
       totalProtein += meal.proteinInGrams;
       totalCarbs += meal.carbsInGrams;
@@ -93,15 +95,7 @@ const MealPlanComponent = () => {
   }, [currentDay]);
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return <div className="text-red-600 p-4">{error}</div>;
+    return <MealPlanPreparationSpinner />;
   }
 
   // Map meal types to Lucide icons
@@ -122,14 +116,11 @@ const MealPlanComponent = () => {
 
   // Generate tab dates
   const generateTabDates = () => {
-    const today = new Date();
     const tabs = [];
 
     // Add tab for each day in the meal plan (usually 7 days)
     for (let i = 0; i < (mealPlan?.durationDays || 7); i++) {
-      const date = addDays(today, i);
-      let dayLabel = i === 0 ? "Today" : i === 1 ? "Tomorrow" : format(date, "EEE");
-      let dateLabel = format(date, "MMM d");
+      const dayLabel = i + 1;
 
       tabs.push(
         <button
@@ -140,7 +131,7 @@ const MealPlanComponent = () => {
           onClick={() => setActiveDay(i)}
         >
           <div className="whitespace-nowrap">{dayLabel}</div>
-          <div className="text-sm whitespace-nowrap">{dateLabel}</div>
+          <div className="text-sm whitespace-nowrap">Day</div>
         </button>
       );
     }
@@ -150,7 +141,9 @@ const MealPlanComponent = () => {
 
   return (
     <div className="mx-auto md:min-w-2xl min-w-[370px] p-2 md:p-6 bite-container">
-      <h1 className="text-2xl md:text-3xl font-thin mb-4 md:mb-6">Meal Plan</h1>
+      <h1 className="text-3xl md:text-4xl font-thin mb-4 md:mb-6 text-center md:text-start">
+        Meal Plan
+      </h1>
 
       {/* Tabs Navigation */}
       <div className="flex justify-between pb-1 md:gap-2 border-b mb-4 md:mb-6">
@@ -168,7 +161,7 @@ const MealPlanComponent = () => {
             transition={{ duration: 0.4 }}
             className=""
           >
-            {currentDay?.meals.map((meal, index) => {
+            {currentDay?.dailyMeals.map((meal, index) => {
               const mealId = meal.id || `meal-${index}`;
               const isExpanded = expandedMeals[mealId] || false;
 

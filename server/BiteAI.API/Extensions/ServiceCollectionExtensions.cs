@@ -13,7 +13,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IMealPlanningService, MealPlanningService>();
         services.AddScoped<AnthropicClient>(_ => new AnthropicClient(configuration["Anthropic:ApiKey"]));
-        
+        services.AddMemoryCache();
+
         return services;
     }
 }

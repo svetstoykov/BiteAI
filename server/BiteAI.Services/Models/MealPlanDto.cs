@@ -4,5 +4,5 @@ namespace BiteAI.Services.Models;
 
 public class MealPlanDto
 {
-    public ICollection<MealDayDto> Meals { get; set; } = new List<MealDayDto>();
+    public ICollection<MealDayDto> MealDays { get; set; } = new List<MealDayDto>();
 }

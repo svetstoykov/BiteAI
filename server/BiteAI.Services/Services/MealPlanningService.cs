@@ -23,7 +23,7 @@ public class MealPlanningService : IMealPlanningService
 
     public async Task<Result<MealPlanDto?>> GenerateMealPlanForLoggedInUserAsync(int days, int dailyCalorieTarget, DietTypes dietType, CancellationToken cancellationToken = default)
     {
-        var prompt = GenerateAIPrompt(days, dailyCalorieTarget, dietType);
+        var prompt = GetGenerateMealPlanPrompt(days, dailyCalorieTarget, dietType);
         
         var userResult = await this._identityService.GetLoggedInUserAsync(cancellationToken);
         if (userResult.IsFailure)
@@ -39,12 +39,12 @@ public class MealPlanningService : IMealPlanningService
 
         var mealPlan = new MealPlan
         {
-            DurationDays = responseDto.Meals.Count,
+            DurationDays = responseDto.MealDays.Count,
             DietType = dietType,
             CreatedDate = DateTime.UtcNow,
             DailyCalories = dailyCalorieTarget,
             ApplicationUser = currentUser,
-            MealDays = responseDto.Meals.Select(dto => dto.ToMealDay()).ToList()
+            MealDays = responseDto.MealDays.Select(dto => dto.ToMealDayEntity()).ToList()
         };
 
         currentUser.MealPlans.Add(mealPlan);
@@ -56,11 +56,13 @@ public class MealPlanningService : IMealPlanningService
         return responseDto;
     }
 
-    private static string GenerateAIPrompt(int days, int dailyCalorieTarget, DietTypes dietType)
+    private static string GetGenerateMealPlanPrompt(int days, int dailyCalorieTarget, DietTypes dietType)
     {
         var prompt = $$"""
-                       Create a {{days}}-day meal plan with {{dailyCalorieTarget}} daily calories ({{dietType}} diet).
-                       For each day, provide breakfast, lunch, and dinner with exact calories and macros (protein, carbs, fat in grams).
+                       Create a {{days}}-day meal plan for a {{dietType}} diet.
+                       The combined calorie count for the day *as close as possible* to the daily calorie target of {{dailyCalorieTarget}} kcal.
+                       For each day, provide a single breakfast, single lunch, some snack (1-2 per day), and a single dinner with calories and macros (protein, carbs, fat in grams).
+                       Provide a recipe which includes the ingredients and instructions on how to prepare the dish. Structure it in a single paragraph.
                        Format the response as a valid JSON object matching this C# class structure:
                         
                        public class MealDto
@@ -79,19 +81,17 @@ public class MealPlanningService : IMealPlanningService
                        {
                            public int DayNumber { get; set; }
                                
-                           public virtual ICollection<MealDto> Meals { get; set; } = new List<MealDto>();
+                           public virtual ICollection<MealDto> DailyMeals { get; set; } = new List<MealDto>();
                        }
                        
                        public class MealPlanDto
                        {
-                           public ICollection<MealDayDto> Meals { get; set; } = new List<MealDayDto>();
+                           public ICollection<MealDayDto> MealDays { get; set; } = new List<MealDayDto>();
                        }
-                       
                        
                        Ensure all numeric values are realistic and accurate. 
                        
                        The JSON Response should be a single MealPlanDto object, containing all the other nested objects inside it.
-                       
                        """;
         return prompt;
     }

@@ -14,10 +14,33 @@ const axiosInstance: AxiosInstance = axios.create({
   baseURL,
 });
 
+// Request interceptor to add Bearer token from localStorage
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("auth_token");
+    
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Response interceptor to handle errors globally
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error) => {
+    // Handle authentication errors (401 Unauthorized)
+    if (error.response && error.response.status === 401) {
+      // The authentication service will handle clearing auth data
+      console.error("Authentication failed: Token may be invalid or expired");
+    }
+    
     // Log detailed error information
     if (error.response) {
       // The server responded with a status code outside the range of 2xx
@@ -29,6 +52,7 @@ axiosInstance.interceptors.response.use(
       // Something else happened while setting up the request
       console.error("Error:", error.message);
     }
+    
     return Promise.reject(error);
   }
 );

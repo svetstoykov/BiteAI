@@ -7,35 +7,32 @@ export enum DietTypes {
   Paleo = 5,
   Mediterranean = 6,
   GlutenFree = 7,
-  DairyFree = 8
+  DairyFree = 8,
 }
 
-export enum MealTypes
-{
-    Breakfast = 0,
-    Lunch = 1,
-    Dinner = 2,
-    Snack = 3
+export enum MealTypes {
+  Breakfast = 0,
+  Lunch = 1,
+  Dinner = 2,
+  Snack = 3,
 }
 
 export interface Meal {
   id: string;
   name: string;
-  description: string;
   recipe: string;
   calories: number;
   proteinInGrams: number;
   carbsInGrams: number;
   fatInGrams: number;
-  mealType: MealTypes
+  mealType: MealTypes;
 }
 
 export interface MealDay {
   id: string;
   dayNumber: number;
-  date: string;
   totalCalories: number;
-  meals: Meal[];
+  dailyMeals: Meal[];
 }
 
 export interface MealPlan {
@@ -64,5 +61,5 @@ export const DietTypeDescriptions: Record<DietTypes, string> = {
   [DietTypes.Paleo]: "Paleo",
   [DietTypes.Mediterranean]: "Mediterranean",
   [DietTypes.GlutenFree]: "Gluten Free",
-  [DietTypes.DairyFree]: "Dairy Free"
+  [DietTypes.DairyFree]: "Dairy Free",
 };

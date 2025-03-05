@@ -6,13 +6,13 @@ namespace BiteAI.Services.Mappings;
 
 public static class MealDayMapping
 {
-    public static MealDay ToMealDay(this MealDayDto mealDayDto)
+    public static MealDay ToMealDayEntity(this MealDayDto mealDayDto)
     {
         return new MealDay
         {
             DayNumber = mealDayDto.DayNumber,
-            TotalCalories = mealDayDto.Meals.Sum(m => m.Calories),
-            Meals = mealDayDto.Meals.Select(m => new Meal()
+            TotalCalories = mealDayDto.DailyMeals.Sum(m => m.Calories),
+            Meals = mealDayDto.DailyMeals.Select(m => new Meal
                 {
                     Name = m.Name,
                     Recipe = m.Recipe,
@@ -20,7 +20,7 @@ public static class MealDayMapping
                     FatInGrams = m.FatInGrams,
                     ProteinInGrams = m.ProteinInGrams,
                     Calories = m.Calories,
-                    MealType = Enum.Parse<MealTypes>(m.MealType)
+                    MealType = m.MealType
                 })
                 .ToList()
         };
