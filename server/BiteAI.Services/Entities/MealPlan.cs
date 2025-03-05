@@ -6,7 +6,6 @@ namespace BiteAI.Services.Entities;
 
 public class MealPlan : BaseIdentifiableEntity
 {
-    public required string Name { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     public int DailyCalories { get; set; }
     public DietTypes DietType { get; set; }

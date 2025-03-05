@@ -1,11 +1,11 @@
 import React from "react";
 
-interface SelectOption {
-  value: string;
+export interface SelectOption {
+  value: number;
   label: string;
 }
 
-interface SelectProps {
+export interface SelectProps {
   id: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;

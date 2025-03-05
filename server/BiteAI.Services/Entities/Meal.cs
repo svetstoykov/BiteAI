@@ -6,8 +6,7 @@ namespace BiteAI.Services.Entities;
 
 public class Meal : BaseIdentifiableEntity
 {
-    public required string Name { get; set; }
-    public required string Description { get; set; }
+    public required string Name { get; set; } 
     public required string Recipe { get; set; }
     public int Calories { get; set; }
     public MealTypes MealType { get; set; }

@@ -1,6 +1,9 @@
 using System.Text;
 using BiteAI.Infrastructure.Data;
 using BiteAI.Infrastructure.Models;
+using BiteAI.Infrastructure.Services;
+using BiteAI.Infrastructure.Settings;
+using BiteAI.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +26,10 @@ public static class InfrastructureServiceExtension
                 b => b.MigrationsAssembly("BiteAI.Infrastructure")));
 
         services.AddIdentityServices(configuration);
+
+        services.AddScoped<IAIService, AIService>();
+        
+        services.Configure<JwtConfiguration>(s => configuration.GetSection("JWT"));
 
         return services;
     }

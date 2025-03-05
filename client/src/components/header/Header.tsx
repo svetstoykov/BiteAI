@@ -95,7 +95,7 @@ const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
           isMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex flex-col h-full py-20 space-y-6 overflow-y-auto">
+        <div className="flex flex-col space-y-6 overflow-y-auto py-30">
           <NavMenu items={navItems} orientation="vertical" />
         </div>
       </div>

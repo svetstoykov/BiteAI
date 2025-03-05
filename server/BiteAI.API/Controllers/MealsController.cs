@@ -10,9 +10,9 @@ namespace BiteAI.API.Controllers;
 //[Authorize]
 public class MealsController : BaseApiController
 {
-    private readonly IAnthropicAIService _anthropicService;
+    private readonly IMealPlanningService _anthropicService;
 
-    public MealsController(IAnthropicAIService anthropicService)
+    public MealsController(IMealPlanningService anthropicService)
     {
         this._anthropicService = anthropicService;
     }

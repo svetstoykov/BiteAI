@@ -25,7 +25,7 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.AddScoped<AnthropicClient>(_ => new AnthropicClient(configuration["Anthropic:ApiKey"]));
-        services.AddScoped<IAnthropicAIService, AnthropicAIService>();
+        services.AddScoped<IMealPlanningService, MealPlanningService>();
 
         return services;
     }

@@ -19,6 +19,8 @@ export default function CalorieResults() {
     targetWeightKg,
   } = useCalorieStore();
 
+  const setMealPlanSpecifics = useCalorieStore((state) => state.setMealPlanSpecifics);
+
   useEffect(() => {
     if (!caloricIntakeGoals && !targetCaloricIntake) {
       navigate("/calculate");
@@ -33,8 +35,9 @@ export default function CalorieResults() {
     setSelectedDietType(parseInt(e.target.value));
   };
 
-  const handleClickPlanMealForCalories = () => {
-    console.log("clicked");
+  const handleClickPlanMealForCalories = (dailyTargetCalories: number) => {
+    setMealPlanSpecifics(dailyTargetCalories, selectedDietType);
+    navigate("/meal-plan");
   };
 
   return (
@@ -96,7 +99,7 @@ export default function CalorieResults() {
         )}
 
         <div className="mt-8 flex items-center justify-between">
-          <BackButton handleBack={handleBack}/>
+          <BackButton handleBack={handleBack} />
           <div className="flex items-center gap-2 ">
             <label htmlFor="dietType" className=" text-gray-500">
               Diet Type

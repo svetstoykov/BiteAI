@@ -123,10 +123,6 @@ public class AppDbContext : IdentityDbContext<IdentityAccount>
             .HasForeignKey(md => md.MealPlanId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Entity<MealPlan>()
-            .Property(mp => mp.Name)
-            .IsRequired();
     }
 
     private void ConfigureMealDay(ModelBuilder builder)
@@ -151,10 +147,6 @@ public class AppDbContext : IdentityDbContext<IdentityAccount>
             
         builder.Entity<Meal>()
             .Property(m => m.Name)
-            .IsRequired();
-
-        builder.Entity<Meal>()
-            .Property(m => m.Description)
             .IsRequired();
 
         builder.Entity<Meal>()

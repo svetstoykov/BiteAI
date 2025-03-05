@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { CalorieCalculationGoalsFormData } from "../../models/calorie";
+import { ActivityLevels, ActivityLevelsDescriptions, CalorieCalculationGoalsFormData } from "../../models/calorie";
 import { useCalorieStore } from "../../stores/calorie-store";
 import { CalorieService } from "../../services/calorie-service";
 import { toast } from "react-toastify";
 import BackButton from "../common/BackButton";
 import Input from "../common/Input";
-import Select from "../common/Select";
+import Select, { SelectOption } from "../common/Select";
+import { enumToArray } from "../../helpers/enum-helper";
 
 export default function CalorieCalculationForm() {
   const navigate = useNavigate();
@@ -15,28 +16,20 @@ export default function CalorieCalculationForm() {
   const calculationType = searchParams.get("type") as "calories" | "weight";
   const setResults = useCalorieStore((state) => state.setResults);
 
-  // Dropdown options
-  const exerciseOptions = [
-    { value: "0", label: "Sedentary (0 days)" },
-    { value: "1", label: "Very Light (1 day)" },
-    { value: "2", label: "Light (2 days)" },
-    { value: "3", label: "Moderate (3 days)" },
-    { value: "4", label: "Active (4 days)" },
-    { value: "5", label: "Very Active (5 days)" },
-    { value: "6", label: "Extra Active (6 days)" },
-    { value: "7", label: "Athlete (7 days)" },
+  const timeframeOptions = [
+    { value: 4, label: "1 month (4 weeks)" },
+    { value: 8, label: "2 months (8 weeks)" },
+    { value: 12, label: "3 months (12 weeks)" },
+    { value: 16, label: "4 months (16 weeks)" },
+    { value: 20, label: "5 months (20 weeks)" },
+    { value: 24, label: "6 months (24 weeks)" },
+    { value: 36, label: "9 months (36 weeks)" },
+    { value: 48, label: "1 year (48 weeks)" },
   ];
 
-  const timeframeOptions = [
-    { value: "4", label: "1 month (4 weeks)" },
-    { value: "8", label: "2 months (8 weeks)" },
-    { value: "12", label: "3 months (12 weeks)" },
-    { value: "16", label: "4 months (16 weeks)" },
-    { value: "20", label: "5 months (20 weeks)" },
-    { value: "24", label: "6 months (24 weeks)" },
-    { value: "36", label: "9 months (36 weeks)" },
-    { value: "48", label: "1 year (48 weeks)" },
-  ];
+  const exerciseOptions: SelectOption[] = enumToArray(ActivityLevels, ActivityLevelsDescriptions).map((item) => {
+    return { value: item[0], label: item[1] };
+  });
 
   // Redirect if no calculation type is specified
   useEffect(() => {
@@ -104,8 +97,8 @@ export default function CalorieCalculationForm() {
       const data = calculationResult.data!;
 
       setResults(
-        data.caloricGoalsDto,
-        data.targetIntakeCalories,
+        data.caloricGoalsDto!,
+        data.targetIntakeCalories!,
         calculationType,
         targetWeightKgValue,
         targetWeeksValue
