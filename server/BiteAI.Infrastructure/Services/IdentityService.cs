@@ -133,13 +133,13 @@ public class IdentityService : IIdentityService
 
     public async Task<Result<ApplicationUser>> GetLoggedInUserAsync(CancellationToken cancellationToken = default)
     {
-        var loggedInEmail = this._httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Email);
-        if(string.IsNullOrEmpty(loggedInEmail))
+        var loggedInUserId = this._httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(string.IsNullOrEmpty(loggedInUserId))
             return Result.Fail<ApplicationUser>(OperationError.InvalidOperation("No logged in user!"));
         
-        var user = await this._dbContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Email == loggedInEmail, cancellationToken: cancellationToken);
+        var user = await this._dbContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == loggedInUserId, cancellationToken: cancellationToken);
         if (user == null)
-            return Result.Fail<ApplicationUser>(OperationError.NotFound($"User: {loggedInEmail} not found"));
+            return Result.Fail<ApplicationUser>(OperationError.NotFound("User not found"));
 
         return Result.Success(user);
     }
