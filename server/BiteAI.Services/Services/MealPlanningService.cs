@@ -2,6 +2,7 @@ using BiteAI.Services.Data;
 using BiteAI.Services.Entities;
 using BiteAI.Services.Enums;
 using BiteAI.Services.Interfaces;
+using BiteAI.Services.Mappings;
 using BiteAI.Services.Models;
 using BiteAI.Services.Validation.Result;
 
@@ -23,68 +24,36 @@ public class MealPlanningService : IMealPlanningService
     public async Task<Result<MealPlanDto?>> GenerateMealPlanForLoggedInUserAsync(int days, int dailyCalorieTarget, DietTypes dietType, CancellationToken cancellationToken = default)
     {
         var prompt = GenerateAIPrompt(days, dailyCalorieTarget, dietType);
-
-        var aiResult = await this._aiService.PromptAsync<MealDayDto[]>(prompt, cancellationToken);
-
-        if (aiResult.IsFailure)
-            return Result.ErrorFromResult<MealPlanDto?>(aiResult);
-
-        var mealPlanDto = new MealPlanDto
-        {
-            CreatedDate = DateTime.UtcNow,
-            DailyCalories = dailyCalorieTarget,
-            DietType = dietType,
-            DurationDays = days,
-            MealDays = aiResult.Data!
-        };
-
+        
         var userResult = await this._identityService.GetLoggedInUserAsync(cancellationToken);
         if (userResult.IsFailure)
             return Result.ErrorFromResult<MealPlanDto?>(userResult);
         
-        var currentUser = userResult.Data!;
-        
-        var mealPlanEntity = MapToDomainEntity(mealPlanDto);
+        var aiResult = await this._aiService.PromptAsync<MealPlanDto>(prompt, cancellationToken);
 
-        currentUser.MealPlans.Add(mealPlanEntity);
+        if (aiResult.IsFailure)
+            return Result.ErrorFromResult<MealPlanDto?>(aiResult);
+
+        var responseDto = aiResult.Data!;
+        var currentUser = userResult.Data!;
+
+        var mealPlan = new MealPlan
+        {
+            DurationDays = responseDto.Meals.Count,
+            DietType = dietType,
+            CreatedDate = DateTime.UtcNow,
+            DailyCalories = dailyCalorieTarget,
+            ApplicationUser = currentUser,
+            MealDays = responseDto.Meals.Select(dto => dto.ToMealDay()).ToList()
+        };
+
+        currentUser.MealPlans.Add(mealPlan);
 
         this._context.Users.Update(currentUser);
         
         await this._context.SaveChangesAsync(cancellationToken);
         
-        return mealPlanDto;
-    }
-
-    private static MealPlan MapToDomainEntity(MealPlanDto mealPlanDto)
-    {
-        var mealPlan = new MealPlan()
-        {
-            DurationDays = mealPlanDto.MealDays.Count,
-            DietType = mealPlanDto.DietType,
-            CreatedDate = mealPlanDto.CreatedDate,
-            DailyCalories = mealPlanDto.DailyCalories,
-        };
-
-        var mealDays = mealPlanDto.MealDays.Select(mealDayDto => new MealDay()
-            {
-                DayNumber = mealDayDto.DayNumber,
-                Meals = mealDayDto.Meals.Select(m => new Meal()
-                    {
-                        Name = m.Name,
-                        Recipe = m.Recipe,
-                        CarbsInGrams = m.CarbsInGrams,
-                        FatInGrams = m.FatInGrams,
-                        ProteinInGrams = m.ProteinInGrams,
-                        Calories = m.Calories,
-                        MealType = Enum.Parse<MealTypes>(m.MealType)
-                    })
-                    .ToList()
-            })
-            .ToList();
-
-        mealPlan.MealDays = mealDays;
-
-        return mealPlan;
+        return responseDto;
     }
 
     private static string GenerateAIPrompt(int days, int dailyCalorieTarget, DietTypes dietType)
@@ -94,7 +63,7 @@ public class MealPlanningService : IMealPlanningService
                        For each day, provide breakfast, lunch, and dinner with exact calories and macros (protein, carbs, fat in grams).
                        Format the response as a valid JSON object matching this C# class structure:
                         
-                        public class MealDto
+                       public class MealDto
                        {
                            [MaxLength(30)]
                            public string Name { get; set; }
@@ -112,9 +81,17 @@ public class MealPlanningService : IMealPlanningService
                                
                            public virtual ICollection<MealDto> Meals { get; set; } = new List<MealDto>();
                        }
-                        
-                       Ensure all numeric values are realistic and accurate. The JSON must be valid and match the exact structure.
-
+                       
+                       public class MealPlanDto
+                       {
+                           public ICollection<MealDayDto> Meals { get; set; } = new List<MealDayDto>();
+                       }
+                       
+                       
+                       Ensure all numeric values are realistic and accurate. 
+                       
+                       The JSON Response should be a single MealPlanDto object, containing all the other nested objects inside it.
+                       
                        """;
         return prompt;
     }

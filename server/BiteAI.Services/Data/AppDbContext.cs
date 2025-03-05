@@ -72,18 +72,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasOne(u => u.GenderRelation)
             .WithMany(g => g.ApplicationUsers)
             .HasForeignKey(u => u.Gender);
-        
+
         builder.Entity<ApplicationUser>()
             .HasOne(u => u.ActivityLevelRelation)
             .WithMany(g => g.ApplicationUsers)
             .HasForeignKey(u => u.ActivityLevels);
-            
-        builder.Entity<ApplicationUser>()
-            .HasMany(u => u.MealPlans)
-            .WithOne()
-            .HasForeignKey(mp => mp.UserId)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
     }
 
     private void ConfigureMealPlan(ModelBuilder builder)
@@ -101,6 +94,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .WithOne(md => md.MealPlan)
             .HasForeignKey(md => md.MealPlanId)
             .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.Entity<MealPlan>()
+            .HasOne<ApplicationUser>(m => m.ApplicationUser)
+            .WithMany(u => u.MealPlans)
+            .HasForeignKey(u => u.ApplicationUserId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 

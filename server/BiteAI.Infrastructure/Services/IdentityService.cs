@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using BiteAI.Infrastructure.Constants;
 using BiteAI.Infrastructure.Settings;
 using BiteAI.Services.Constants;
 using BiteAI.Services.Contracts.Authentication;
@@ -113,7 +114,7 @@ public class IdentityService : IIdentityService
 
     public async Task<Result<ApplicationUser>> GetLoggedInUserAsync(CancellationToken cancellationToken = default)
     {
-        var loggedInUserId = this._httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var loggedInUserId = this._httpContextAccessor.HttpContext?.User.FindFirstValue(ExtendedClaimTypes.UniqueIdentifier);
         if(string.IsNullOrEmpty(loggedInUserId))
             return Result.Fail<ApplicationUser>(OperationError.InvalidOperation("No logged in user!"));
         
@@ -130,13 +131,11 @@ public class IdentityService : IIdentityService
 
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, applicationUser.Email ?? string.Empty),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(ClaimTypes.NameIdentifier, applicationUser.Id),
+            new(ExtendedClaimTypes.UniqueIdentifier, applicationUser.Id),
             new(ClaimTypes.Name, applicationUser.UserName ?? string.Empty),
             new(ClaimTypes.Email, applicationUser.Email ?? string.Empty),
-            new(nameof(ApplicationUser.FirstName), applicationUser.FirstName),
-            new(nameof(ApplicationUser.LastName), applicationUser.LastName)
+            new(ExtendedClaimTypes.FirstName, applicationUser.FirstName),
+            new(ExtendedClaimTypes.LastName, applicationUser.LastName)
         };
 
         // Add roles to claims

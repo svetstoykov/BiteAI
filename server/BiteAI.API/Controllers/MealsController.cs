@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BiteAI.API.Controllers;
 
-//[Authorize]
+[Authorize]
 public class MealsController : BaseApiController
 {
     private readonly IMealPlanningService _anthropicService;

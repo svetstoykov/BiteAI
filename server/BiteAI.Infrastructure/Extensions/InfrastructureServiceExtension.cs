@@ -28,8 +28,9 @@ public static class InfrastructureServiceExtension
         services.AddIdentityServices(configuration);
 
         services.AddScoped<IAIService, AIService>();
-        
-        services.Configure<JwtConfiguration>(s => configuration.GetSection("JWT"));
+
+        services.Configure<JwtConfiguration>(options =>
+            configuration.GetSection("JWT").Bind(options));            
 
         return services;
     }

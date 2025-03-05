@@ -12,7 +12,7 @@ public class MealPlan : BaseIdentifiableEntity
     public DietTypeEntity? DietTypeRelation { get; set; }
     public int DurationDays { get; set; } = 7;
         
-    public string UserId { get; set; }
+    public string ApplicationUserId { get; set; }
     
     public ApplicationUser ApplicationUser { get; set; }
     
