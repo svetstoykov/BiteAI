@@ -1,11 +1,10 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using BiteAI.Infrastructure.Data;
-using BiteAI.Infrastructure.Models;
 using BiteAI.Infrastructure.Settings;
 using BiteAI.Services.Constants;
 using BiteAI.Services.Contracts.Authentication;
+using BiteAI.Services.Data;
 using BiteAI.Services.Entities;
 using BiteAI.Services.Interfaces;
 using BiteAI.Services.Validation.Errors;
@@ -13,7 +12,6 @@ using BiteAI.Services.Validation.Result;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -21,15 +19,15 @@ namespace BiteAI.Infrastructure.Services;
 
 public class IdentityService : IIdentityService
 {
-    private readonly UserManager<IdentityAccount> _userManager;
-    private readonly SignInManager<IdentityAccount> _signInManager;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly AppDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly JwtConfiguration _jwtConfiguration;
 
     public IdentityService(
-        UserManager<IdentityAccount> userManager,
-        SignInManager<IdentityAccount> signInManager,
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager,
         AppDbContext dbContext,
         IHttpContextAccessor httpContextAccessor,
         IOptions<JwtConfiguration> jwtConfigurationOptions)
@@ -43,29 +41,24 @@ public class IdentityService : IIdentityService
 
     public async Task<Result<RegisterResponseDto>> RegisterUserAsync(RegisterDto model, CancellationToken cancellationToken = default)
     {
-        var emailExists = await this._dbContext.ApplicationUsers
+        var emailExists = await this._dbContext.Users
             .AnyAsync(u => u.Email == model.Email, cancellationToken: cancellationToken);
         
         if (emailExists)
             return Result.Fail<RegisterResponseDto>(OperationError.Conflict($"Username '{model.Username}' already exists"));
         
-        var usernameExists = await this._dbContext.ApplicationUsers
-            .AnyAsync(u => u.Username == model.Username, cancellationToken: cancellationToken);
+        var usernameExists = await this._dbContext.Users
+            .AnyAsync(u => u.UserName == model.Username, cancellationToken: cancellationToken);
         
         if (usernameExists)
             return Result.Fail<RegisterResponseDto>(OperationError.Conflict($"Email '{model.Email}' already exists"));
         
-        await using var transaction = await this._dbContext.Database.BeginTransactionAsync(cancellationToken);
-
-        var userId = Guid.NewGuid().ToString();
-
         var applicationUser = new ApplicationUser
         {
-            Id = userId,
             FirstName = model.FirstName,
             LastName = model.LastName,
             Email = model.Email,
-            Username = model.Username,
+            UserName = model.Username,
             Gender = model.Gender,
             Age = model.Age,
             WeightInKg = model.WeightInKg,
@@ -74,29 +67,16 @@ public class IdentityService : IIdentityService
             CreatedAt = DateTime.UtcNow
         };
 
-        await this._dbContext.ApplicationUsers.AddAsync(applicationUser, cancellationToken);
-        await this._dbContext.SaveChangesAsync(cancellationToken);
-
-        var identityAccount = new IdentityAccount
-        {
-            Id = userId,
-            UserName = model.Username,
-            Email = model.Email
-        };
-
-        var result = await this._userManager.CreateAsync(identityAccount, model.Password);
+        var result = await this._userManager.CreateAsync(applicationUser, model.Password);
         if (!result.Succeeded)
         {
-            await transaction.RollbackAsync(cancellationToken);
             var errorMessage = string.Join(", ", result.Errors.Select(e => e.Description));
             return Result.Fail<RegisterResponseDto>(OperationError.Validation(errorMessage));
         }
 
-        await this._userManager.AddToRoleAsync(identityAccount, Roles.User);
-
-        await transaction.CommitAsync(cancellationToken);
-
-        return Result.Success(new RegisterResponseDto { UserId = applicationUser.Id }, "User successfully registered");
+        await this._userManager.AddToRoleAsync(applicationUser, Roles.User);
+        
+        return Result.Success(new RegisterResponseDto { UserId = applicationUser.Id }, "User successfully registered!");
     }
 
     public async Task<Result<LoginResponseDto>> LoginUserAsync(LoginDto model, CancellationToken cancellationToken = default)
@@ -120,15 +100,15 @@ public class IdentityService : IIdentityService
         var response = new LoginResponseDto
         {
             Token = token,
-            FirstName = identityAccount.ApplicationUser.FirstName,
-            LastName = identityAccount.ApplicationUser.LastName,
+            FirstName = identityAccount.FirstName,
+            LastName = identityAccount.LastName,
             Email = identityAccount.Email!,
             UserName = identityAccount.UserName!,
             TokenExpiration = expiration,
             UserId = Guid.Parse(identityAccount.Id)
         };
 
-        return Result.Success(response, "User successfully logged in");
+        return Result.Success(response, "Login successful!");
     }
 
     public async Task<Result<ApplicationUser>> GetLoggedInUserAsync(CancellationToken cancellationToken = default)
@@ -137,25 +117,24 @@ public class IdentityService : IIdentityService
         if(string.IsNullOrEmpty(loggedInUserId))
             return Result.Fail<ApplicationUser>(OperationError.InvalidOperation("No logged in user!"));
         
-        var user = await this._dbContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == loggedInUserId, cancellationToken: cancellationToken);
+        var user = await this._dbContext.Users.FirstOrDefaultAsync(u => u.Id == loggedInUserId, cancellationToken: cancellationToken);
         if (user == null)
             return Result.Fail<ApplicationUser>(OperationError.NotFound("User not found"));
 
         return Result.Success(user);
     }
 
-    private async Task<string> GenerateJwtTokenAsync(IdentityAccount identityAccount)
+    private async Task<string> GenerateJwtTokenAsync(ApplicationUser applicationUser)
     {
-        var userRoles = await this._userManager.GetRolesAsync(identityAccount);
-        var applicationUser = identityAccount.ApplicationUser;
+        var userRoles = await this._userManager.GetRolesAsync(applicationUser);
 
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, identityAccount.Email ?? string.Empty),
+            new(JwtRegisteredClaimNames.Sub, applicationUser.Email ?? string.Empty),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(ClaimTypes.NameIdentifier, identityAccount.Id),
-            new(ClaimTypes.Name, identityAccount.UserName ?? string.Empty),
-            new(ClaimTypes.Email, identityAccount.Email ?? string.Empty),
+            new(ClaimTypes.NameIdentifier, applicationUser.Id),
+            new(ClaimTypes.Name, applicationUser.UserName ?? string.Empty),
+            new(ClaimTypes.Email, applicationUser.Email ?? string.Empty),
             new(nameof(ApplicationUser.FirstName), applicationUser.FirstName),
             new(nameof(ApplicationUser.LastName), applicationUser.LastName)
         };

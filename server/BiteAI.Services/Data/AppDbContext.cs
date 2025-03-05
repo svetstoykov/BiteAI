@@ -1,16 +1,14 @@
-using BiteAI.Infrastructure.Extensions;
-using BiteAI.Infrastructure.Models;
 using BiteAI.Services.Entities;
 using BiteAI.Services.Entities.Base;
 using BiteAI.Services.Entities.Enums;
 using BiteAI.Services.Enums;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace BiteAI.Infrastructure.Data;
+namespace BiteAI.Services.Data;
 
-public class AppDbContext : IdentityDbContext<IdentityAccount>
+public class AppDbContext : IdentityDbContext<ApplicationUser>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
@@ -19,7 +17,6 @@ public class AppDbContext : IdentityDbContext<IdentityAccount>
     public DbSet<MealPlan> MealPlans { get; set; }
     public DbSet<MealDay> MealDays { get; set; }
     public DbSet<Meal> Meals { get; set; }
-    public DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public DbSet<ActivityLevelTypeEntity> ActivityLevels { get; set; }
     public DbSet<DietTypeEntity> DietTypes { get; set; }
     public DbSet<GenderTypeEntity> Genders { get; set; }
@@ -29,32 +26,13 @@ public class AppDbContext : IdentityDbContext<IdentityAccount>
     {
         base.OnModelCreating(builder);
 
-        this.ConfigureIdentityAccount(builder);
         this.ConfigureEnumEntities(builder);
         this.ConfigureApplicationUser(builder);
         this.ConfigureMealPlan(builder);
         this.ConfigureMealDay(builder);
         this.ConfigureMeal(builder);
     }
-
-    private void ConfigureIdentityAccount(ModelBuilder builder)
-    {
-        builder.Entity<IdentityAccount>()
-            .HasOne(ia => ia.ApplicationUser)
-            .WithOne()
-            .HasForeignKey<IdentityAccount>(ia => ia.Id)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade);
-            
-        builder.Entity<IdentityAccount>()
-            .Navigation(ia => ia.ApplicationUser)
-            .AutoInclude();
-
-        builder.Entity<IdentityAccount>()
-            .Property(p => p.Id)
-            .ValueGeneratedNever();
-    }
-
+    
     private void ConfigureEnumEntities(ModelBuilder builder)
     {
         builder.Entity<ActivityLevelTypeEntity>().HasKey(e => e.Value);
@@ -81,6 +59,7 @@ public class AppDbContext : IdentityDbContext<IdentityAccount>
         foreach (var insertType in (MealTypes[])Enum.GetValues(typeof(MealTypes)))
             builder.Entity<MealTypeEntity>().HasData(new MealTypeEntity(insertType, insertType.ToString()));
     }
+    
     private void ConfigureApplicationUser(ModelBuilder builder)
     {
         builder.Entity<ApplicationUser>()

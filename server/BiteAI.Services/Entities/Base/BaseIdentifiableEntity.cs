@@ -1,6 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace BiteAI.Services.Entities.Base;
 
-public class BaseIdentifiableEntity
+public abstract class BaseIdentifiableEntity
 {
-    public string? Id { get; set; }
+    [Key]
+    public Guid Id { get; set; }
 }

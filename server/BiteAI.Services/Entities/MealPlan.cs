@@ -12,10 +12,12 @@ public class MealPlan : BaseIdentifiableEntity
     public DietTypeEntity? DietTypeRelation { get; set; }
     public int DurationDays { get; set; } = 7;
         
-    public required string UserId { get; set; }
+    public string UserId { get; set; }
     
-    public required ApplicationUser ApplicationUser { get; set; }
+    public ApplicationUser ApplicationUser { get; set; }
     
     public virtual ICollection<MealDay> MealDays { get; set; } = new List<MealDay>();
+    
+    public DateTime? LastLoginAt { get; set; }
 }
     

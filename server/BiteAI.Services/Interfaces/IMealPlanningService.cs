@@ -6,5 +6,5 @@ namespace BiteAI.Services.Interfaces;
 
 public interface IMealPlanningService
 {
-    Task<Result<MealPlanDto?>> PlanMealForWeek(int days, int dailyCalorieTarget, DietTypes dietType);
+    Task<Result<MealPlanDto?>> GenerateMealPlanForLoggedInUserAsync(int days, int dailyCalorieTarget, DietTypes dietType, CancellationToken cancellationToken = default);
 }

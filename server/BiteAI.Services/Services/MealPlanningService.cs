@@ -1,7 +1,8 @@
+using BiteAI.Services.Data;
+using BiteAI.Services.Entities;
 using BiteAI.Services.Enums;
 using BiteAI.Services.Interfaces;
 using BiteAI.Services.Models;
-using BiteAI.Services.Validation.Errors;
 using BiteAI.Services.Validation.Result;
 
 namespace BiteAI.Services.Services;
@@ -9,40 +10,81 @@ namespace BiteAI.Services.Services;
 public class MealPlanningService : IMealPlanningService
 {
     private readonly IAIService _aiService;
-
-    public MealPlanningService(IAIService aiService)
+    private readonly IIdentityService _identityService;
+    private readonly AppDbContext _context;
+    
+    public MealPlanningService(IAIService aiService, IIdentityService identityService, AppDbContext context)
     {
         this._aiService = aiService;
+        this._identityService = identityService;
+        this._context = context;
     }
 
-    public async Task<Result<MealPlanDto?>> PlanMealForWeek(int days, int dailyCalorieTarget, DietTypes dietType)
+    public async Task<Result<MealPlanDto?>> GenerateMealPlanForLoggedInUserAsync(int days, int dailyCalorieTarget, DietTypes dietType, CancellationToken cancellationToken = default)
     {
         var prompt = GenerateAIPrompt(days, dailyCalorieTarget, dietType);
 
-        try
+        var aiResult = await this._aiService.PromptAsync<MealDayDto[]>(prompt, cancellationToken);
+
+        if (aiResult.IsFailure)
+            return Result.ErrorFromResult<MealPlanDto?>(aiResult);
+
+        var mealPlanDto = new MealPlanDto
         {
-            var aiResult = await this._aiService.PromptAsync<MealDayDto[]>(prompt);
+            CreatedDate = DateTime.UtcNow,
+            DailyCalories = dailyCalorieTarget,
+            DietType = dietType,
+            DurationDays = days,
+            MealDays = aiResult.Data!
+        };
 
-            if (aiResult.IsFailure)
-                return Result.ErrorFromResult<MealPlanDto?>(aiResult);
+        var userResult = await this._identityService.GetLoggedInUserAsync(cancellationToken);
+        if (userResult.IsFailure)
+            return Result.ErrorFromResult<MealPlanDto?>(userResult);
+        
+        var currentUser = userResult.Data!;
+        
+        var mealPlanEntity = MapToDomainEntity(mealPlanDto);
 
-            var mealPlanDto = new MealPlanDto
+        currentUser.MealPlans.Add(mealPlanEntity);
+
+        this._context.Users.Update(currentUser);
+        
+        await this._context.SaveChangesAsync(cancellationToken);
+        
+        return mealPlanDto;
+    }
+
+    private static MealPlan MapToDomainEntity(MealPlanDto mealPlanDto)
+    {
+        var mealPlan = new MealPlan()
+        {
+            DurationDays = mealPlanDto.MealDays.Count,
+            DietType = mealPlanDto.DietType,
+            CreatedDate = mealPlanDto.CreatedDate,
+            DailyCalories = mealPlanDto.DailyCalories,
+        };
+
+        var mealDays = mealPlanDto.MealDays.Select(mealDayDto => new MealDay()
             {
-                CreatedDate = DateTime.UtcNow,
-                DailyCalories = dailyCalorieTarget,
-                DietType = dietType,
-                DurationDays = days,
-                MealDays = aiResult.Data!
-            };
+                DayNumber = mealDayDto.DayNumber,
+                Meals = mealDayDto.Meals.Select(m => new Meal()
+                    {
+                        Name = m.Name,
+                        Recipe = m.Recipe,
+                        CarbsInGrams = m.CarbsInGrams,
+                        FatInGrams = m.FatInGrams,
+                        ProteinInGrams = m.ProteinInGrams,
+                        Calories = m.Calories,
+                        MealType = Enum.Parse<MealTypes>(m.MealType)
+                    })
+                    .ToList()
+            })
+            .ToList();
 
-            return mealPlanDto;
-        }
-        catch (Exception ex)
-        {
-            return Result.Fail<MealPlanDto?>(OperationError.ExternalServiceError(
-                "External service failed to process meal plan request",
-                "AI_SERVICE_ERROR"));
-        }
+        mealPlan.MealDays = mealDays;
+
+        return mealPlan;
     }
 
     private static string GenerateAIPrompt(int days, int dailyCalorieTarget, DietTypes dietType)
@@ -63,7 +105,7 @@ public class MealPlanningService : IMealPlanningService
                            public int CarbsInGrams { get; set; }
                            public int FatInGrams { get; set; }
                        }
-                       
+
                        public class MealDayDto
                        {
                            public int DayNumber { get; set; }

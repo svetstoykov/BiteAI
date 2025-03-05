@@ -1,8 +1,8 @@
 using System.Text;
-using BiteAI.Infrastructure.Data;
-using BiteAI.Infrastructure.Models;
 using BiteAI.Infrastructure.Services;
 using BiteAI.Infrastructure.Settings;
+using BiteAI.Services.Data;
+using BiteAI.Services.Entities;
 using BiteAI.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -37,7 +37,7 @@ public static class InfrastructureServiceExtension
     private static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
     {
         // Configure Identity
-        services.AddIdentity<IdentityAccount, IdentityRole>(options =>
+        services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 // Password settings
                 options.Password.RequireDigit = true;

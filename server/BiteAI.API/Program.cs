@@ -1,9 +1,9 @@
 using BiteAI.API.Extensions;
 using BiteAI.API.Middleware;
-using BiteAI.Infrastructure.Data;
 using BiteAI.Infrastructure.Extensions;
 using BiteAI.Infrastructure.Helpers;
-using BiteAI.Infrastructure.Models;
+using BiteAI.Services.Data;
+using BiteAI.Services.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,7 +44,7 @@ if (app.Environment.IsDevelopment())
     dbContext.Database.Migrate();
         
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityAccount>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         
     await DataSeeders.AddDefaultRolesAsync(roleManager);
     await DataSeeders.AddDefaultAdminAsync(app, userManager, builder.Configuration);

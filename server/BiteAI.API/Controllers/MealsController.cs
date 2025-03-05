@@ -20,7 +20,7 @@ public class MealsController : BaseApiController
     [HttpPost("weekly-meal-plan")]
     public async Task<IActionResult> GenerateWeeklyMealPlan([FromBody] GenerateMealPlanRequestDto request)
     {
-        var result = await this._anthropicService.PlanMealForWeek(days: 7, request.DailyTargetCalories, request.DietType);
+        var result = await this._anthropicService.GenerateMealPlanForLoggedInUserAsync(days: 7, request.DailyTargetCalories, request.DietType);
 
         return this.ToActionResult(result);
     }
@@ -28,7 +28,7 @@ public class MealsController : BaseApiController
     [HttpPost("daily-meal-plan")]
     public async Task<IActionResult> GenerateDailyMealPlan([FromBody] GenerateMealPlanRequestDto request)
     {
-        var result = await this._anthropicService.PlanMealForWeek(days: 1, request.DailyTargetCalories, request.DietType);
+        var result = await this._anthropicService.GenerateMealPlanForLoggedInUserAsync(days: 1, request.DailyTargetCalories, request.DietType);
 
         return this.ToActionResult(result);
     }

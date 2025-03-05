@@ -1,6 +1,6 @@
-using BiteAI.Infrastructure.Models;
 using BiteAI.Services.Constants;
 using BiteAI.Services.Contracts.Authentication;
+using BiteAI.Services.Entities;
 using BiteAI.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -25,7 +25,7 @@ public class DataSeeders
         }
     }
 
-    public static async Task AddDefaultAdminAsync(WebApplication app, UserManager<IdentityAccount> userManager, IConfiguration configuration)
+    public static async Task AddDefaultAdminAsync(WebApplication app, UserManager<ApplicationUser> userManager, IConfiguration configuration)
     {
         var adminEmail = configuration["DefaultAdmin:Email"] ?? throw new InvalidOperationException("DefaultAdmin:Email not configured");
         var adminUser = await userManager.FindByEmailAsync(adminEmail);
