@@ -1,4 +1,4 @@
-namespace BiteAI.Services.Contracts;
+namespace BiteAI.Services.Contracts.Calories;
 
 public class MetabolicProfileDto
 {

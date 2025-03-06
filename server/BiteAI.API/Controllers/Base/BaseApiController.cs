@@ -38,6 +38,7 @@ public class BaseApiController : ControllerBase
             ErrorType.Unauthorized => new UnauthorizedObjectResult(response),
             ErrorType.BadRequest => new BadRequestObjectResult(response),
             ErrorType.Conflict => new ConflictObjectResult(response),
+            ErrorType.UnprocessableEntity => new UnprocessableEntityObjectResult(response),
             ErrorType.Timeout => new ObjectResult(response)
             {
                 StatusCode = StatusCodes.Status408RequestTimeout
@@ -50,21 +51,14 @@ public class BaseApiController : ControllerBase
     }
 
     [NonAction]
-    protected IActionResult ToSuccessResult<T>(Result<T> result)
-    {
-        return this.Ok(new ApiResponse<T>(
-            success: true,
-            message: result.SuccessMessage ?? "Success",
-            data: result.Data
-        ));
-    }
-    
+    protected IActionResult ToSuccessResult<T>(Result<T> result) =>
+        this.Ok(new ApiResponse<T>(success: true, message: result.SuccessMessage ?? "Success", data: result.Data));
+
     [NonAction]
     protected IActionResult ToSuccessResult(Result result)
-    {
-        return this.Ok(new ApiResponse<object>(
-            success: true,
-            message: result.SuccessMessage ?? "Success"
-        ));
-    }
+        => this.Ok(new ApiResponse<object>(success: true, message: result.SuccessMessage ?? "Success"));
+
+    [NonAction]
+    protected IActionResult NoLoggedInUserResult()
+        => this.ToActionResult(Result.Fail(OperationError.UnprocessableEntity("No logged in user found! Please verify that the authentication is correct.")));
 }

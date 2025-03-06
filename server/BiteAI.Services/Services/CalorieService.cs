@@ -1,4 +1,5 @@
 using BiteAI.Services.Contracts;
+using BiteAI.Services.Contracts.Calories;
 using BiteAI.Services.Interfaces;
 using BiteAI.Services.Validation.Errors;
 using BiteAI.Services.Validation.Result;

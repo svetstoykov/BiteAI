@@ -1,4 +1,4 @@
-using BiteAI.Services.Enums;
+using BiteAI.Services.Contracts.Enums;
 
 namespace BiteAI.API.Models.Meals;
 

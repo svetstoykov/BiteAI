@@ -1,7 +1,7 @@
-using BiteAI.Services.Entities.Base;
-using BiteAI.Services.Enums;
+using BiteAI.Services.Contracts.Enums;
+using BiteAI.Services.Data.Entities.Base;
 
-namespace BiteAI.Services.Entities.Enums;
+namespace BiteAI.Services.Data.Entities.Enums;
 
 public class GenderTypeEntity : BaseNameValueEntity<Genders, string>
 {

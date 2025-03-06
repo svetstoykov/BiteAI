@@ -1,5 +1,6 @@
 using BiteAI.API.Controllers.Base;
 using BiteAI.Services.Contracts;
+using BiteAI.Services.Contracts.Calories;
 using BiteAI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

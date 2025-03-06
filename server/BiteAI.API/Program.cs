@@ -3,7 +3,7 @@ using BiteAI.API.Middleware;
 using BiteAI.Infrastructure.Extensions;
 using BiteAI.Infrastructure.Helpers;
 using BiteAI.Services.Data;
-using BiteAI.Services.Entities;
+using BiteAI.Services.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

@@ -46,7 +46,6 @@ const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
   const loggedInNavItems: NavItem[] = [
     { label: "Profile", onClick: () => handleNavigate("/profile") },
     { label: "Meal Plan", onClick: () => handleNavigate("/meal-plan") },
-    { label: "Goals", onClick: () => handleNavigate("/goals") },
     { label: "Logout", onClick: handleLogout },
   ];
 
@@ -64,7 +63,7 @@ const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
       <div className="p-10 mx-auto flex justify-between items-center">
         <div
           className="cursor-pointer flex items-center"
-          onClick={() => handleNavigate("/")}
+          onClick={() => handleNavigate("/meal-plan")}
         >
           <h1 className="text-6xl">
             <span className="font-thin">Bite</span>

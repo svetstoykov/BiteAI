@@ -3,20 +3,21 @@ using System.Text.Json.Serialization;
 using Anthropic.SDK;
 using Anthropic.SDK.Constants;
 using Anthropic.SDK.Messaging;
+using BiteAI.Infrastructure.Settings;
 using BiteAI.Services.Interfaces;
 using BiteAI.Services.Validation.Errors;
 using BiteAI.Services.Validation.Result;
 using GenerativeAI;
 using GenerativeAI.Types;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace BiteAI.Infrastructure.Services;
 
 public class AIService : IAIService
 {
     private readonly AnthropicClient _anthropicClient;
-    private readonly IConfiguration _configuration;
+    private readonly GoogleConfiguration _googleConfiguration;
     private readonly IMemoryCache _memoryCache;
     private readonly MemoryCacheEntryOptions _cacheOptions;
 
@@ -28,11 +29,11 @@ public class AIService : IAIService
 
     public AIService(
         AnthropicClient anthropicClient, 
-        IConfiguration configuration,
+        IOptionsMonitor<GoogleConfiguration> googleConfigurationMonitor,
         IMemoryCache memoryCache)
     {
         this._anthropicClient = anthropicClient;
-        this._configuration = configuration;
+        this._googleConfiguration = googleConfigurationMonitor.CurrentValue;
         this._memoryCache = memoryCache;
         this._cacheOptions = new MemoryCacheEntryOptions()
             .SetAbsoluteExpiration(TimeSpan.FromMinutes(30))
@@ -100,7 +101,7 @@ public class AIService : IAIService
     {
         try
         {
-            var generativeModel = new GenerativeModel(this._configuration["Google:ApiKey"], "gemini-2.0-flash-lite");
+            var generativeModel = new GenerativeModel(this._googleConfiguration.ApiKey, this._googleConfiguration.Model);
 
             var request = new GenerateContentRequest();
             request.AddText(message);

@@ -11,5 +11,6 @@ public enum ErrorType
     InternalError,
     ExternalServiceError,
     InvalidOperation,
-    Timeout
+    Timeout,
+    UnprocessableEntity,
 }

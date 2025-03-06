@@ -1,4 +1,4 @@
-namespace BiteAI.Services.Enums;
+namespace BiteAI.Services.Contracts.Enums;
 
 public enum Genders
 {

@@ -2,7 +2,7 @@ using System.Text;
 using BiteAI.Infrastructure.Services;
 using BiteAI.Infrastructure.Settings;
 using BiteAI.Services.Data;
-using BiteAI.Services.Entities;
+using BiteAI.Services.Data.Entities;
 using BiteAI.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -32,6 +32,9 @@ public static class InfrastructureServiceExtension
         services.Configure<JwtConfiguration>(options =>
             configuration.GetSection("JWT").Bind(options));            
 
+        services.Configure<GoogleConfiguration>(options =>
+            configuration.GetSection("Google").Bind(options));            
+        
         return services;
     }
 

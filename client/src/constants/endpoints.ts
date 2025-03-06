@@ -22,3 +22,4 @@ export const SUCCESS_DATA = "/api/OperationErrors/success-data";
 // Meals endpoints
 export const WEEKLY_MEAL_PLAN = "/api/Meals/weekly-meal-plan";
 export const DAILY_MEAL_PLAN = "/api/Meals/daily-meal-plan";
+export const LATEST_MEAL_PLAN = "/api/Meals/latest-meal-plan";

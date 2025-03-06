@@ -1,4 +1,5 @@
 using BiteAI.Services.Contracts;
+using BiteAI.Services.Contracts.Calories;
 using BiteAI.Services.Validation.Result;
 
 namespace BiteAI.Services.Interfaces;

@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using BiteAI.Services.Enums;
+using BiteAI.Services.Contracts.Enums;
 
 namespace BiteAI.Services.Contracts.Authentication;
 

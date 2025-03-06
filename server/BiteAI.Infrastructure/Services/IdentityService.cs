@@ -6,7 +6,7 @@ using BiteAI.Infrastructure.Settings;
 using BiteAI.Services.Constants;
 using BiteAI.Services.Contracts.Authentication;
 using BiteAI.Services.Data;
-using BiteAI.Services.Entities;
+using BiteAI.Services.Data.Entities;
 using BiteAI.Services.Interfaces;
 using BiteAI.Services.Validation.Errors;
 using BiteAI.Services.Validation.Result;

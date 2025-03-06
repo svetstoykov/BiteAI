@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { format, addDays } from "date-fns";
 import { MealService } from "../../services/meal-service";
 import { DietTypes, MealPlan, MealTypes } from "../../models/meals";
 import { toast } from "react-toastify";
-import { AuthenticationService } from "../../services/authentication-service";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useCalorieStore } from "../../stores/calorie-store";
 import { motion, AnimatePresence } from "framer-motion";
 import { Apple, Coffee, Soup, UtensilsCrossed, ChevronDown } from "lucide-react";
@@ -22,16 +20,24 @@ const MealPlanComponent = () => {
   const mealService = new MealService();
 
   useEffect(() => {
-    // if (dailyCalories === null || dietType === null) {
-    //   navigate("/setup");
-    //   return;
-    // }
-
     const fetchMealPlan = async () => {
       setIsLoading(true);
 
       try {
-        const result = await mealService.generateWeeklyMealPlan(2800, DietTypes.Standard);
+        const existingMealPlanResult = await mealService.getLatestMealPlan();
+        if (existingMealPlanResult.success) {
+          setMealPlan(existingMealPlanResult.data!);
+          return;
+        }
+
+        toast.error("Failed to retrieve latest meal plan!");
+
+        if (dailyCalories === null || dietType === null) {
+          navigate("/setup");
+          return;
+        }
+
+        const result = await mealService.generateWeeklyMealPlan(dailyCalories, dietType);
 
         if (result.success) {
           setMealPlan(result.data!);
@@ -53,6 +59,18 @@ const MealPlanComponent = () => {
   useEffect(() => {
     setExpandedMeals({});
   }, [activeDay]);
+
+  const handleGenerateNewMealClick = async () => {
+    const result = await mealService.generateWeeklyMealPlan(
+      mealPlan?.dailyCalories!,
+      mealPlan?.dietType!
+    );
+
+    if (result.success) {
+      setMealPlan(result.data!);
+      return;
+    }
+  };
 
   // Get the current day data
   const currentDay = mealPlan?.mealDays[activeDay] || null;
@@ -283,6 +301,11 @@ const MealPlanComponent = () => {
             <span>{nutritionSummary?.fiber || 0}g</span>
           </div>
         </div>
+        {mealPlan && (
+          <div className="text-center text-xl font-thin cursor-pointer hover:bg-eggshell/80 mt-4 p-4 border rounded-full border-gray-300 shadow-sm transition duration-300">
+            <button onClick={handleGenerateNewMealClick}>Generate new weekly meal</button>
+          </div>
+        )}
       </div>
     </div>
   );

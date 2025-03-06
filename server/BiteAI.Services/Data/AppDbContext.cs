@@ -1,7 +1,6 @@
-using BiteAI.Services.Entities;
-using BiteAI.Services.Entities.Base;
-using BiteAI.Services.Entities.Enums;
-using BiteAI.Services.Enums;
+using BiteAI.Services.Contracts.Enums;
+using BiteAI.Services.Data.Entities;
+using BiteAI.Services.Data.Entities.Enums;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;

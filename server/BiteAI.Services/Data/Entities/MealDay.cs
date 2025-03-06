@@ -1,6 +1,6 @@
-using BiteAI.Services.Entities.Base;
+using BiteAI.Services.Data.Entities.Base;
 
-namespace BiteAI.Services.Entities;
+namespace BiteAI.Services.Data.Entities;
 
 public class MealDay : BaseIdentifiableEntity
 {

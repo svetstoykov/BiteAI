@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace BiteAI.Services.Entities.Base;
+namespace BiteAI.Services.Data.Entities.Base;
 
 public abstract class BaseIdentifiableEntity
 {

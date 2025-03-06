@@ -1,8 +1,8 @@
-using BiteAI.Services.Entities.Base;
-using BiteAI.Services.Entities.Enums;
-using BiteAI.Services.Enums;
+using BiteAI.Services.Contracts.Enums;
+using BiteAI.Services.Data.Entities.Base;
+using BiteAI.Services.Data.Entities.Enums;
 
-namespace BiteAI.Services.Entities;
+namespace BiteAI.Services.Data.Entities;
 
 public class Meal : BaseIdentifiableEntity
 {

@@ -1,6 +1,4 @@
-using BiteAI.Services.Enums;
-
-namespace BiteAI.Services.Models;
+namespace BiteAI.Services.Contracts.Meals;
 
 public class MealPlanDto
 {

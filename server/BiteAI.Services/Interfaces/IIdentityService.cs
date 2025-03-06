@@ -1,5 +1,5 @@
 using BiteAI.Services.Contracts.Authentication;
-using BiteAI.Services.Entities;
+using BiteAI.Services.Data.Entities;
 using BiteAI.Services.Validation.Result;
 
 namespace BiteAI.Services.Interfaces;

@@ -1,6 +1,7 @@
 using BiteAI.Services.Constants;
 using BiteAI.Services.Contracts.Authentication;
-using BiteAI.Services.Entities;
+using BiteAI.Services.Contracts.Enums;
+using BiteAI.Services.Data.Entities;
 using BiteAI.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -44,8 +45,8 @@ public class DataSeeders
                 Username = configuration["DefaultAdmin:UserName"] ?? "admin",
                 Password = password,
                 ConfirmPassword = password,
-                Gender = BiteAI.Services.Enums.Genders.Male, 
-                ActivityLevel = BiteAI.Services.Enums.ActivityLevels.NotSpecified
+                Gender = Genders.Male, 
+                ActivityLevel = ActivityLevels.NotSpecified
             };
 
             

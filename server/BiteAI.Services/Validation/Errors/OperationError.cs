@@ -39,4 +39,7 @@ public class OperationError
 
     public static OperationError Timeout(string message, string? code = null) 
         => new OperationError(message, ErrorType.Timeout, code);
+    
+    public static OperationError UnprocessableEntity(string message, string? code = null) 
+        => new OperationError(message, ErrorType.UnprocessableEntity, code);
 }
