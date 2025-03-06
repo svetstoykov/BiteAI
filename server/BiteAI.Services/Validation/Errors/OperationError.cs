@@ -14,32 +14,32 @@ public class OperationError
     }
     
     public static OperationError NotFound(string message, string? code = null) 
-        => new OperationError(message, ErrorType.NotFound, code);
+        => new(message, ErrorType.NotFound, code);
 
     public static OperationError Validation(string message, string? code = null) 
-        => new OperationError(message, ErrorType.Validation, code);
+        => new(message, ErrorType.Validation, code);
 
     public static OperationError Unauthorized(string message, string? code = null) 
-        => new OperationError(message, ErrorType.Unauthorized, code);
+        => new(message, ErrorType.Unauthorized, code);
 
     public static OperationError BadRequest(string message, string? code = null) 
-        => new OperationError(message, ErrorType.BadRequest, code);
+        => new(message, ErrorType.BadRequest, code);
 
     public static OperationError Conflict(string message, string? code = null) 
-        => new OperationError(message, ErrorType.Conflict, code);
+        => new(message, ErrorType.Conflict, code);
 
     public static OperationError InternalError(string message, string? code = null) 
-        => new OperationError(message, ErrorType.InternalError, code);
+        => new(message, ErrorType.InternalError, code);
 
     public static OperationError ExternalServiceError(string message, string? code = null) 
-        => new OperationError(message, ErrorType.ExternalServiceError, code);
+        => new(message, ErrorType.ExternalServiceError, code);
 
     public static OperationError InvalidOperation(string message, string? code = null) 
-        => new OperationError(message, ErrorType.InvalidOperation, code);
+        => new(message, ErrorType.InvalidOperation, code);
 
     public static OperationError Timeout(string message, string? code = null) 
-        => new OperationError(message, ErrorType.Timeout, code);
+        => new(message, ErrorType.Timeout, code);
     
     public static OperationError UnprocessableEntity(string message, string? code = null) 
-        => new OperationError(message, ErrorType.UnprocessableEntity, code);
+        => new(message, ErrorType.UnprocessableEntity, code);
 }

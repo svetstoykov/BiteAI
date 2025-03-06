@@ -22,7 +22,7 @@ const Layout = ({ children }: LayoutProps) => {
       <div className="z-10 pt-8 pb-8 px-4">
         {children}
       </div>
-      <Footer/>
+      {/* <Footer/> */}
       <ToastContainer />
     </main>
   );

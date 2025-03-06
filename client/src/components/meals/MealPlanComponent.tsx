@@ -7,6 +7,7 @@ import { useCalorieStore } from "../../stores/calorie-store";
 import { motion, AnimatePresence } from "framer-motion";
 import { Apple, Coffee, Soup, UtensilsCrossed, ChevronDown } from "lucide-react";
 import MealPlanPreparationSpinner from "./MealPlanPreparationSpinner";
+import { AuthenticationService } from "../../services/authentication-service";
 
 const MealPlanComponent = () => {
   const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
@@ -18,19 +19,20 @@ const MealPlanComponent = () => {
   const { dailyCalories, dietType } = useCalorieStore();
 
   const mealService = new MealService();
+  const authenticationService = new AuthenticationService();
 
   useEffect(() => {
     const fetchMealPlan = async () => {
       setIsLoading(true);
 
       try {
-        const existingMealPlanResult = await mealService.getLatestMealPlan();
-        if (existingMealPlanResult.success) {
-          setMealPlan(existingMealPlanResult.data!);
-          return;
+        if (authenticationService.isAuthenticated()) {
+          const existingMealPlanResult = await mealService.getLatestMealPlan();
+          if (existingMealPlanResult.success) {
+            setMealPlan(existingMealPlanResult.data!);
+            return;
+          }
         }
-
-        toast.error("Failed to retrieve latest meal plan!");
 
         if (dailyCalories === null || dietType === null) {
           navigate("/setup");
@@ -44,7 +46,6 @@ const MealPlanComponent = () => {
           return;
         }
 
-        toast.error(result.message);
       } catch (err) {
         toast.error("An unexpected error occurred");
       } finally {
