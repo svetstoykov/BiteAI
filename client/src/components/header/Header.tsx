@@ -5,17 +5,13 @@ import NavMenu from "./NavMenu";
 import { useNavigate } from "react-router-dom";
 import { AuthenticationService } from "../../services/authentication-service";
 
-interface HeaderProps {
-  isLoggedIn?: boolean;
-  userName?: string;
-}
 
 interface NavItem {
   label: string;
   onClick: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
+const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const navigate = useNavigate();
   const authenticationService = new AuthenticationService();
@@ -40,6 +36,7 @@ const Header: React.FC<HeaderProps> = ({ isLoggedIn = false }) => {
   };
 
   const handleLogout = (): void => {
+    authenticationService.logout();
     handleNavigate("/");
   };
 

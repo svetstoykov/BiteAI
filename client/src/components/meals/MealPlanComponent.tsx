@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { MealService } from "../../services/meal-service";
-import { DietTypes, MealPlan, MealTypes } from "../../models/meals";
+import { MealPlan, MealTypes } from "../../models/meals";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useCalorieStore } from "../../stores/calorie-store";

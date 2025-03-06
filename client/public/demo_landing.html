@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiteAI - AI-Powered Meal Planning</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: #d7b7b2;
+            color: #222;
+            overflow-x: hidden;
+        }
+
+        /* Wave Elements */
+        .wave-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='0.3' d='M0,192L48,176C96,160,192,128,288,128C384,128,480,160,576,176C672,192,768,192,864,170.7C960,149,1056,107,1152,106.7C1248,107,1344,149,1392,170.7L1440,192L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            z-index: -1;
+        }
+
+        .wave-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 250px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23c4b6a6' fill-opacity='1' d='M0,224L48,224C96,224,192,224,288,208C384,192,480,160,576,165.3C672,171,768,213,864,218.7C960,224,1056,192,1152,181.3C1248,171,1344,181,1392,186.7L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            z-index: -1;
+        }
+
+        .wave-mid {
+            position: absolute;
+            top: 40%;
+            right: 0;
+            width: 100%;
+            height: 250px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23c4b6a6' fill-opacity='0.5' d='M0,160L48,144C96,128,192,96,288,106.7C384,117,480,171,576,165.3C672,160,768,96,864,74.7C960,53,1056,75,1152,74.7C1248,75,1344,53,1392,42.7L1440,32L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            z-index: -1;
+            transform: scaleX(-1);
+        }
+
+        /* Navigation */
+        header {
+            padding: 2rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #111;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav li {
+            margin-left: 2rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #222;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #444;
+        }
+
+        .cta-button {
+            background-color: #1a1f36;
+            color: white;
+            padding: 0.8rem 1.8rem;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            background-color: #2d3350;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            padding: 0 4rem;
+        }
+
+        .hero-content {
+            width: 50%;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            max-width: 90%;
+        }
+
+        .hero-image {
+            width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .hero-image img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem;
+        }
+
+        .feature-card {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-card h3 svg {
+            margin-right: 0.75rem;
+        }
+
+        .feature-card p {
+            color: #444;
+            line-height: 1.6;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 6rem 4rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-section p {
+            font-size: 1.25rem;
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-cards {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .diet-card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            width: 200px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .diet-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .diet-card h3 {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #1a1f36;
+            color: white;
+            padding: 3rem 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .footer-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-left: 2rem;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            opacity: 0.8;
+        }
+
+        .copyright {
+            margin-top: 2rem;
+            text-align: center;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding-top: 2rem;
+            }
+
+            .hero-content, .hero-image {
+                width: 100%;
+            }
+
+            .hero-content {
+                margin-bottom: 3rem;
+            }
+
+            .hero p {
+                max-width: 100%;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 1.5rem 2rem;
+                flex-direction: column;
+            }
+
+            nav ul {
+                margin-top: 1.5rem;
+            }
+
+            nav li {
+                margin-left: 1rem;
+                margin-right: 1rem;
+            }
+
+            .hero, .features, .cta-section {
+                padding: 4rem 2rem;
+            }
+
+            .cta-cards {
+                flex-wrap: wrap;
+            }
+
+            .footer-content {
+                flex-direction: column;
+            }
+
+            .footer-links {
+                margin-top: 1.5rem;
+            }
+
+            .footer-links li:first-child {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wave-top"></div>
+    <div class="wave-mid"></div>
+    <div class="wave-bottom"></div>
+
+    <header>
+        <div class="logo">BiteAI</div>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Features</a></li>
+                <li><a href="#">Pricing</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#" class="cta-button">Get Started</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Personalized Nutrition, Powered by AI</h1>
+            <p>BiteAI creates customized meal plans designed to help you meet your nutrition goals using advanced AI technology. Whether you want to lose weight, gain muscle, or maintain a healthy lifestyle, we've got you covered.</p>
+            <button class="cta-button">Start Your Journey</button>
+        </div>
+        <div class="hero-image">
+            <img src="/api/placeholder/500/350" alt="AI-generated meal plan example">
+        </div>
+    </section>
+
+    <section class="features">
+        <h2>Designed for Your Nutritional Success</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#1a1f36" stroke-width="2"/>
+                        <path d="M12 6V12L16 14" stroke="#1a1f36" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    AI-Powered Meal Planning
+                </h3>
+                <p>Our cutting-edge AI generates weekly curated meal plans tailored specifically to your preferences, dietary restrictions, and nutritional goals. Every meal is balanced, delicious, and designed to help you succeed.</p>
+            </div>
+            <div class="feature-card">
+                <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 9H16M8 13H14M8 17H10M19 5H5C3.89543 5 3 5.89543 3 7V17C3 18.1046 3.89543 19 5 19H19C20.1046 19 21 18.1046 21 17V7C21 5.89543 20.1046 5 19 5Z" stroke="#1a1f36" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Precise Calorie Calculation
+                </h3>
+                <p>Set your weight goals with confidence using our accurate calorie tracking system. We consider your age, activity level, and metabolic factors to determine the perfect calorie targets for your goals.</p>
+            </div>
+            <div class="feature-card">
+                <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 9V11M12 15H12.01M5.07183 19H18.9282C20.4678 19 21.4301 17.3333 20.6603 16L13.7321 4C12.9623 2.66667 11.0378 2.66667 10.268 4L3.33978 16C2.56998 17.3333 3.53223 19 5.07183 19Z" stroke="#1a1f36" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Target Weight Management
+                </h3>
+                <p>Tell us your goal weight, and we'll create a sustainable pathway to achieve it. Our system adjusts your meal plans over time as you progress, ensuring you're always on track toward your target.</p>
+            </div>
+            <div class="feature-card">
+                <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 4V20M12 4L8 8M12 4L16 8M6 12H18" stroke="#1a1f36" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Multi-Diet Support
+                </h3>
+                <p>Whether you're following keto, paleo, vegetarian, vegan, or any other diet, our AI adapts to your preferences. We generate menus that respect your dietary choices while optimizing nutrition.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <h2>Start Your Nutrition Journey Today</h2>
+        <p>Join thousands of users who have transformed their relationship with food through personalized, AI-driven meal planning.</p>
+        <button class="cta-button">Create Your Plan</button>
+        <div class="cta-cards">
+            <div class="diet-card">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.9994 19C20.9994 20.1 20.0994 21 18.9994 21H4.99943C3.89943 21 2.99943 20.1 2.99943 19V5C2.99943 3.9 3.89943 3 4.99943 3H18.9994C20.0994 3 20.9994 3.9 20.9994 5V19Z" stroke="#1a1f36" stroke-width="2"/>
+                    <path d="M8.99943 7H15.9994M8.99943 12H15.9994M8.99943 17H15.9994" stroke="#1a1f36" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <h3>Keto Plans</h3>
+            </div>
+            <div class="diet-card">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#1a1f36" stroke-width="2"/>
+                    <path d="M7 12.5L10 15.5L17 8.5" stroke="#1a1f36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h3>Vegan Options</h3>
+            </div>
+            <div class="diet-card">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 19V13C9 11.8954 8.10457 11 7 11H5C3.89543 11 3 11.8954 3 13V19C3 20.1046 3.89543 21 5 21H7C8.10457 21 9 20.1046 9 19Z" stroke="#1a1f36" stroke-width="2"/>
+                    <path d="M21 19V6C21 4.89543 20.1046 4 19 4H17C15.8954 4 15 4.89543 15 6V19C15 20.1046 15.8954 21 17 21H19C20.1046 21 21 20.1046 21 19Z" stroke="#1a1f36" stroke-width="2"/>
+                    <rect x="9" y="11" width="6" height="10" rx="2" stroke="#1a1f36" stroke-width="2"/>
+                </svg>
+                <h3>Weight Loss</h3>
+            </div>
+            <div class="diet-card">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14.5 4H9.5L7 12H17L14.5 4Z" stroke="#1a1f36" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M6 16C6 16 7 17 9 17C11 17 13 15 15 15C17 15 18 16 18 16" stroke="#1a1f36" stroke-width="2"/>
+                    <path d="M12 12V20" stroke="#1a1f36" stroke-width="2"/>
+                </svg>
+                <h3>Balanced Diet</h3>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">BiteAI</div>
+            <ul class="footer-links">
+                <li><a href="#">Terms</a></li>
+                <li><a href="#">Privacy</a></li>
+                <li><a href="#">Support</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+        <div class="copyright">© 2025 BiteAI. All rights reserved.</div>
+    </footer>
+</body>
+</html>
