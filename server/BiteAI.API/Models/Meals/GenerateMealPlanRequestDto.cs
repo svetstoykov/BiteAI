@@ -6,5 +6,5 @@ public class GenerateMealPlanRequestDto
 {
     public required int DailyTargetCalories { get; set; }
     
-    public required DietTypes DietType { get; set; }
+    public required DietType DietType { get; set; }
 }

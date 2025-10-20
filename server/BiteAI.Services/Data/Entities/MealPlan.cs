@@ -8,7 +8,7 @@ public class MealPlan : BaseIdentifiableEntity
 {
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     public int DailyCalories { get; set; }
-    public DietTypes DietType { get; set; }
+    public DietType DietType { get; set; }
     public DietTypeEntity? DietTypeRelation { get; set; }
     public int DurationDays { get; set; } = 7;
         

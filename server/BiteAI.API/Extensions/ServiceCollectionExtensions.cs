@@ -1,4 +1,3 @@
-using Anthropic.SDK;
 using BiteAI.Infrastructure.Services;
 using BiteAI.Services.Interfaces;
 using BiteAI.Services.Services;
@@ -12,7 +11,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICalorieService, CalorieService>();
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IMealPlanningService, MealPlanningService>();
-        services.AddScoped<AnthropicClient>(_ => new AnthropicClient(configuration["Anthropic:ApiKey"]));
         services.AddMemoryCache();
 
         return services;

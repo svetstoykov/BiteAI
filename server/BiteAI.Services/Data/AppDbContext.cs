@@ -43,7 +43,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<DietTypeEntity>().HasKey(e => e.Value);
         builder.Entity<DietTypeEntity>().Property(e => e.Value).HasConversion<int>();
     
-        foreach (var insertType in (DietTypes[])Enum.GetValues(typeof(DietTypes)))
+        foreach (var insertType in (DietType[])Enum.GetValues(typeof(DietType)))
             builder.Entity<DietTypeEntity>().HasData(new DietTypeEntity(insertType, insertType.ToString()));
     
         builder.Entity<GenderTypeEntity>().HasKey(e => e.Value);

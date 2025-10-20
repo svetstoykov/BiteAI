@@ -27,13 +27,14 @@ public static class InfrastructureServiceExtension
 
         services.AddIdentityServices(configuration);
 
-        services.AddScoped<IAIService, AIService>();
+        services.AddHttpClient();
+        services.AddScoped<ILanguageModelService, LanguageModelService>();
 
         services.Configure<JwtConfiguration>(options =>
             configuration.GetSection("JWT").Bind(options));            
 
-        services.Configure<GoogleConfiguration>(options =>
-            configuration.GetSection("Google").Bind(options));            
+        services.Configure<OpenRouterConfiguration>(options =>
+            configuration.GetSection("OpenRouter").Bind(options));            
         
         return services;
     }

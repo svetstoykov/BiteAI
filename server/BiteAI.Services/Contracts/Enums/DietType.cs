@@ -1,6 +1,6 @@
 namespace BiteAI.Services.Contracts.Enums;
 
-public enum DietTypes
+public enum DietType
 {
     Standard = 0,
     Vegetarian = 1,
