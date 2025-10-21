@@ -14,7 +14,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddOpenApi()
     .AddApplicationServices(builder.Configuration)
-    .AddInfrastructureServices(builder.Configuration);
+    .AddInfrastructureServices(builder.Configuration)
+    .AddSwaggerWithAuth();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -37,6 +38,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwaggerWithAuth();
     app.UseCors("DevelopmentPolicy");
     
     using var scope = app.Services.CreateScope();

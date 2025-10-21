@@ -1,5 +1,4 @@
-using System.Net.Http.Headers;
-using System.Text;
+using System.ClientModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using BiteAI.Infrastructure.Settings;
@@ -8,12 +7,14 @@ using BiteAI.Services.Validation.Errors;
 using BiteAI.Services.Validation.Result;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using OpenAI;
+using OpenAI.Chat;
 
 namespace BiteAI.Infrastructure.Services;
 
 public class LanguageModelService : ILanguageModelService
 {
-    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ChatClient _chatClient;
     private readonly OpenRouterConfiguration _config;
     private readonly IMemoryCache _memoryCache;
     private readonly MemoryCacheEntryOptions _cacheOptions;
@@ -25,16 +26,23 @@ public class LanguageModelService : ILanguageModelService
     };
 
     public LanguageModelService(
-        IHttpClientFactory httpClientFactory,
         IOptions<OpenRouterConfiguration> configOptions,
         IMemoryCache memoryCache)
     {
-        this._httpClientFactory = httpClientFactory;
         this._config = configOptions.Value;
         this._memoryCache = memoryCache;
         this._cacheOptions = new MemoryCacheEntryOptions()
             .SetAbsoluteExpiration(TimeSpan.FromMinutes(30))
             .SetPriority(CacheItemPriority.Normal);
+
+        // Configure OpenAI client to use OpenRouter
+        var clientOptions = new OpenAIClientOptions
+        {
+            Endpoint = new Uri(this._config.BaseUrl)
+        };
+
+        var openAiClient = new OpenAIClient(new ApiKeyCredential(this._config.ApiKey), clientOptions);
+        this._chatClient = openAiClient.GetChatClient(this._config.Model);
     }
 
     public async Task<Result<TResponse?>> PromptAsync<TResponse>(string prompt, string systemPrompt, CancellationToken cancellationToken = default)
@@ -59,45 +67,25 @@ public class LanguageModelService : ILanguageModelService
     {
         try
         {
-            var client = this._httpClientFactory.CreateClient(nameof(LanguageModelService));
-            client.BaseAddress = new Uri(string.IsNullOrWhiteSpace(this._config.BaseUrl) ? "https://openrouter.ai/api/v1" : this._config.BaseUrl);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", this._config.ApiKey);
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            var payload = new
+            var messages = new List<ChatMessage>
             {
-                model = this._config.Model,
-                messages = new object[]
-                {
-                    new { role = "system", content = systemPrompt },
-                    new { role = "user", content = userPrompt }
-                },
-                temperature = this._config.Temperature,
-                max_tokens = this._config.MaxTokens,
-                response_format = new { type = "json_object" }
+                new SystemChatMessage(systemPrompt),
+                new UserChatMessage(userPrompt)
             };
 
-            var json = JsonSerializer.Serialize(payload);
-            using var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            using var response = await client.PostAsync("/chat/completions", content, cancellationToken);
-            if (!response.IsSuccessStatusCode)
+            var chatOptions = new ChatCompletionOptions
             {
-                var errText = await response.Content.ReadAsStringAsync(cancellationToken);
-                return Result.Fail<TResponse?>(OperationError.ExternalServiceError($"OpenRouter error: {(int)response.StatusCode} - {errText}"));
-            }
+                Temperature = (float)this._config.Temperature,
+                MaxOutputTokenCount = this._config.MaxTokens,
+                ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat()
+            };
 
-            var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+            var response = await this._chatClient.CompleteChatAsync(messages, chatOptions, cancellationToken);
 
-            // Very small DTO to parse content quickly
-            using var doc = JsonDocument.Parse(responseText);
-            var root = doc.RootElement;
-            var choices = root.GetProperty("choices");
-            if (choices.GetArrayLength() == 0)
-                return Result.Fail<TResponse?>(OperationError.ExternalServiceError("The service returned no choices."));
+            if (response?.Value?.Content == null || response.Value.Content.Count == 0)
+                return Result.Fail<TResponse?>(OperationError.ExternalServiceError("The service returned no content."));
 
-            var contentText = choices[0].GetProperty("message").GetProperty("content").GetString();
+            var contentText = response.Value.Content[0].Text;
             var sanitized = SanitizeJsonOutput(contentText);
 
             if (string.IsNullOrWhiteSpace(sanitized))
@@ -105,6 +93,10 @@ public class LanguageModelService : ILanguageModelService
 
             var deserialized = JsonSerializer.Deserialize<TResponse>(sanitized, this._jsonOptions);
             return Result.Success(deserialized);
+        }
+        catch (ClientResultException ex)
+        {
+            return Result.Fail<TResponse?>(OperationError.ExternalServiceError($"OpenRouter error: {ex.Status} - {ex.Message}"));
         }
         catch (Exception)
         {

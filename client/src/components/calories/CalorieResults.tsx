@@ -89,7 +89,10 @@ export default function CalorieResults() {
             <p className="text-gray-600 text-sm italic">
               To reach your goal weight of {targetWeightKg}kg in {targetWeeks} weeks:
             </p>
-            <div className="p-4 border-2 cursor-pointer hover:bg-gray-100 transition-all duration-150 border-gray-300 rounded-lg inline-block mx-auto bg-white">
+            <div
+              onClick={() => handleClickPlanMealForCalories(targetCaloricIntake!)}
+              className="p-4 border-2 cursor-pointer hover:bg-gray-100 transition-all duration-150 border-gray-300 rounded-lg inline-block mx-auto bg-white"
+            >
               <div className="text-xs text-gray-500">Your Daily Calorie Target</div>
               <div className="text-3xl font-bold text-gray-800">
                 {targetCaloricIntake} cal
