@@ -17,7 +17,5 @@ public class MealPlan : BaseIdentifiableEntity
     public ApplicationUser ApplicationUser { get; set; }
     
     public virtual ICollection<MealDay> MealDays { get; set; } = new List<MealDay>();
-    
-    public DateTime? LastLoginAt { get; set; }
 }
     

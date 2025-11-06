@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { MealService } from "../../services/meal-service";
 import { MealPlan, MealTypes } from "../../models/meals";
 import { toast } from "react-toastify";
@@ -16,45 +16,44 @@ const MealPlanComponent = () => {
   const [expandedMeals, setExpandedMeals] = useState<{ [key: string]: boolean }>({});
   const navigate = useNavigate();
 
-  const { dailyCalories, dietType } = useCalorieStore();
+  const { dailyCalories, dietType, setMealPlanSpecifics } = useCalorieStore();
 
-  const mealService = new MealService();
-  const authenticationService = new AuthenticationService();
+  const mealServiceRef = useRef(new MealService());
+  const authenticationServiceRef = useRef(new AuthenticationService());
+
+  const fetchMealPlan = useCallback(async () => {
+    setIsLoading(true);
+
+    try {
+      if (authenticationServiceRef.current.isAuthenticated()) {
+        const existingMealPlanResult = await mealServiceRef.current.getLatestMealPlan();
+        if (existingMealPlanResult.success) {
+          const mealPlanData = existingMealPlanResult.data!;
+          setMealPlan(mealPlanData);
+
+          // Set dailyCalories and dietType from meal plan if not already set
+          if (dailyCalories === null || dietType === null) {
+            setMealPlanSpecifics(mealPlanData.dailyCalories, mealPlanData.dietType);
+          }
+
+          return;
+        }
+      }
+
+      if (dailyCalories === null || dietType === null) {
+        navigate("/setup");
+        return;
+      }
+    } catch (err) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [dailyCalories, dietType, navigate, setMealPlanSpecifics]);
 
   useEffect(() => {
-    const fetchMealPlan = async () => {
-      setIsLoading(true);
-
-      try {
-        if (authenticationService.isAuthenticated()) {
-          const existingMealPlanResult = await mealService.getLatestMealPlan();
-          if (existingMealPlanResult.success) {
-            setMealPlan(existingMealPlanResult.data!);
-            return;
-          }
-        }
-
-        if (dailyCalories === null || dietType === null) {
-          navigate("/setup");
-          return;
-        }
-
-        const result = await mealService.generateWeeklyMealPlan(dailyCalories, dietType);
-
-        if (result.success) {
-          setMealPlan(result.data!);
-          return;
-        }
-
-      } catch (err) {
-        toast.error("An unexpected error occurred");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchMealPlan();
-  }, [dailyCalories, dietType]);
+  }, [fetchMealPlan]);
 
   // Reset expanded meals when changing day
   useEffect(() => {
@@ -62,14 +61,29 @@ const MealPlanComponent = () => {
   }, [activeDay]);
 
   const handleGenerateNewMealClick = async () => {
-    const result = await mealService.generateWeeklyMealPlan(
-      mealPlan?.dailyCalories!,
-      mealPlan?.dietType!
-    );
-
-    if (result.success) {
-      setMealPlan(result.data!);
+    if (dailyCalories === null || dietType === null) {
+      toast.error("Please set up your calorie goals first");
+      navigate("/setup");
       return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await mealServiceRef.current.generateWeeklyMealPlan(
+        dailyCalories,
+        dietType
+      );
+
+      if (result.success) {
+        setMealPlan(result.data!);
+        return;
+      }
+
+      toast.error(result.message || "Failed to generate new meal plan");
+    } catch (err) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -159,7 +173,7 @@ const MealPlanComponent = () => {
   };
 
   return (
-    <div className="mx-auto md:min-w-2xl min-w-[370px] p-2 md:p-6 bite-container">
+    <div className="mx-auto w-[460px] md:w-[640px] p-2 md:p-6 bite-container">
       <h1 className="text-3xl md:text-4xl font-thin mb-4 md:mb-6 text-center md:text-start">
         Meal Plan
       </h1>
@@ -230,7 +244,7 @@ const MealPlanComponent = () => {
                             <h3 className="font-medium mb-2 text-sm border-b pb-1">
                               Nutritional Information
                             </h3>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                            <div className="grid grid-cols-2 gap-2 text-sm">
                               <div className="flex flex-col items-center p-2 bg-gray-50 rounded">
                                 <span className="text-gray-500 text-xs">Calories</span>
                                 <span className="font-medium">{meal.calories}</span>
@@ -256,7 +270,7 @@ const MealPlanComponent = () => {
                           <h3 className="font-medium mb-2 text-sm border-b pb-1">
                             Recipe
                           </h3>
-                          <div className="text-sm md:text-base">
+                          <div className="text-sm md:text-base break-words">
                             {meal.recipe || "Recipe details not available."}
                           </div>
                         </div>
@@ -310,7 +324,9 @@ const MealPlanComponent = () => {
               </button>
             </div>
             <div className="text-center text-xl font-thin cursor-pointer hover:bg-eggshell/80 p-4 border rounded-full border-gray-300 shadow-sm transition duration-300">
-              <button onClick={handleGenerateNewMealClick}>Generate new weekly meal</button>
+              <button onClick={handleGenerateNewMealClick}>
+                Generate new weekly meal
+              </button>
             </div>
           </div>
         )}

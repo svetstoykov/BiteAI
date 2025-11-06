@@ -16,6 +16,11 @@ public static class MealsMappings
     public static MealPlanDto ToMealPlanDto(this MealPlan mealPlan)
         => new()
         {
+            Id = mealPlan.Id.ToString(),
+            CreatedDate = mealPlan.CreatedDate,
+            DailyCalories = mealPlan.DailyCalories,
+            DietType = mealPlan.DietType,
+            DurationDays = mealPlan.DurationDays,
             MealDays = mealPlan.MealDays.Select(md => md.ToMealDayDto()).ToList()
         };
 

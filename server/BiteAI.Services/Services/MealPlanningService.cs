@@ -24,9 +24,10 @@ public class MealPlanningService : IMealPlanningService
 
     public async Task<Result<MealPlanDto?>> GenerateMealPlanForUserAsync(string userId, int days, int dailyCalorieTarget, DietType dietType, CancellationToken cancellationToken = default)
     {
-        var prompt = GenerateUserMealPlanPrompt(days, dailyCalorieTarget, dietType);
+        var userPrompt = GenerateUserMealPlanPrompt(days, dailyCalorieTarget, dietType);
+        var systemPrompt = GetMealPlanningSystemPrompt();
         
-        var aiResult = await this._languageModelService.PromptAsync<MealPlanDto>(prompt, GetMealPlanningSystemPrompt(), cancellationToken);
+        var aiResult = await this._languageModelService.PromptAsync<MealPlanDto>(userPrompt, systemPrompt, cancellationToken);
 
         if (aiResult.IsFailure) return Result.ErrorFromResult<MealPlanDto?>(aiResult);
 

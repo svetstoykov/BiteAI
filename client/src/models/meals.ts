@@ -37,12 +37,10 @@ export interface MealDay {
 
 export interface MealPlan {
   id: string;
-  name: string;
   createdDate: string;
   dailyCalories: number;
   dietType: DietTypes;
   durationDays: number;
-  userId: string;
   mealDays: MealDay[];
 }
 

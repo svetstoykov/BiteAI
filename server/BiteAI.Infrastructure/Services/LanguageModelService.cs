@@ -5,7 +5,6 @@ using BiteAI.Infrastructure.Settings;
 using BiteAI.Services.Interfaces;
 using BiteAI.Services.Validation.Errors;
 using BiteAI.Services.Validation.Result;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using OpenAI;
 using OpenAI.Chat;
@@ -16,8 +15,6 @@ public class LanguageModelService : ILanguageModelService
 {
     private readonly ChatClient _chatClient;
     private readonly OpenRouterConfiguration _config;
-    private readonly IMemoryCache _memoryCache;
-    private readonly MemoryCacheEntryOptions _cacheOptions;
 
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -26,16 +23,9 @@ public class LanguageModelService : ILanguageModelService
     };
 
     public LanguageModelService(
-        IOptions<OpenRouterConfiguration> configOptions,
-        IMemoryCache memoryCache)
+        IOptions<OpenRouterConfiguration> configOptions)
     {
         this._config = configOptions.Value;
-        this._memoryCache = memoryCache;
-        this._cacheOptions = new MemoryCacheEntryOptions()
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(30))
-            .SetPriority(CacheItemPriority.Normal);
-
-        // Configure OpenAI client to use OpenRouter
         var clientOptions = new OpenAIClientOptions
         {
             Endpoint = new Uri(this._config.BaseUrl)
@@ -45,24 +35,7 @@ public class LanguageModelService : ILanguageModelService
         this._chatClient = openAiClient.GetChatClient(this._config.Model);
     }
 
-    public async Task<Result<TResponse?>> PromptAsync<TResponse>(string prompt, string systemPrompt, CancellationToken cancellationToken = default)
-        where TResponse : class, new()
-    {
-        var cacheKey = $"AIService_Response_{typeof(TResponse).Name}_{prompt.GetHashCode()}";
-
-        if (this._memoryCache.TryGetValue(cacheKey, out TResponse? cachedResult))
-            return Result.Success(cachedResult);
-
-        var result = await this.PromptOpenRouterAsync<TResponse>(prompt, systemPrompt, cancellationToken);
-        if (result.IsFailure)
-            return result;
-        
-        this._memoryCache.Set(cacheKey, result.Data, this._cacheOptions);
-
-        return result;
-    }
-
-    private async Task<Result<TResponse?>> PromptOpenRouterAsync<TResponse>(string userPrompt, string systemPrompt, CancellationToken cancellationToken)
+    public async Task<Result<TResponse?>> PromptAsync<TResponse>(string userPrompt, string systemPrompt, CancellationToken cancellationToken)
         where TResponse : class, new()
     {
         try
