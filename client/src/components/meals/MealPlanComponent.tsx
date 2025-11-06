@@ -194,7 +194,7 @@ const MealPlanComponent = () => {
             transition={{ duration: 0.4 }}
             className=""
           >
-            {currentDay?.dailyMeals.map((meal, index) => {
+            {currentDay?.dailyMeals.sort((a, b) => (a.mealOrder || 0) - (b.mealOrder || 0)).map((meal, index) => {
               const mealId = meal.id || `meal-${index}`;
               const isExpanded = expandedMeals[mealId] || false;
 

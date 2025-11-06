@@ -22,6 +22,7 @@ export interface Meal {
   name: string;
   recipe: string;
   calories: number;
+  mealOrder: number;
   proteinInGrams: number;
   carbsInGrams: number;
   fatInGrams: number;
