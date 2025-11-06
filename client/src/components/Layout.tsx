@@ -2,7 +2,6 @@ import { ReactNode } from "react";
 import backgroundImage from "../assets/backgrounds/28563543_background_flower_3_07.jpg";
 import { ToastContainer } from "react-toastify";
 import Header from "./header/Header";
-import Footer from "./Footer";
 
 interface LayoutProps {
   children: ReactNode;

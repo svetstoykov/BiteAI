@@ -1,5 +1,5 @@
-import { LATEST_MEAL_PLAN, WEEKLY_MEAL_PLAN } from "../constants/endpoints";
-import { DietTypes, MealPlan, MealPlanRequest } from "../models/meals";
+import { GROCERY_LIST, LATEST_MEAL_PLAN, WEEKLY_MEAL_PLAN } from "../constants/endpoints";
+import { DietTypes, GroceryList, MealPlan, MealPlanRequest } from "../models/meals";
 import { ResultWithData } from "../models/result";
 import apiClient from "./api-client";
 
@@ -51,6 +51,27 @@ export class MealService {
     } catch (err: any) {
       return ResultWithData.failure(
         err.response?.data?.message || "Failed to retrieve meal plan. Please try again."
+      );
+    }
+  }
+
+  /**
+   * Generate grocery list for a meal plan.
+   * @param menuId The ID of the meal plan
+   * @returns Result with grocery list data or error message
+   */
+  public async generateGroceryList(menuId: string): Promise<ResultWithData<GroceryList>> {
+    try {
+      const endpoint = GROCERY_LIST.replace("{menuId}", menuId);
+      const response = await apiClient.post<GroceryList, {}>(endpoint, {});
+
+      if (response.success && response.data) {
+        return ResultWithData.success(response.data);
+      }
+      return ResultWithData.failure(response.message || "Failed to generate grocery list");
+    } catch (err: any) {
+      return ResultWithData.failure(
+        err.response?.data?.message || "Failed to generate grocery list. Please try again."
       );
     }
   }

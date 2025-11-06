@@ -303,8 +303,15 @@ const MealPlanComponent = () => {
           </div>
         </div>
         {mealPlan && (
-          <div className="text-center text-xl font-thin cursor-pointer hover:bg-eggshell/80 mt-4 p-4 border rounded-full border-gray-300 shadow-sm transition duration-300">
-            <button onClick={handleGenerateNewMealClick}>Generate new weekly meal</button>
+          <div className="flex flex-col gap-4 mt-4">
+            <div className="text-center text-xl font-thin cursor-pointer hover:bg-eggshell/80 p-4 border rounded-full border-gray-300 shadow-sm transition duration-300">
+              <button onClick={() => navigate(`/grocery-list?menuId=${mealPlan.id}`)}>
+                Generate Grocery List
+              </button>
+            </div>
+            <div className="text-center text-xl font-thin cursor-pointer hover:bg-eggshell/80 p-4 border rounded-full border-gray-300 shadow-sm transition duration-300">
+              <button onClick={handleGenerateNewMealClick}>Generate new weekly meal</button>
+            </div>
           </div>
         )}
       </div>

@@ -1,0 +1,9 @@
+using BiteAI.Services.Contracts.Groceries;
+using BiteAI.Services.Validation.Result;
+
+namespace BiteAI.Services.Interfaces;
+
+public interface IGroceryListService
+{
+    Task<Result<GroceryListResponseDto?>> GenerateGroceryListAsync(string menuId, string userId, CancellationToken cancellationToken = default);
+}

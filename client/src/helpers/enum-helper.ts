@@ -5,8 +5,8 @@ export function enumToArray<T extends Record<string, string | number>>(
   descriptions?: Record<number, string>
 ): Array<[number, string]> {
   return Object.entries(enumObj)
-    .filter(([key, value]) => !isNaN(Number(value)))
-    .map(([key, value]) => [Number(value), descriptions?.[Number(value)] || key]);
+    .filter(([_key, value]) => !isNaN(Number(value)))
+    .map(([_key, value]) => [Number(value), descriptions?.[Number(value)] || _key]);
 }
 
 export function enumToSelectOptions<T extends Record<string, string | number>>(

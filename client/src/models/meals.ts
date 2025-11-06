@@ -51,6 +51,26 @@ export interface MealPlanRequest {
   dietType: DietTypes;
 }
 
+export interface GroceryItem {
+  id: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  checked: boolean;
+  usedInMeals: string[]; // reference to meals
+}
+
+export interface GroceryCategory {
+  categoryName: string;
+  items: GroceryItem[];
+}
+
+export interface GroceryList {
+  weekMenuId: string;
+  categories: GroceryCategory[];
+  generatedAt: Date;
+}
+
 // Descriptions for enum values
 export const DietTypeDescriptions: Record<DietTypes, string> = {
   [DietTypes.Standard]: "Standard",
