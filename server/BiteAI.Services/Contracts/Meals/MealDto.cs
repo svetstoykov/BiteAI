@@ -13,4 +13,5 @@ public class MealDto
     public int ProteinInGrams { get; set; }
     public int CarbsInGrams { get; set; }
     public int FatInGrams { get; set; }
+    public int MealOrder { get; set; }
 }

@@ -34,6 +34,11 @@ public class MealPlanningService : IMealPlanningService
         var responseDto = aiResult.Data;
         if (responseDto == null) return Result.Fail<MealPlanDto?>(OperationError.UnprocessableEntity("No response from AI"));
 
+        responseDto.MealDays = responseDto.MealDays
+            .OrderBy(d => d.DayNumber)
+            .Select(EnsureMealOrder)
+            .ToList();
+
         var mealPlan = new MealPlan
         {
             DurationDays = responseDto.MealDays.Count,
@@ -77,6 +82,35 @@ public class MealPlanningService : IMealPlanningService
             ["dietType"] = dietType.ToString()
         });
         return prompt;
+    }
+    
+    private static MealDayDto EnsureMealOrder(MealDayDto d)
+    {
+        var nextSnackOrder = 2;
+        foreach (var meal in d.DailyMeals)
+        {
+            if (meal.MealOrder > 0) continue;
+            meal.MealOrder = meal.MealType switch
+            {
+                MealTypes.Breakfast => 1,
+                MealTypes.Lunch => 3,
+                MealTypes.Dinner => 5,
+                MealTypes.Snack => nextSnackOrder,
+                _ => meal.MealOrder
+            };
+
+            if (meal.MealType == MealTypes.Snack)
+            {
+                nextSnackOrder = nextSnackOrder == 2 ? 4 : nextSnackOrder;
+            }
+        }
+
+        d.DailyMeals = d.DailyMeals
+            .OrderBy(m => m.MealOrder)
+            .ThenBy(m => m.MealType)
+            .ToList();
+
+        return d;
     }
 
     private static string GetMealPlanningSystemPrompt() => PromptLoader.Load("MealPlanning_SystemPrompt.md");

@@ -21,7 +21,10 @@ public static class MealsMappings
             DailyCalories = mealPlan.DailyCalories,
             DietType = mealPlan.DietType,
             DurationDays = mealPlan.DurationDays,
-            MealDays = mealPlan.MealDays.Select(md => md.ToMealDayDto()).ToList()
+            MealDays = mealPlan.MealDays
+                .OrderBy(md => md.DayNumber)
+                .Select(md => md.ToMealDayDto())
+                .ToList()
         };
 
     public static Meal ToMealEntity(this MealDto mealDto)
@@ -33,7 +36,8 @@ public static class MealsMappings
             FatInGrams = mealDto.FatInGrams,
             ProteinInGrams = mealDto.ProteinInGrams,
             Calories = mealDto.Calories,
-            MealType = mealDto.MealType
+            MealType = mealDto.MealType,
+            MealOrder = mealDto.MealOrder
         };
 
     public static MealDto ToMealDto(this Meal meal)
@@ -45,7 +49,8 @@ public static class MealsMappings
             FatInGrams = meal.FatInGrams,
             ProteinInGrams = meal.ProteinInGrams,
             Calories = meal.Calories,
-            MealType = meal.MealType
+            MealType = meal.MealType,
+            MealOrder = meal.MealOrder
         };
 
     public static MealDayDto ToMealDayDto(this MealDay mealDay)
@@ -53,6 +58,10 @@ public static class MealsMappings
         {
             DayNumber = mealDay.DayNumber,
             TotalCalories = mealDay.TotalCalories,
-            DailyMeals = mealDay.Meals.Select(m => m.ToMealDto()).ToList()
+            DailyMeals = mealDay.Meals
+                .OrderBy(m => m.MealOrder)
+                .ThenBy(m => m.MealType)
+                .Select(m => m.ToMealDto())
+                .ToList()
         };
 }

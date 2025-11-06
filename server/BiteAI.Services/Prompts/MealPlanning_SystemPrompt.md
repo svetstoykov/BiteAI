@@ -14,6 +14,7 @@ public class MealDto
     public int ProteinInGrams { get; set; }
     public int CarbsInGrams { get; set; }
     public int FatInGrams { get; set; }
+    public int MealOrder { get; set; } // 1..5; Breakfast=1, Snacks=2 and/or 4, Lunch=3, Dinner=5
 }
 
 public class MealDayDto
@@ -35,7 +36,8 @@ public class MealPlanDto
 
 Constraints and validation:
 - Create exactly: 1 Breakfast, 1 Lunch, 1 Dinner, and 1–2 Snacks per day.
-- DayNumber starts at 1 and increases by 1 for each day.
+- DayNumber starts at 1 and increases by 1 for each day. The output MealDays collection must be sorted by DayNumber ascending.
+- Meal ordering: set MealDto.MealOrder to indicate eating order within the day as follows — Breakfast=1, first Snack=2 (if any), Lunch=3, second Snack=4 (if any), Dinner=5. The DailyMeals collection must be sorted by MealOrder ascending.
 - Name must be concise (max 30 characters).
 - Recipe is a single paragraph including ingredients and concise preparation steps.
 - Use integers for Calories and macros (ProteinInGrams, CarbsInGrams, FatInGrams).

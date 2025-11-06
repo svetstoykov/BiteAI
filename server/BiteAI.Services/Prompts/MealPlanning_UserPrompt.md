@@ -3,6 +3,8 @@ Daily calorie target: {{dailyCalorieTarget}} kcal per day.
 Requirements:
 - The sum of Calories across all meals in each day must equal the daily target as closely as possible (within +/-1% or <= 30 kcal). If needed, adjust portion sizes to hit the target.
 - Include 1 Breakfast, 1 Lunch, 1 Dinner, and 1–2 Snacks per day.
+- Include a MealOrder integer for each meal indicating the order eaten in the day: Breakfast = 1, first Snack = 2, Lunch = 3, second Snack (if any) = 4, Dinner = 5.
+- Ensure MealDays are sorted by DayNumber starting from 1, incrementing by 1.
 - Provide per-meal Calories and macros (ProteinInGrams, CarbsInGrams, FatInGrams) so that macros approximately sum to Calories.
 - Provide variety across days; avoid repeating the same meal more than once.
 - Use commonly available ingredients.

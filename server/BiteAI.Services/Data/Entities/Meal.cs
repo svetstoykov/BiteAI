@@ -16,6 +16,8 @@ public class Meal : BaseIdentifiableEntity
     public int CarbsInGrams { get; set; } 
     public int FatInGrams { get; set; }
 
+    public int MealOrder { get; set; }
+
     public Guid MealDayId { get; set; }
     public virtual MealDay? MealDay { get; set; }
 }
