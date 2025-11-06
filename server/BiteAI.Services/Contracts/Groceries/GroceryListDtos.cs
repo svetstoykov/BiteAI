@@ -2,7 +2,7 @@ namespace BiteAI.Services.Contracts.Groceries;
 
 public class GroceryListDto
 {
-    public required string WeekMenuId { get; set; }
+    public required string WeekMealPlanId { get; set; }
     public List<GroceryCategoryDto> Categories { get; set; } = new();
     public DateTime GeneratedAt { get; set; } = DateTime.UtcNow;
 }
@@ -25,7 +25,7 @@ public class GroceryItemDto
 
 public class GroceryListResponseDto
 {
-    public required string MenuId { get; set; }
+    public required string MealPlanId { get; set; }
     public required GroceryListDto GroceryList { get; set; }
     public DateTime GeneratedAt { get; set; }
 }
@@ -33,7 +33,7 @@ public class GroceryListResponseDto
 // AI parsing DTOs without required members for LLM deserialization
 public class AiGroceryListDto
 {
-    public string? WeekMenuId { get; set; }
+    public string? WeekMealPlanId { get; set; }
     public List<AiGroceryCategoryDto>? Categories { get; set; }
     public DateTime GeneratedAt { get; set; }
 }

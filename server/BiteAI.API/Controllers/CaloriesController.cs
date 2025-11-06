@@ -8,15 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace BiteAI.API.Controllers;
 
 [Authorize]
-public class CaloriesController : BaseApiController
+public class CaloriesController(ICalorieService calorieService) : BaseApiController
 {
-    private readonly ICalorieService _calorieService;
-
-    public CaloriesController(ICalorieService calorieService)
-    {
-        this._calorieService = calorieService;
-    }
-
     [HttpGet("calculate-goals")] 
     public IActionResult CalculateCalorieGoals(
         [FromQuery] double weightKg,
@@ -34,7 +27,7 @@ public class CaloriesController : BaseApiController
             IsMale = isMale
         };
 
-        var result = this._calorieService.CalculateCalorieGoals(request);
+        var result = calorieService.CalculateCalorieGoals(request);
 
         return this.ToActionResult(result);
     }
@@ -65,7 +58,7 @@ public class CaloriesController : BaseApiController
             TargetWeeks = targetWeeks
         };
 
-        var result = this._calorieService.CalculateTargetDailyCalories(request);
+        var result = calorieService.CalculateTargetDailyCalories(request);
         
         return this.ToActionResult(result);
     }

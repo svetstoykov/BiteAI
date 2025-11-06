@@ -7,19 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace BiteAI.API.Controllers;
 
 [AllowAnonymous]
-public class AuthController : BaseApiController
+public class AuthController(IIdentityService authService) : BaseApiController
 {
-    private readonly IIdentityService _authService;
-
-    public AuthController(IIdentityService authService)
-    {
-        this._authService = authService;
-    }
-
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto model)
     {
-        var result = await this._authService.RegisterUserAsync(model);
+        var result = await authService.RegisterUserAsync(model);
 
         return this.ToActionResult(result);
     }
@@ -27,7 +20,7 @@ public class AuthController : BaseApiController
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto model)
     {
-        var result = await this._authService.LoginUserAsync(model);
+        var result = await authService.LoginUserAsync(model);
         
         return this.ToActionResult(result);
     }

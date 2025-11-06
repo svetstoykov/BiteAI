@@ -293,7 +293,7 @@ const MealPlanComponent = () => {
         <div className="space-y-3 md:space-y-4">
           <div className="flex justify-between border-b pb-2">
             <span>Calories</span>
-            <span>{nutritionSummary?.calories || 0}</span>
+            <span>{nutritionSummary?.calories || 0} kcal</span>
           </div>
 
           <div className="flex justify-between border-b pb-2">

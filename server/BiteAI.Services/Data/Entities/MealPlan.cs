@@ -17,5 +17,6 @@ public class MealPlan : BaseIdentifiableEntity
     public ApplicationUser ApplicationUser { get; set; }
     
     public virtual ICollection<MealDay> MealDays { get; set; } = new List<MealDay>();
+    public virtual GroceryList? GroceryList { get; set; }
 }
     

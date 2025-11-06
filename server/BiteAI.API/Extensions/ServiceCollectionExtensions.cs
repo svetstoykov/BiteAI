@@ -12,7 +12,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IMealPlanningService, MealPlanningService>();
         services.AddScoped<IGroceryListService, GroceryListService>();
-        services.AddMemoryCache();
 
         return services;
     }

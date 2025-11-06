@@ -20,6 +20,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<DietTypeEntity> DietTypes { get; set; }
     public DbSet<GenderTypeEntity> Genders { get; set; }
     public DbSet<MealTypeEntity> MealTypes { get; set; }
+    public DbSet<GroceryList> GroceryLists { get; set; }
+    public DbSet<GroceryItem> GroceryItems { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -30,6 +32,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         this.ConfigureMealPlan(builder);
         this.ConfigureMealDay(builder);
         this.ConfigureMeal(builder);
+        this.ConfigureGroceryList(builder);
+        this.ConfigureGroceryItem(builder);
     }
     
     private void ConfigureEnumEntities(ModelBuilder builder)
@@ -128,6 +132,28 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
         builder.Entity<Meal>()
             .Property(m => m.Recipe)
+            .IsRequired();
+    }
+
+    private void ConfigureGroceryList(ModelBuilder builder)
+    {
+        builder.Entity<GroceryList>()
+            .HasOne(gl => gl.MealPlan)
+            .WithOne(mp => mp.GroceryList)
+            .HasForeignKey<GroceryList>(gl => gl.MealPlanId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+
+    private void ConfigureGroceryItem(ModelBuilder builder)
+    {
+        builder.Entity<GroceryItem>()
+            .HasOne(gi => gi.GroceryList)
+            .WithMany(gl => gl.Items)
+            .HasForeignKey(gi => gi.GroceryListId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<GroceryItem>()
+            .Property(gi => gi.Name)
             .IsRequired();
     }
 }

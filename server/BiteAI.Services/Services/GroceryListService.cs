@@ -6,14 +6,12 @@ using BiteAI.Services.Interfaces;
 using BiteAI.Services.Validation.Errors;
 using BiteAI.Services.Validation.Result;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using BiteAI.Services.Helpers;
 
 namespace BiteAI.Services.Services;
 
-public class GroceryListService(AppDbContext context, ILanguageModelService languageModelService, IMemoryCache cache) : IGroceryListService
+public class GroceryListService(AppDbContext context, ILanguageModelService languageModelService) : IGroceryListService
 {
-
     private static readonly Dictionary<string, string> CategoryMappings = new(StringComparer.OrdinalIgnoreCase)
     {
         { "chicken", "Meat/Protein" },
@@ -26,46 +24,67 @@ public class GroceryListService(AppDbContext context, ILanguageModelService lang
         { "rice", "Grains/Pasta" }
     };
 
-    public async Task<Result<GroceryListResponseDto?>> GenerateGroceryListAsync(
-        string menuId,
-        string userId,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<GroceryListResponseDto?>> GenerateGroceryListAsync(Guid mealPlanId, string userId, CancellationToken cancellationToken = default)
     {
-        if (!Guid.TryParse(menuId, out var mealPlanId))
-            return Result.Fail<GroceryListResponseDto?>(OperationError.Validation("Invalid menuId"));
+        var mealPlan = await context.MealPlans
+            .Include(mp => mp.MealDays)
+            .ThenInclude(md => md.Meals)
+            .FirstOrDefaultAsync(mp => mp.Id == mealPlanId && mp.ApplicationUserId == userId, cancellationToken);
 
-        var mealPlan = await LoadMealPlanAsync(mealPlanId, userId, cancellationToken);
         if (mealPlan == null)
-            return Result.Fail<GroceryListResponseDto?>(OperationError.NotFound("Menu not found"));
-
-        if (TryGetCachedGroceryList(mealPlan, out var cachedResponse))
-            return Result.Success<GroceryListResponseDto?>(cachedResponse);
+            return Result.Fail<GroceryListResponseDto?>(OperationError.NotFound("Meal plan not found"));
 
         var meals = ExtractMealsFromPlan(mealPlan);
         if (meals.Count == 0)
-            return Result.Fail<GroceryListResponseDto?>(OperationError.UnprocessableEntity("Menu has no meals"));
+            return Result.Fail<GroceryListResponseDto?>(OperationError.UnprocessableEntity("Meal plan has no meals"));
 
-        var groceryListResult = await GenerateAndProcessGroceryListAsync(meals, menuId, cancellationToken);
+        var groceryListResult = await this.GenerateAndProcessGroceryListAsync(meals, mealPlanId, cancellationToken);
         if (groceryListResult.IsFailure)
             return Result.ErrorFromResult<GroceryListResponseDto?>(groceryListResult);
 
-        var response = CreateResponse(menuId, groceryListResult.Data);
-        CacheResponse(mealPlan, response);
+        var list = await context.GroceryLists.FirstOrDefaultAsync(gl => gl.MealPlanId == mealPlan.Id, cancellationToken);
+        if (list == null)
+        {
+            list = new GroceryList
+            {
+                MealPlanId = mealPlan.Id,
+                GeneratedAt = DateTime.UtcNow
+            };
+            context.GroceryLists.Add(list);
+            await context.SaveChangesAsync(cancellationToken);
+        }
+        else
+        {
+            var existingItems = await context.GroceryItems.Where(i => i.GroceryListId == list.Id).ToListAsync(cancellationToken);
+            if (existingItems.Count > 0)
+            {
+                context.GroceryItems.RemoveRange(existingItems);
+                await context.SaveChangesAsync(cancellationToken);
+            }
 
+            list.GeneratedAt = DateTime.UtcNow;
+        }
+
+        foreach (var category in groceryListResult.Data!.Categories)
+        {
+            foreach (var item in category.Items)
+            {
+                context.GroceryItems.Add(new GroceryItem
+                {
+                    GroceryListId = list.Id,
+                    CategoryName = category.Name,
+                    Name = item.Name,
+                    Quantity = item.Quantity,
+                    Unit = item.Unit,
+                    Checked = item.Checked
+                });
+            }
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        var response = CreateResponse(mealPlanId, groceryListResult.Data);
         return Result.Success<GroceryListResponseDto?>(response);
-    }
-
-    private async Task<MealPlan?> LoadMealPlanAsync(
-        Guid mealPlanId,
-        string userId,
-        CancellationToken cancellationToken)
-    {
-        return await context.MealPlans
-            .Include(mp => mp.MealDays)
-            .ThenInclude(md => md.Meals)
-            .FirstOrDefaultAsync(
-                mp => mp.Id == mealPlanId && mp.ApplicationUserId == userId,
-                cancellationToken);
     }
 
     private static List<MealInfo> ExtractMealsFromPlan(MealPlan mealPlan)
@@ -81,66 +100,37 @@ public class GroceryListService(AppDbContext context, ILanguageModelService lang
             }))
             .ToList();
     }
-    
-    private bool TryGetCachedGroceryList(MealPlan mealPlan, out GroceryListResponseDto? cached)
-    {
-        var cacheKey = BuildCacheKey(mealPlan);
-        return cache.TryGetValue(cacheKey, out cached) && cached != null;
-    }
-
-    private void CacheResponse(MealPlan mealPlan, GroceryListResponseDto response)
-    {
-        var cacheKey = BuildCacheKey(mealPlan);
-        var cacheOptions = new MemoryCacheEntryOptions
-        {
-            SlidingExpiration = TimeSpan.FromHours(4),
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24)
-        };
-
-        cache.Set(cacheKey, response, cacheOptions);
-    }
-
-    private static string BuildCacheKey(MealPlan mealPlan)
-    {
-        return $"grocerylist:{mealPlan.Id}:{mealPlan.CreatedDate:O}";
-    }
 
     private async Task<Result<GroceryListDto?>> GenerateAndProcessGroceryListAsync(
-        List<MealInfo> meals,
-        string menuId,
-        CancellationToken cancellationToken)
+        List<MealInfo> meals, Guid mealPlanId, CancellationToken cancellationToken)
     {
         var userPrompt = BuildMealPrompt(meals);
-        var aiResult = await languageModelService.PromptAsync<AiGroceryListDto>(
-            userPrompt,
-            GetGroceryListSystemPrompt(),
-            cancellationToken);
+        var systemPrompt = GetGroceryListSystemPrompt();
 
+        var aiResult = await languageModelService.PromptAsync<AiGroceryListDto>(userPrompt, systemPrompt, cancellationToken);
         if (aiResult.IsFailure)
             return Result.ErrorFromResult<GroceryListDto?>(aiResult);
 
-        var groceryList = MapToGroceryListDto(aiResult.Data, menuId);
-        ProcessAndAggregateItems(groceryList);
+        var groceryList = MapToGroceryListDto(aiResult.Data, mealPlanId);
+        this.ProcessAndAggregateItems(groceryList);
 
         return Result.Success<GroceryListDto?>(groceryList);
     }
 
-    private static string BuildMealPrompt(IEnumerable<MealInfo> meals)
-    {
-        return string.Join(
-            Environment.NewLine,
-            meals.Select(m => $"Day {m.DayNumber} | {m.MealId} | {m.Name} :: {m.Recipe}"));
-    }
+    private static string BuildMealPrompt(IEnumerable<MealInfo> meals) =>
+        string.Join(Environment.NewLine, meals.Select(m => $"Day {m.DayNumber} | {m.MealId} | {m.Name} :: {m.Recipe}"));
 
     private static string GetGroceryListSystemPrompt() => PromptLoader.Load("GroceryList_SystemPrompt.md");
 
-    private static GroceryListDto MapToGroceryListDto(AiGroceryListDto? aiResponse, string menuId)
+    private static GroceryListDto MapToGroceryListDto(AiGroceryListDto? aiResponse, Guid mealPlanId)
     {
+        var mealPlanIdString = mealPlanId.ToString();
+        
         if (aiResponse == null)
         {
             return new GroceryListDto
             {
-                WeekMenuId = menuId,
+                WeekMealPlanId = mealPlanIdString,
                 Categories = [],
                 GeneratedAt = DateTime.UtcNow
             };
@@ -152,7 +142,7 @@ public class GroceryListService(AppDbContext context, ILanguageModelService lang
 
         return new GroceryListDto
         {
-            WeekMenuId = menuId,
+            WeekMealPlanId = mealPlanIdString,
             Categories = categories,
             GeneratedAt = DateTime.UtcNow
         };
@@ -190,7 +180,7 @@ public class GroceryListService(AppDbContext context, ILanguageModelService lang
     private void ProcessAndAggregateItems(GroceryListDto groceryList)
     {
         var flattenedItems = FlattenCategoryItems(groceryList.Categories);
-        var aggregatedItems = AggregateItems(flattenedItems);
+        var aggregatedItems = this.AggregateItems(flattenedItems);
         var rebuiltCategories = GroupItemsByCategory(aggregatedItems);
 
         groceryList.Categories = rebuiltCategories;
@@ -251,7 +241,7 @@ public class GroceryListService(AppDbContext context, ILanguageModelService lang
     private static string DetermineFinalCategory(string originalCategory, string normalizedName)
     {
         var isUncategorized = string.IsNullOrWhiteSpace(originalCategory) ||
-                             originalCategory.Equals("Uncategorized", StringComparison.OrdinalIgnoreCase);
+                              originalCategory.Equals("Uncategorized", StringComparison.OrdinalIgnoreCase);
 
         if (!isUncategorized)
             return originalCategory;
@@ -305,12 +295,12 @@ public class GroceryListService(AppDbContext context, ILanguageModelService lang
         return trimmedName.EndsWith("s", StringComparison.OrdinalIgnoreCase) ? trimmedName[..^1] : trimmedName;
     }
 
-    private static GroceryListResponseDto CreateResponse(string menuId, GroceryListDto? groceryList)
+    private static GroceryListResponseDto CreateResponse(Guid mealPlanId, GroceryListDto? groceryList)
     {
         return new GroceryListResponseDto
         {
-            MenuId = menuId,
-            GroceryList = groceryList,
+            MealPlanId = mealPlanId.ToString(),
+            GroceryList = groceryList!,
             GeneratedAt = DateTime.UtcNow
         };
     }
