@@ -1,4 +1,4 @@
-import { GROCERY_LIST, LATEST_MEAL_PLAN, WEEKLY_MEAL_PLAN } from "../constants/endpoints";
+import { CREATE_GROCERY_LIST, GET_LATEST_MEAL_PLAN, CREATE_WEEKLY_MEAL_PLAN } from "../constants/endpoints";
 import { DietTypes, GroceryList, MealPlan, MealPlanRequest } from "../models/meals";
 import { ResultWithData } from "../models/result";
 import apiClient from "./api-client";
@@ -21,7 +21,7 @@ export class MealService {
       };
 
       const response = await apiClient.post<MealPlan, MealPlanRequest>(
-        WEEKLY_MEAL_PLAN,
+        CREATE_WEEKLY_MEAL_PLAN,
         request
       );
 
@@ -42,7 +42,7 @@ export class MealService {
    */
   public async getLatestMealPlan(): Promise<ResultWithData<MealPlan>> {
     try {
-      const response = await apiClient.get<MealPlan>(LATEST_MEAL_PLAN);
+      const response = await apiClient.get<MealPlan>(GET_LATEST_MEAL_PLAN);
 
       if (response.success && response.data) {
         return ResultWithData.success(response.data);
@@ -57,12 +57,12 @@ export class MealService {
 
   /**
    * Generate grocery list for a meal plan.
-   * @param menuId The ID of the meal plan
+   * @param mealPlanId The ID of the meal plan
    * @returns Result with grocery list data or error message
    */
-  public async generateGroceryList(menuId: string): Promise<ResultWithData<GroceryList>> {
+  public async generateGroceryList(mealPlanId: string): Promise<ResultWithData<GroceryList>> {
     try {
-      const endpoint = GROCERY_LIST.replace("{menuId}", menuId);
+      const endpoint = CREATE_GROCERY_LIST.replace("{mealPlanId}", mealPlanId);
       const response = await apiClient.post<GroceryList, {}>(endpoint, {});
 
       if (response.success && response.data) {

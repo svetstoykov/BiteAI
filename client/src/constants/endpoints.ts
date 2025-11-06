@@ -20,7 +20,9 @@ export const SUCCESS = "/api/OperationErrors/success";
 export const SUCCESS_DATA = "/api/OperationErrors/success-data";
 
 // Meals endpoints
-export const WEEKLY_MEAL_PLAN = "/api/Meals/weekly-meal-plan";
-export const DAILY_MEAL_PLAN = "/api/Meals/daily-meal-plan";
-export const LATEST_MEAL_PLAN = "/api/Meals/latest-meal-plan";
-export const GROCERY_LIST = "/api/menu/{menuId}/grocery-list";
+export const CREATE_WEEKLY_MEAL_PLAN = "/api/Meals/weekly-meal-plan";
+export const CREATE_DAILY_MEAL_PLAN = "/api/Meals/daily-meal-plan";
+export const GET_LATEST_MEAL_PLAN = "/api/Meals/latest-meal-plan";
+
+//Grocery list endpoints
+export const CREATE_GROCERY_LIST = "/api/grocery-list/{mealPlanId}";

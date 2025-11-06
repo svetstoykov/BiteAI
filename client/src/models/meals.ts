@@ -65,7 +65,7 @@ export interface GroceryCategory {
 }
 
 export interface GroceryList {
-  weekMenuId: string;
+  weekMealPlanId: string;
   categories: GroceryCategory[];
   generatedAt: Date;
 }

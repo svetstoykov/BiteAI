@@ -14,12 +14,12 @@ const GroceryListView = () => {
   const [expandedCategories, setExpandedCategories] = useState<{ [key: string]: boolean }>({});
   const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({});
 
-  const menuId = searchParams.get("menuId");
+  const mealPlanId = searchParams.get("mealPlanId");
 
   const mealService = new MealService();
 
   useEffect(() => {
-    if (!menuId) {
+    if (!mealPlanId) {
       navigate("/meal-plan");
       return;
     }
@@ -27,7 +27,7 @@ const GroceryListView = () => {
     const fetchGroceryList = async () => {
       setIsLoading(true);
       try {
-        const result = await mealService.generateGroceryList(menuId);
+        const result = await mealService.generateGroceryList(mealPlanId);
         if (result.success) {
           setGroceryList(result.data!);
           // Initialize all categories as expanded
@@ -37,7 +37,7 @@ const GroceryListView = () => {
           });
           setExpandedCategories(initialExpanded);
           // Load checked state from localStorage
-          loadCheckedState(result.data!.weekMenuId);
+          loadCheckedState(result.data!.weekMealPlanId);
         } else {
           toast.error(result.message);
           navigate("/meal-plan");
@@ -51,10 +51,10 @@ const GroceryListView = () => {
     };
 
     fetchGroceryList();
-  }, [menuId, navigate]);
+  }, [mealPlanId, navigate]);
 
-  const loadCheckedState = (weekMenuId: string) => {
-    const stored = localStorage.getItem(`grocery-checked-${weekMenuId}`);
+  const loadCheckedState = (weekMealPlanId: string) => {
+    const stored = localStorage.getItem(`grocery-checked-${weekMealPlanId}`);
     if (stored) {
       setCheckedItems(JSON.parse(stored));
     }
@@ -62,7 +62,7 @@ const GroceryListView = () => {
 
   const saveCheckedState = (newCheckedItems: { [key: string]: boolean }) => {
     if (groceryList) {
-      localStorage.setItem(`grocery-checked-${groceryList.weekMenuId}`, JSON.stringify(newCheckedItems));
+      localStorage.setItem(`grocery-checked-${groceryList.weekMealPlanId}`, JSON.stringify(newCheckedItems));
     }
   };
 
