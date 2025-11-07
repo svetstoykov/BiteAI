@@ -5,6 +5,7 @@ import { GroceryList, GroceryItem, GroceryCategory } from "../../models/meals";
 import { toast } from "react-toastify";
 import { ChevronDown, Share2, Printer, RotateCcw, CheckSquare, Square } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import GroceryListPreparationSpinner from "./GroceryListPreparationSpinner";
 
 const GroceryListView = () => {
   const [searchParams] = useSearchParams();
@@ -151,11 +152,7 @@ const GroceryListView = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-      </div>
-    );
+    return <GroceryListPreparationSpinner />;
   }
 
   if (!groceryList) {
