@@ -5,6 +5,5 @@ namespace BiteAI.Services.Interfaces;
 
 public interface ILanguageModelService
 {
-    Task<Result<TResponse?>> PromptAsync<TResponse>(string userPrompt, string systemPrompt, CancellationToken cancellationToken = default)
-        where TResponse : class, new();
+    Task<Result<TResponse?>> PromptAsync<TResponse>(string userPrompt, string systemPrompt, CancellationToken cancellationToken = default);
 }

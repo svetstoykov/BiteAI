@@ -5,5 +5,6 @@ namespace BiteAI.Services.Interfaces;
 
 public interface IGroceryListService
 {
-    Task<Result<GroceryListResponseDto?>> GenerateGroceryListAsync(Guid mealPlanId, string userId, CancellationToken cancellationToken = default);
+    Task<Result<GroceryListDto?>> GenerateGroceryListAsync(Guid mealPlanId, string userId, CancellationToken cancellationToken = default);
+    Task<Result<GroceryListDto?>> GetGroceryListAsync(Guid mealPlanId, string userId, CancellationToken cancellationToken = default);
 }

@@ -2,57 +2,30 @@ namespace BiteAI.Services.Contracts.Groceries;
 
 public class GroceryListDto
 {
-    public required string WeekMealPlanId { get; set; }
-    public List<GroceryCategoryDto> Categories { get; set; } = new();
-    public DateTime GeneratedAt { get; set; } = DateTime.UtcNow;
-}
-
-public class GroceryCategoryDto
-{
-    public required string Name { get; set; }
+    public string MealPlanId { get; set; } = string.Empty;
     public List<GroceryItemDto> Items { get; set; } = new();
+    public DateTime GeneratedAt { get; set; } = DateTime.UtcNow;
 }
 
 public class GroceryItemDto
 {
-    public required string Id { get; set; }
+    public Guid Id { get; set; }
     public required string Name { get; set; }
     public decimal Quantity { get; set; }
-    public string Unit { get; set; } = "";
-    public bool Checked { get; set; }
-    public List<string> UsedInMeals { get; set; } = new();
+    public string Unit { get; set; } = string.Empty;
+    
+    public string Category { get; set; } = string.Empty;
+    
+    public bool Checked { get; set; } = false;
 }
 
-public class GroceryListResponseDto
+public class GeneratedGroceryItemDto
 {
-    public required string MealPlanId { get; set; }
-    public required GroceryListDto GroceryList { get; set; }
-    public DateTime GeneratedAt { get; set; }
-}
-
-// AI parsing DTOs without required members for LLM deserialization
-public class AiGroceryListDto
-{
-    public string? WeekMealPlanId { get; set; }
-    public List<AiGroceryCategoryDto>? Categories { get; set; }
-    public DateTime GeneratedAt { get; set; }
-}
-
-public class AiGroceryCategoryDto
-{
-    public string? CategoryName { get; set; }
-    public string? Name { get; set; }
-    public List<AiGroceryItemDto>? Items { get; set; }
-}
-
-public class AiGroceryItemDto
-{
-    public string? Id { get; set; }
-    public string? Name { get; set; }
+    public required string Name { get; set; }
     public decimal Quantity { get; set; }
-    public string? Unit { get; set; }
-    public bool Checked { get; set; }
-    public List<string>? UsedInMeals { get; set; }
+    public string Unit { get; set; } = string.Empty;
+    
+    public string Category { get; set; } = string.Empty;
 }
 
 public record MealInfo

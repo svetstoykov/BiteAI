@@ -1,4 +1,4 @@
-import PreparationSpinner from "./PreparationSpinner";
+import PreparationSpinner from "../meals/PreparationSpinner";
 
 const GroceryListPreparationSpinner = () => {
   const groceryMessages = [

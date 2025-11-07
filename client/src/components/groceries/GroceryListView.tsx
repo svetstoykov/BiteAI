@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { MealService } from "../../services/meal-service";
-import { GroceryList, GroceryItem, GroceryCategory } from "../../models/meals";
+import { GroceryService } from "../../services/grocery-service";
+import { GroceryList, GroceryItem } from "../../models/groceries";
 import { toast } from "react-toastify";
 import { ChevronDown, Share2, Printer, RotateCcw, CheckSquare, Square } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,36 +14,74 @@ const GroceryListView = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [expandedCategories, setExpandedCategories] = useState<{ [key: string]: boolean }>({});
   const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({});
+  const [isToggling, setIsToggling] = useState<{ [key: string]: boolean }>({});
+
+  // Group items by category for UI rendering
+  const getCategoriesFromItems = (items: GroceryItem[]): CategoryGroup[] => {
+    const categoryMap: { [key: string]: GroceryItem[] } = {};
+    items.forEach(item => {
+      if (!categoryMap[item.category]) {
+        categoryMap[item.category] = [];
+      }
+      categoryMap[item.category].push(item);
+    });
+    return Object.entries(categoryMap).map(([categoryName, items]) => ({
+      categoryName,
+      items
+    }));
+  };
 
   const mealPlanId = searchParams.get("mealPlanId");
 
-  const mealService = new MealService();
+  const groceryService = new GroceryService();
 
   useEffect(() => {
     if (!mealPlanId) {
+      console.log("GroceryListView: No mealPlanId found, navigating to /meal-plan");
       navigate("/meal-plan");
       return;
     }
 
     const fetchGroceryList = async () => {
+      console.log("GroceryListView: Starting to fetch grocery list for mealPlanId:", mealPlanId);
       setIsLoading(true);
       try {
-        const result = await mealService.generateGroceryList(mealPlanId);
+        // First try to get existing grocery list
+        console.log("GroceryListView: Checking for existing grocery list");
+        const getResult = await groceryService.getGroceryList(mealPlanId);
+        let result = getResult;
+
+        if (!getResult.success) {
+          // If no existing list, generate a new one
+          console.log("GroceryListView: No existing list found, generating new one");
+          result = await groceryService.generateGroceryList(mealPlanId);
+        }
+
+        console.log("GroceryListView: API result:", result);
         if (result.success) {
+          console.log("GroceryListView: Setting grocery list data:", result.data);
           setGroceryList(result.data!);
           // Initialize all categories as expanded
           const initialExpanded: { [key: string]: boolean } = {};
-          result.data!.categories.forEach(cat => {
+          const categories = getCategoriesFromItems(result.data!.items);
+          categories.forEach(cat => {
+            console.log("GroceryListView: Processing category:", cat.categoryName);
             initialExpanded[cat.categoryName] = true;
           });
           setExpandedCategories(initialExpanded);
-          // Load checked state from localStorage
-          loadCheckedState(result.data!.weekMealPlanId);
+          // Initialize checked state from API data
+          const initialChecked: { [key: string]: boolean } = {};
+          result.data!.items.forEach((item: GroceryItem) => {
+            initialChecked[item.id] = item.checked;
+          });
+          setCheckedItems(initialChecked);
         } else {
+          console.error("GroceryListView: API call failed with message:", result.message);
           toast.error(result.message);
           navigate("/meal-plan");
         }
       } catch (err) {
+        console.error("GroceryListView: Exception during fetch:", err);
         toast.error("Failed to load grocery list");
         navigate("/meal-plan");
       } finally {
@@ -54,26 +92,31 @@ const GroceryListView = () => {
     fetchGroceryList();
   }, [mealPlanId, navigate]);
 
-  const loadCheckedState = (weekMealPlanId: string) => {
-    const stored = localStorage.getItem(`grocery-checked-${weekMealPlanId}`);
-    if (stored) {
-      setCheckedItems(JSON.parse(stored));
-    }
-  };
+  // Removed loadCheckedState as we're now initializing from API data
 
-  const saveCheckedState = (newCheckedItems: { [key: string]: boolean }) => {
-    if (groceryList) {
-      localStorage.setItem(`grocery-checked-${groceryList.weekMealPlanId}`, JSON.stringify(newCheckedItems));
-    }
-  };
+  // Removed saveCheckedState as we're now using API for persistence
 
-  const toggleItemChecked = (itemId: string) => {
-    const newCheckedItems = {
-      ...checkedItems,
-      [itemId]: !checkedItems[itemId]
-    };
-    setCheckedItems(newCheckedItems);
-    saveCheckedState(newCheckedItems);
+  const toggleItemChecked = async (itemId: string) => {
+    if (isToggling[itemId]) return; // Prevent multiple simultaneous calls
+
+    setIsToggling(prev => ({ ...prev, [itemId]: true }));
+
+    try {
+      const result = await groceryService.toggleGroceryItemCheck(itemId);
+      if (result.success) {
+        // Update local state
+        setCheckedItems(prev => ({
+          ...prev,
+          [itemId]: !prev[itemId]
+        }));
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error("Failed to toggle item check");
+    } finally {
+      setIsToggling(prev => ({ ...prev, [itemId]: false }));
+    }
   };
 
   const toggleCategoryExpanded = (categoryName: string) => {
@@ -83,19 +126,52 @@ const GroceryListView = () => {
     }));
   };
 
-  const checkAllInCategory = (category: GroceryCategory) => {
-    const newCheckedItems = { ...checkedItems };
-    category.items.forEach(item => {
-      newCheckedItems[item.id] = true;
-    });
-    setCheckedItems(newCheckedItems);
-    saveCheckedState(newCheckedItems);
+  const checkAllInCategory = async (category: CategoryGroup) => {
+    const promises = category.items.map(async (item: GroceryItem) => {
+      if (!checkedItems[item.id]) {
+        return groceryService.toggleGroceryItemCheck(item.id);
+      }
+    }).filter(Boolean);
+
+    try {
+      const results = await Promise.all(promises);
+      const allSuccessful = results.every((result: any) => result?.success);
+
+      if (allSuccessful) {
+        // Update local state for all items in category
+        const newCheckedItems = { ...checkedItems };
+        category.items.forEach((item: GroceryItem) => {
+          newCheckedItems[item.id] = true;
+        });
+        setCheckedItems(newCheckedItems);
+      } else {
+        toast.error("Failed to check all items in category");
+      }
+    } catch (error) {
+      toast.error("Failed to check all items in category");
+    }
   };
 
-  const resetList = () => {
-    const newCheckedItems: { [key: string]: boolean } = {};
-    setCheckedItems(newCheckedItems);
-    saveCheckedState(newCheckedItems);
+  const resetList = async () => {
+    if (!groceryList) return;
+
+    const promises = groceryList.items
+      .filter(item => checkedItems[item.id])
+      .map(item => groceryService.toggleGroceryItemCheck(item.id));
+
+    try {
+      const results = await Promise.all(promises);
+      const allSuccessful = results.every((result: any) => result?.success);
+
+      if (allSuccessful) {
+        const newCheckedItems: { [key: string]: boolean } = {};
+        setCheckedItems(newCheckedItems);
+      } else {
+        toast.error("Failed to reset list");
+      }
+    } catch (error) {
+      toast.error("Failed to reset list");
+    }
   };
 
   const shareList = async () => {
@@ -130,9 +206,10 @@ const GroceryListView = () => {
     if (!groceryList) return "";
 
     let text = "Weekly Grocery List\n\n";
-    groceryList.categories.forEach(category => {
+    const categories = getCategoriesFromItems(groceryList.items);
+    categories.forEach((category: CategoryGroup) => {
       text += `${category.categoryName}:\n`;
-      category.items.forEach(item => {
+      category.items.forEach((item: GroceryItem) => {
         const check = checkedItems[item.id] ? "✓" : "☐";
         text += `${check} ${item.quantity} ${item.unit} ${item.name}\n`;
       });
@@ -159,6 +236,27 @@ const GroceryListView = () => {
     return (
       <div className="text-center py-8">
         <p>Failed to load grocery list</p>
+      </div>
+    );
+  }
+
+  console.log("GroceryListView: Rendering component, groceryList:", groceryList);
+  if (!groceryList) {
+    console.error("GroceryListView: groceryList is null or undefined");
+    return (
+      <div className="text-center py-8">
+        <p>Failed to load grocery list</p>
+      </div>
+    );
+  }
+
+  const categories = getCategoriesFromItems(groceryList.items);
+  console.log("GroceryListView: categories:", categories);
+  if (!categories || categories.length === 0) {
+    console.error("GroceryListView: categories is null, undefined, or empty");
+    return (
+      <div className="text-center py-8">
+        <p>Failed to load grocery list categories</p>
       </div>
     );
   }
@@ -198,9 +296,10 @@ const GroceryListView = () => {
 
       {/* Categories */}
       <div className="space-y-4 mb-20 md:mb-8">
-        {groceryList.categories.map((category) => {
+        {categories.map((category: CategoryGroup) => {
+          console.log("GroceryListView: Rendering category:", category.categoryName);
           const isExpanded = expandedCategories[category.categoryName] || false;
-          const checkedCount = category.items.filter(item => checkedItems[item.id]).length;
+          const checkedCount = category.items.filter((item: GroceryItem) => checkedItems[item.id]).length;
           const totalCount = category.items.length;
 
           return (
@@ -246,15 +345,18 @@ const GroceryListView = () => {
                     className="overflow-hidden"
                   >
                     <div className="divide-y divide-gray-100">
-                      {category.items.map((item) => (
-                        <GroceryListItem
-                          key={item.id}
-                          item={item}
-                          isChecked={checkedItems[item.id] || false}
-                          onToggle={() => toggleItemChecked(item.id)}
-                          onSwipe={(direction) => handleSwipe(item.id, direction)}
-                        />
-                      ))}
+                      {category.items.map((item: GroceryItem) => {
+                        console.log("GroceryListView: Rendering item:", item.name);
+                        return (
+                          <GroceryListItem
+                            key={item.id}
+                            item={item}
+                            isChecked={checkedItems[item.id] || false}
+                            onToggle={() => toggleItemChecked(item.id)}
+                            onSwipe={(direction) => handleSwipe(item.id, direction)}
+                          />
+                        );
+                      })}
                     </div>
                   </motion.div>
                 )}
@@ -273,6 +375,11 @@ interface GroceryListItemProps {
   isChecked: boolean;
   onToggle: () => void;
   onSwipe: (direction: 'left' | 'right') => void;
+}
+
+interface CategoryGroup {
+  categoryName: string;
+  items: GroceryItem[];
 }
 
 const GroceryListItem: React.FC<GroceryListItemProps> = ({ item, isChecked, onToggle, onSwipe }) => {

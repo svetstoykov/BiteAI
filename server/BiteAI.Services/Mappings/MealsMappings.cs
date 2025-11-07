@@ -12,7 +12,7 @@ public static class MealsMappings
             TotalCalories = mealDayDto.TotalCalories > 0 ? mealDayDto.TotalCalories : mealDayDto.DailyMeals.Sum(m => m.Calories),
             Meals = mealDayDto.DailyMeals.Select(m => m.ToMealEntity()).ToList()
         };
-
+    
     public static MealPlanDto ToMealPlanDto(this MealPlan mealPlan)
         => new()
         {
@@ -27,6 +27,7 @@ public static class MealsMappings
                 .ToList()
         };
 
+
     public static Meal ToMealEntity(this MealDto mealDto)
         => new()
         {
@@ -40,6 +41,7 @@ public static class MealsMappings
             MealOrder = mealDto.MealOrder
         };
 
+
     public static MealDto ToMealDto(this Meal meal)
         => new()
         {
@@ -52,6 +54,7 @@ public static class MealsMappings
             MealType = meal.MealType,
             MealOrder = meal.MealOrder
         };
+
 
     public static MealDayDto ToMealDayDto(this MealDay mealDay)
         => new()

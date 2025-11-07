@@ -36,7 +36,6 @@ public class LanguageModelService : ILanguageModelService
     }
 
     public async Task<Result<TResponse?>> PromptAsync<TResponse>(string userPrompt, string systemPrompt, CancellationToken cancellationToken)
-        where TResponse : class, new()
     {
         try
         {

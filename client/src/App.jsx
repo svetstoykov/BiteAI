@@ -9,7 +9,7 @@ import LandingPage from "./components/LandingPage";
 import TransitionRoutes from "./components/common/TransitionRoutes";
 import Layout from "./components/Layout";
 import MealPlanComponent from "./components/meals/MealPlanComponent";
-import GroceryListView from "./components/meals/GroceryListView";
+import GroceryListView from "./components/groceries/GroceryListView";
 
 export default function App() {
   return (

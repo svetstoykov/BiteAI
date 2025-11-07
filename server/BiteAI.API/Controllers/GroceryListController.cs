@@ -12,6 +12,17 @@ namespace BiteAI.API.Controllers;
 public class GroceryListController(IGroceryListService groceryListService, IHttpContextAccessor httpContextAccessor)
     : BaseApiController
 {
+    [HttpGet("{mealPlanId:guid}")]
+    public async Task<IActionResult> GetGroceryList([FromRoute] Guid mealPlanId, CancellationToken cancellationToken = default)
+    {
+        var loggedInUserId = httpContextAccessor.HttpContext?.User.FindFirstValue(ExtendedClaimTypes.UniqueIdentifier);
+        if (string.IsNullOrEmpty(loggedInUserId))
+            return this.NoLoggedInUserResult();
+
+        var result = await groceryListService.GetGroceryListAsync(mealPlanId, loggedInUserId, cancellationToken);
+        return this.ToActionResult(result);
+    }
+
     [HttpPost("{mealPlanId:guid}")]
     public async Task<IActionResult> GenerateGroceryList([FromRoute] Guid mealPlanId, CancellationToken cancellationToken = default)
     {
