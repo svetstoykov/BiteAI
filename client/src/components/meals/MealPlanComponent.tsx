@@ -173,7 +173,7 @@ const MealPlanComponent = () => {
   };
 
   return (
-    <div className="mx-auto w-[460px] md:w-[640px] p-2 md:p-6 bite-container">
+    <div className="mx-auto w-[529px] md:w-[736px] p-2 md:p-6 bite-container">
       <h1 className="text-3xl md:text-4xl font-thin mb-4 md:mb-6 text-center md:text-start">
         Meal Plan
       </h1>

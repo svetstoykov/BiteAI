@@ -33,7 +33,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-w-md mx-auto p-6 bite-container">
+    <div className="min-w-[345px] mx-auto p-6 bite-container">
       <h2 className="text-4xl font-thin text-center text-gray-800 mb-6">Log In</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         <Input

@@ -178,7 +178,7 @@ const GroceryListView = () => {
   }
 
   return (
-    <div className="mx-auto md:min-w-2xl min-w-[370px] p-2 md:p-6 bite-container">
+    <div className="mx-auto md:min-w-[773px] min-w-[426px] p-2 md:p-6 bite-container">
       <h1 className="text-3xl md:text-4xl font-thin mb-4 md:mb-6 text-center md:text-start">
         Grocery List
       </h1>

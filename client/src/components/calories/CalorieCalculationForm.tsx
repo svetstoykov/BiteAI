@@ -112,7 +112,7 @@ export default function CalorieCalculationForm() {
   };
 
   return (
-    <div className={`w-full max-w-3xl mx-auto p-5 sm:p-6 bite-container ${calculationType === "weight" ? "mt-2" : "mt-8"}`}>
+    <div className={`w-full max-w-[3450px] mx-auto p-5 sm:p-6 bite-container ${calculationType === "weight" ? "mt-2" : "mt-8"}`}>
       <h1 className="text-3xl sm:text-4xl font-thin text-center mb-1 sm:mb-2 text-gray-800">
         {calculationType === "calories"
           ? "Calculate Calorie Scenarios"

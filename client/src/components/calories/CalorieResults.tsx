@@ -41,7 +41,7 @@ export default function CalorieResults() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-5 sm:p-6 bite-container">
+    <div className="w-full max-w-[3450px] mx-auto p-5 sm:p-6 bite-container">
       <h1 className="text-3xl sm:text-4xl font-thin text-center mb-1 sm:mb-2 text-gray-800">
         Your Calorie Results
       </h1>

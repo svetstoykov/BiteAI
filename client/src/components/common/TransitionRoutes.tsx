@@ -8,7 +8,7 @@ type TransitionRoutesProps = {
 
 export default function TransitionRoutes({ children }: TransitionRoutesProps) {
   const location = useLocation();
-  
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -16,7 +16,7 @@ export default function TransitionRoutes({ children }: TransitionRoutesProps) {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -20 }}
-        transition={{ 
+        transition={{
           duration: 0.3,
           ease: "easeInOut"
         }}
