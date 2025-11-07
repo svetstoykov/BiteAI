@@ -1,18 +1,16 @@
-import { CREATE_GROCERY_LIST, GET_GROCERY_LIST, CHECK_GROCERY_ITEM } from "../constants/endpoints";
-import { GroceryList } from "../models/groceries";
+import { CREATE_GROCERY_LIST, GET_GROCERY_LIST, CHECK_GROCERY_ITEMS } from "../constants/endpoints";
+import { GroceryList, ToggleGroceryItemsRequest } from "../models/groceries";
 import { ResultWithData } from "../models/result";
 import apiClient from "./api-client";
 
 export class GroceryService {
   /**
-   * Get existing grocery list for a meal plan.
-   * @param mealPlanId The ID of the meal plan
+   * Get existing grocery list for the authenticated user.
    * @returns Result with grocery list data or error message
    */
-  public async getGroceryList(mealPlanId: string): Promise<ResultWithData<GroceryList>> {
+  public async getGroceryList(): Promise<ResultWithData<GroceryList>> {
     try {
-      const endpoint = GET_GROCERY_LIST.replace("{mealPlanId}", mealPlanId);
-      const response = await apiClient.get<GroceryList>(endpoint);
+      const response = await apiClient.get<GroceryList>(GET_GROCERY_LIST);
 
       if (response.success && response.data) {
         return ResultWithData.success(response.data);
@@ -26,14 +24,12 @@ export class GroceryService {
   }
 
   /**
-   * Generate grocery list for a meal plan.
-   * @param mealPlanId The ID of the meal plan
+   * Generate grocery list for the authenticated user.
    * @returns Result with grocery list data or error message
    */
-  public async generateGroceryList(mealPlanId: string): Promise<ResultWithData<GroceryList>> {
+  public async generateGroceryList(): Promise<ResultWithData<GroceryList>> {
     try {
-      const endpoint = CREATE_GROCERY_LIST.replace("{mealPlanId}", mealPlanId);
-      const response = await apiClient.post<GroceryList, {}>(endpoint, {});
+      const response = await apiClient.post<GroceryList, {}>(CREATE_GROCERY_LIST, {});
 
       if (response.success && response.data) {
         return ResultWithData.success(response.data);
@@ -52,17 +48,26 @@ export class GroceryService {
    * @returns Result with success or error message
    */
   public async toggleGroceryItemCheck(groceryListItemId: string): Promise<ResultWithData<boolean>> {
+    return this.toggleGroceryItemsCheck([groceryListItemId]);
+  }
+
+  /**
+   * Toggle the checked state of multiple grocery list items.
+   * @param itemIds The IDs of the grocery list items
+   * @returns Result with success or error message
+   */
+  public async toggleGroceryItemsCheck(itemIds: string[]): Promise<ResultWithData<boolean>> {
     try {
-      const endpoint = CHECK_GROCERY_ITEM.replace("{groceryListItemId}", groceryListItemId);
-      const response = await apiClient.post<boolean, {}>(endpoint, {});
+      const request: ToggleGroceryItemsRequest = { ItemIds: itemIds };
+      const response = await apiClient.post<boolean, ToggleGroceryItemsRequest>(CHECK_GROCERY_ITEMS, request);
 
       if (response.success) {
         return ResultWithData.success(response.data || true);
       }
-      return ResultWithData.failure(response.message || "Failed to toggle item check");
+      return ResultWithData.failure(response.message || "Failed to toggle items check");
     } catch (err: any) {
       return ResultWithData.failure(
-        err.response?.data?.message || "Failed to toggle item check. Please try again."
+        err.response?.data?.message || "Failed to toggle items check. Please try again."
       );
     }
   }

@@ -26,5 +26,5 @@ export const GET_LATEST_MEAL_PLAN = "/api/Meals/latest-meal-plan";
 
 //Grocery list endpoints
 export const CREATE_GROCERY_LIST = "/api/grocery-list/{mealPlanId}";
-export const GET_GROCERY_LIST = "/api/grocery-list/{mealPlanId}";
-export const CHECK_GROCERY_ITEM = "/api/grocery-list/check-item/{groceryListItemId}";
+export const GET_GROCERY_LIST = "/api/grocery-list";
+export const CHECK_GROCERY_ITEMS = "/api/grocery-list/check-items";

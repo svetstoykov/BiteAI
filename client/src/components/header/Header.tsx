@@ -43,6 +43,7 @@ const Header = () => {
   const loggedInNavItems: NavItem[] = [
     { label: "Profile", onClick: () => handleNavigate("/profile") },
     { label: "Meal Plan", onClick: () => handleNavigate("/meal-plan") },
+    { label: "Grocery List", onClick: () => handleNavigate("/grocery-list") },
     { label: "Logout", onClick: handleLogout },
   ];
 

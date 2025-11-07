@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { GroceryService } from "../../services/grocery-service";
 import { GroceryList, GroceryItem } from "../../models/groceries";
 import { toast } from "react-toastify";
-import { ChevronDown, Share2, Printer, RotateCcw, CheckSquare, Square } from "lucide-react";
+import { ChevronDown, CheckSquare, Square } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import GroceryListPreparationSpinner from "./GroceryListPreparationSpinner";
+import ErrorPage from "../common/ErrorPage";
 
 const GroceryListView = () => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [groceryList, setGroceryList] = useState<GroceryList | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -31,57 +31,37 @@ const GroceryListView = () => {
     }));
   };
 
-  const mealPlanId = searchParams.get("mealPlanId");
-
   const groceryService = new GroceryService();
 
   useEffect(() => {
-    if (!mealPlanId) {
-      console.log("GroceryListView: No mealPlanId found, navigating to /meal-plan");
-      navigate("/meal-plan");
-      return;
-    }
-
     const fetchGroceryList = async () => {
-      console.log("GroceryListView: Starting to fetch grocery list for mealPlanId:", mealPlanId);
       setIsLoading(true);
       try {
-        // First try to get existing grocery list
-        console.log("GroceryListView: Checking for existing grocery list");
-        const getResult = await groceryService.getGroceryList(mealPlanId);
+        const getResult = await groceryService.getGroceryList();
         let result = getResult;
 
         if (!getResult.success) {
-          // If no existing list, generate a new one
-          console.log("GroceryListView: No existing list found, generating new one");
-          result = await groceryService.generateGroceryList(mealPlanId);
+          result = await groceryService.generateGroceryList();
         }
 
-        console.log("GroceryListView: API result:", result);
         if (result.success) {
-          console.log("GroceryListView: Setting grocery list data:", result.data);
           setGroceryList(result.data!);
-          // Initialize all categories as expanded
           const initialExpanded: { [key: string]: boolean } = {};
           const categories = getCategoriesFromItems(result.data!.items);
           categories.forEach(cat => {
-            console.log("GroceryListView: Processing category:", cat.categoryName);
             initialExpanded[cat.categoryName] = true;
           });
           setExpandedCategories(initialExpanded);
-          // Initialize checked state from API data
           const initialChecked: { [key: string]: boolean } = {};
           result.data!.items.forEach((item: GroceryItem) => {
             initialChecked[item.id] = item.checked;
           });
           setCheckedItems(initialChecked);
         } else {
-          console.error("GroceryListView: API call failed with message:", result.message);
           toast.error(result.message);
           navigate("/meal-plan");
         }
       } catch (err) {
-        console.error("GroceryListView: Exception during fetch:", err);
         toast.error("Failed to load grocery list");
         navigate("/meal-plan");
       } finally {
@@ -90,11 +70,8 @@ const GroceryListView = () => {
     };
 
     fetchGroceryList();
-  }, [mealPlanId, navigate]);
+  }, [navigate]);
 
-  // Removed loadCheckedState as we're now initializing from API data
-
-  // Removed saveCheckedState as we're now using API for persistence
 
   const toggleItemChecked = async (itemId: string) => {
     if (isToggling[itemId]) return; // Prevent multiple simultaneous calls
@@ -127,100 +104,35 @@ const GroceryListView = () => {
   };
 
   const checkAllInCategory = async (category: CategoryGroup) => {
-    const promises = category.items.map(async (item: GroceryItem) => {
-      if (!checkedItems[item.id]) {
-        return groceryService.toggleGroceryItemCheck(item.id);
-      }
-    }).filter(Boolean);
+    const allChecked = category.items.every(item => checkedItems[item.id]);
+    let itemIdsToToggle: string[];
 
-    try {
-      const results = await Promise.all(promises);
-      const allSuccessful = results.every((result: any) => result?.success);
-
-      if (allSuccessful) {
-        // Update local state for all items in category
-        const newCheckedItems = { ...checkedItems };
-        category.items.forEach((item: GroceryItem) => {
-          newCheckedItems[item.id] = true;
-        });
-        setCheckedItems(newCheckedItems);
-      } else {
-        toast.error("Failed to check all items in category");
-      }
-    } catch (error) {
-      toast.error("Failed to check all items in category");
-    }
-  };
-
-  const resetList = async () => {
-    if (!groceryList) return;
-
-    const promises = groceryList.items
-      .filter(item => checkedItems[item.id])
-      .map(item => groceryService.toggleGroceryItemCheck(item.id));
-
-    try {
-      const results = await Promise.all(promises);
-      const allSuccessful = results.every((result: any) => result?.success);
-
-      if (allSuccessful) {
-        const newCheckedItems: { [key: string]: boolean } = {};
-        setCheckedItems(newCheckedItems);
-      } else {
-        toast.error("Failed to reset list");
-      }
-    } catch (error) {
-      toast.error("Failed to reset list");
-    }
-  };
-
-  const shareList = async () => {
-    if (!groceryList) return;
-
-    const text = generateShareText();
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Weekly Grocery List',
-          text: text
-        });
-      } catch (err) {
-        // Fallback to clipboard
-        copyToClipboard(text);
-      }
+    if (allChecked) {
+      // Uncheck all
+      itemIdsToToggle = category.items.map(item => item.id);
     } else {
-      copyToClipboard(text);
+      // Check all unchecked
+      itemIdsToToggle = category.items.filter(item => !checkedItems[item.id]).map(item => item.id);
+    }
+
+    if (itemIdsToToggle.length === 0) return;
+
+    try {
+      const result = await groceryService.toggleGroceryItemsCheck(itemIdsToToggle);
+      if (result.success) {
+        const newCheckedItems = { ...checkedItems };
+        itemIdsToToggle.forEach(itemId => {
+          newCheckedItems[itemId] = !newCheckedItems[itemId];
+        });
+        setCheckedItems(newCheckedItems);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error("Failed to toggle items in category");
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      toast.success("Grocery list copied to clipboard!");
-    }).catch(() => {
-      toast.error("Failed to copy to clipboard");
-    });
-  };
-
-  const generateShareText = (): string => {
-    if (!groceryList) return "";
-
-    let text = "Weekly Grocery List\n\n";
-    const categories = getCategoriesFromItems(groceryList.items);
-    categories.forEach((category: CategoryGroup) => {
-      text += `${category.categoryName}:\n`;
-      category.items.forEach((item: GroceryItem) => {
-        const check = checkedItems[item.id] ? "✓" : "☐";
-        text += `${check} ${item.quantity} ${item.unit} ${item.name}\n`;
-      });
-      text += "\n";
-    });
-    return text;
-  };
-
-  const printList = () => {
-    window.print();
-  };
 
   const handleSwipe = (itemId: string, direction: 'left' | 'right') => {
     if (direction === 'right') {
@@ -234,30 +146,34 @@ const GroceryListView = () => {
 
   if (!groceryList) {
     return (
-      <div className="text-center py-8">
-        <p>Failed to load grocery list</p>
-      </div>
-    );
-  }
-
-  console.log("GroceryListView: Rendering component, groceryList:", groceryList);
-  if (!groceryList) {
-    console.error("GroceryListView: groceryList is null or undefined");
-    return (
-      <div className="text-center py-8">
-        <p>Failed to load grocery list</p>
-      </div>
+      <ErrorPage
+        message="Failed to load grocery list"
+        primaryButton={{
+          text: "Go to Meal Plan",
+          onClick: () => navigate("/meal-plan")
+        }}
+        secondaryButton={{
+          text: "Try Again",
+          onClick: () => window.location.reload()
+        }}
+      />
     );
   }
 
   const categories = getCategoriesFromItems(groceryList.items);
-  console.log("GroceryListView: categories:", categories);
   if (!categories || categories.length === 0) {
-    console.error("GroceryListView: categories is null, undefined, or empty");
     return (
-      <div className="text-center py-8">
-        <p>Failed to load grocery list categories</p>
-      </div>
+      <ErrorPage
+        message="No grocery items found in your list"
+        primaryButton={{
+          text: "Go to Meal Plan",
+          onClick: () => navigate("/meal-plan")
+        }}
+        secondaryButton={{
+          text: "Try Again",
+          onClick: () => window.location.reload()
+        }}
+      />
     );
   }
 
@@ -267,37 +183,9 @@ const GroceryListView = () => {
         Grocery List
       </h1>
 
-      {/* Action Bar */}
-      <div className="fixed bottom-4 left-4 right-4 md:static md:bottom-auto md:left-auto md:right-auto bg-white border border-gray-300 rounded-lg p-4 shadow-lg md:shadow-none md:border-0 md:p-0 md:bg-transparent z-10">
-        <div className="flex justify-between items-center gap-2">
-          <button
-            onClick={shareList}
-            className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors min-h-[44px] flex-1 justify-center"
-          >
-            <Share2 size={20} />
-            <span className="hidden md:inline">Share</span>
-          </button>
-          <button
-            onClick={printList}
-            className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors min-h-[44px] flex-1 justify-center"
-          >
-            <Printer size={20} />
-            <span className="hidden md:inline">Print</span>
-          </button>
-          <button
-            onClick={resetList}
-            className="flex items-center gap-2 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors min-h-[44px] flex-1 justify-center"
-          >
-            <RotateCcw size={20} />
-            <span className="hidden md:inline">Reset</span>
-          </button>
-        </div>
-      </div>
-
       {/* Categories */}
-      <div className="space-y-4 mb-20 md:mb-8">
+      <div className="space-y-4 mb-8">
         {categories.map((category: CategoryGroup) => {
-          console.log("GroceryListView: Rendering category:", category.categoryName);
           const isExpanded = expandedCategories[category.categoryName] || false;
           const checkedCount = category.items.filter((item: GroceryItem) => checkedItems[item.id]).length;
           const totalCount = category.items.length;
@@ -327,9 +215,9 @@ const GroceryListView = () => {
                       e.stopPropagation();
                       checkAllInCategory(category);
                     }}
-                    className="text-blue-500 hover:text-blue-700 text-sm font-medium"
+                    className="bg-dark-charcoal hover:bg-dark-charcoal/90 text-white text-sm font-medium px-3 py-1 rounded-md transition-colors"
                   >
-                    Check All
+                    {category.items.every(item => checkedItems[item.id]) ? "Uncheck All" : "Check All"}
                   </button>
                 </div>
               </div>
@@ -346,7 +234,6 @@ const GroceryListView = () => {
                   >
                     <div className="divide-y divide-gray-100">
                       {category.items.map((item: GroceryItem) => {
-                        console.log("GroceryListView: Rendering item:", item.name);
                         return (
                           <GroceryListItem
                             key={item.id}

@@ -13,6 +13,42 @@ namespace BiteAI.Services.Services;
 
 public class GroceryListService(AppDbContext context, ILanguageModelService languageModelService) : IGroceryListService
 {
+    public async Task<Result<GroceryListDto?>> GetLatestGroceryListForUserAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        var list = await context.GroceryLists
+            .Where(gl => gl.MealPlan.ApplicationUserId == userId)
+            .OrderByDescending(gl =>gl.MealPlan.CreatedDate)
+            .Include(gl => gl.Items)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (list == null)
+            return Result.Fail<GroceryListDto?>(OperationError.NotFound("Grocery list not found"));
+
+        var response = list.ToGroceryListDto(list.Items);
+        return Result.Success<GroceryListDto?>(response);
+    }
+
+    public async Task<Result> ToggleGroceryItemsCheckedAsync(IEnumerable<Guid> groceryListItemIds, string userId, CancellationToken cancellationToken = default)
+    {
+        var ids = groceryListItemIds.Distinct().ToList();
+        if (ids.Count == 0)
+            return Result.Fail(OperationError.Validation("No item IDs provided"));
+
+        var items = await context.GroceryItems
+            .Where(i => ids.Contains(i.Id) && i.GroceryList.MealPlan.ApplicationUserId == userId)
+            .ToListAsync(cancellationToken);
+
+        if (items.Count == 0)
+            return Result.Fail(OperationError.NotFound("No grocery items found for the provided IDs"));
+
+        foreach (var it in items)
+            it.Checked = !it.Checked;
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return Result.Success(items.Select(i => i.ToGroceryItemDto()));
+    }
+
     public async Task<Result<GroceryListDto?>> GetGroceryListAsync(Guid mealPlanId, string userId, CancellationToken cancellationToken = default)
     {
         var mealPlan = await context.MealPlans.FirstOrDefaultAsync(mp => mp.Id == mealPlanId && mp.ApplicationUserId == userId, cancellationToken);

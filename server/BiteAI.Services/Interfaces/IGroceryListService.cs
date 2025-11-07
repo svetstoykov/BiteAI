@@ -7,4 +7,6 @@ public interface IGroceryListService
 {
     Task<Result<GroceryListDto?>> GenerateGroceryListAsync(Guid mealPlanId, string userId, CancellationToken cancellationToken = default);
     Task<Result<GroceryListDto?>> GetGroceryListAsync(Guid mealPlanId, string userId, CancellationToken cancellationToken = default);
+    Task<Result<GroceryListDto?>> GetLatestGroceryListForUserAsync(string userId, CancellationToken cancellationToken = default);
+    Task<Result> ToggleGroceryItemsCheckedAsync(IEnumerable<Guid> groceryListItemIds, string userId, CancellationToken cancellationToken = default);
 }

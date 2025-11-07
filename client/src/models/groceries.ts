@@ -18,3 +18,7 @@ export interface GroceryListResponse {
   message: string;
   success: boolean;
 }
+
+export interface ToggleGroceryItemsRequest {
+  ItemIds: string[];
+}
