@@ -130,7 +130,7 @@ namespace BiteAI.Infrastructure.Migrations
 
                     b.HasKey("Value");
 
-                    b.ToTable("ActivityLevels");
+                    b.ToTable("ActivityLevels", (string)null);
 
                     b.HasData(
                         new
@@ -176,7 +176,7 @@ namespace BiteAI.Infrastructure.Migrations
 
                     b.HasKey("Value");
 
-                    b.ToTable("DietTypes");
+                    b.ToTable("DietTypes", (string)null);
 
                     b.HasData(
                         new
@@ -237,7 +237,7 @@ namespace BiteAI.Infrastructure.Migrations
 
                     b.HasKey("Value");
 
-                    b.ToTable("Genders");
+                    b.ToTable("Genders", (string)null);
 
                     b.HasData(
                         new
@@ -263,7 +263,7 @@ namespace BiteAI.Infrastructure.Migrations
 
                     b.HasKey("Value");
 
-                    b.ToTable("MealTypes");
+                    b.ToTable("MealTypes", (string)null);
 
                     b.HasData(
                         new
@@ -319,7 +319,7 @@ namespace BiteAI.Infrastructure.Migrations
 
                     b.HasIndex("GroceryListId");
 
-                    b.ToTable("GroceryItems");
+                    b.ToTable("GroceryItems", (string)null);
                 });
 
             modelBuilder.Entity("BiteAI.Services.Data.Entities.GroceryList", b =>
@@ -339,7 +339,7 @@ namespace BiteAI.Infrastructure.Migrations
                     b.HasIndex("MealPlanId")
                         .IsUnique();
 
-                    b.ToTable("GroceryLists");
+                    b.ToTable("GroceryLists", (string)null);
                 });
 
             modelBuilder.Entity("BiteAI.Services.Data.Entities.Meal", b =>
@@ -383,7 +383,7 @@ namespace BiteAI.Infrastructure.Migrations
 
                     b.HasIndex("MealType");
 
-                    b.ToTable("Meals");
+                    b.ToTable("Meals", (string)null);
                 });
 
             modelBuilder.Entity("BiteAI.Services.Data.Entities.MealDay", b =>
@@ -405,7 +405,7 @@ namespace BiteAI.Infrastructure.Migrations
 
                     b.HasIndex("MealPlanId");
 
-                    b.ToTable("MealDays");
+                    b.ToTable("MealDays", (string)null);
                 });
 
             modelBuilder.Entity("BiteAI.Services.Data.Entities.MealPlan", b =>
@@ -436,7 +436,7 @@ namespace BiteAI.Infrastructure.Migrations
 
                     b.HasIndex("DietType");
 
-                    b.ToTable("MealPlans");
+                    b.ToTable("MealPlans", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

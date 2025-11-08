@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, ChevronRight, ChevronUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ProfileGuard from "./profile/ProfileGuard";
+import ProfileForm from "./profile/ProfileForm";
+import { useProfile } from "../hooks/useProfile";
 
 export default function TargetSetup() {
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { hasProfile, profile } = useProfile();
 
   const handleSectionClick = (section: string) => {
     if (selectedSection === section) {
@@ -23,6 +27,21 @@ export default function TargetSetup() {
     // Navigate to calculate route with the selected calculation type as a query parameter
     navigate(`/calculate?type=${selectedSection}`);
   };
+
+  // If no profile, show profile creation form
+  if (!hasProfile) {
+    return (
+      <div className="mt-12 max-w-md mx-auto p-4 sm:p-6">
+        <ProfileForm
+          mode="create"
+          onSuccess={() => {
+            // After successful profile creation, the component will re-render with profile available
+            window.location.reload();
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="mt-12 max-w-3xl mx-auto p-4 sm:p-6 bite-container">

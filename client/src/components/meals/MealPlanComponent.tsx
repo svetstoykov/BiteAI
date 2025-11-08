@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Apple, Coffee, Soup, UtensilsCrossed, ChevronDown } from "lucide-react";
 import MealPlanPreparationSpinner from "./MealPlanPreparationSpinner";
 import { AuthenticationService } from "../../services/authentication-service";
+import { useProfile } from "../../hooks/useProfile";
 
 const MealPlanComponent = () => {
   const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
@@ -17,6 +18,7 @@ const MealPlanComponent = () => {
   const navigate = useNavigate();
 
   const { dailyCalories, dietType, setMealPlanSpecifics } = useCalorieStore();
+  const { profile } = useProfile();
 
   const mealServiceRef = useRef(new MealService());
   const authenticationServiceRef = useRef(new AuthenticationService());
@@ -40,6 +42,15 @@ const MealPlanComponent = () => {
         }
       }
 
+      // Use profile data for meal plan generation if available
+      if (profile?.preferredDietType && dailyCalories === null) {
+        // If we have profile but no calorie target, use profile data to generate meal plan
+        // This would need backend support to generate meal plans based on profile
+        // For now, redirect to setup if no calorie target
+        navigate("/setup");
+        return;
+      }
+
       if (dailyCalories === null || dietType === null) {
         navigate("/setup");
         return;
@@ -49,7 +60,7 @@ const MealPlanComponent = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [dailyCalories, dietType, navigate, setMealPlanSpecifics]);
+  }, [dailyCalories, dietType, navigate, setMealPlanSpecifics, profile]);
 
   useEffect(() => {
     fetchMealPlan();
@@ -61,8 +72,30 @@ const MealPlanComponent = () => {
   }, [activeDay]);
 
   const handleGenerateNewMealClick = async () => {
-    if (dailyCalories === null || dietType === null) {
+    let caloriesToUse = dailyCalories;
+    let dietToUse = dietType;
+
+    // Use profile preferences if available and no calorie target set
+    if (caloriesToUse === null && profile?.preferredDietType) {
+      // This would need backend support to calculate calories from profile
+      // For now, redirect to calorie calculation
+      navigate("/setup");
+      return;
+    }
+
+    if (caloriesToUse === null) {
       toast.error("Please set up your calorie goals first");
+      navigate("/setup");
+      return;
+    }
+
+    // Use profile diet preference if no diet type set
+    if (dietToUse === null && profile?.preferredDietType) {
+      dietToUse = profile.preferredDietType;
+    }
+
+    if (dietToUse === null) {
+      toast.error("Please select a diet type");
       navigate("/setup");
       return;
     }
@@ -70,8 +103,8 @@ const MealPlanComponent = () => {
     setIsLoading(true);
     try {
       const result = await mealServiceRef.current.generateWeeklyMealPlan(
-        dailyCalories,
-        dietType
+        caloriesToUse,
+        dietToUse
       );
 
       if (result.success) {

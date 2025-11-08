@@ -11,6 +11,7 @@ import AuthGuard from "./components/common/AuthGuard";
 import Layout from "./components/Layout";
 import MealPlanComponent from "./components/meals/MealPlanComponent";
 import GroceryListView from "./components/groceries/GroceryListView";
+import ProfileGuard from "./components/profile/ProfileGuard";
 
 export default function App() {
   return (
@@ -24,8 +25,8 @@ export default function App() {
          <Route path="/setup" element={<TargetSetup />} />
          <Route path="/calculate" element={<CalorieCalculationForm />} />
          <Route path="/results" element={<CalorieResults />} />
-         <Route path="/meal-plan" element={<MealPlanComponent />} />
-         <Route path="/grocery-list" element={<GroceryListView />} />
+         <Route path="/meal-plan" element={<ProfileGuard><MealPlanComponent /></ProfileGuard>} />
+         <Route path="/grocery-list" element={<ProfileGuard><GroceryListView /></ProfileGuard>} />
          <Route path="*" element={<NotFoundPage />} />
        </TransitionRoutes>
      </Layout>

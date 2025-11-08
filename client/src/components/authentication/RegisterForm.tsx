@@ -5,6 +5,7 @@ import { RegisterDto } from "../../models/authentication";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useProfile } from "../../hooks/useProfile";
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState<RegisterDto>({
@@ -32,7 +33,8 @@ export default function RegisterForm() {
 
     if (result.success) {
       toast.success("Registration successful");
-      navigate("/login");
+      // After registration, redirect to setup where profile creation will be handled
+      navigate("/setup");
       return;
     }
 

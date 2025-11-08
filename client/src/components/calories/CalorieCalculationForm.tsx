@@ -9,12 +9,14 @@ import BackButton from "../common/BackButton";
 import Input from "../common/Input";
 import Select, { SelectOption } from "../common/Select";
 import { enumToArray } from "../../helpers/enum-helper";
+import { useProfile } from "../../hooks/useProfile";
 
 export default function CalorieCalculationForm() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const calculationType = searchParams.get("type") as "calories" | "weight";
   const setResults = useCalorieStore((state) => state.setResults);
+  const { profile, fetchProfile } = useProfile();
 
   const timeframeOptions = [
     { value: 4, label: "1 month (4 weeks)" },
@@ -41,12 +43,25 @@ export default function CalorieCalculationForm() {
     }
   }, [calculationType, navigate]);
 
-  // Form fields
-  const [weightKg, setWeightKg] = useState<string>("");
-  const [heightCm, setHeightCm] = useState<string>("");
-  const [age, setAge] = useState<string>("");
-  const [exerciseDaysPerWeek, setExerciseDaysPerWeek] = useState<string>("3");
-  const [isMale, setIsMale] = useState<boolean>(true);
+  // Fetch profile data on mount if not already loaded
+  useEffect(() => {
+    if (!profile) {
+      fetchProfile();
+    }
+  }, [profile, fetchProfile]);
+
+  // Form fields - pre-populate from profile if available
+  const [weightKg, setWeightKg] = useState<string>(profile?.weightInKg?.toString() || "");
+  const [heightCm, setHeightCm] = useState<string>(profile?.heightInCm?.toString() || "");
+  const [age, setAge] = useState<string>(profile?.age?.toString() || "");
+  const [exerciseDaysPerWeek, setExerciseDaysPerWeek] = useState<string>(
+    profile ? (profile.activityLevel === ActivityLevels.Sedentary ? "1" :
+               profile.activityLevel === ActivityLevels.LightlyActive ? "2" :
+               profile.activityLevel === ActivityLevels.ModeratelyActive ? "3" :
+               profile.activityLevel === ActivityLevels.VeryActive ? "4" :
+               profile.activityLevel === ActivityLevels.ExtraActive ? "5" : "3") : "3"
+  );
+  const [isMale, setIsMale] = useState<boolean>(profile ? profile.gender === 1 : true);
   const [targetWeightKg, setTargetWeightKg] = useState<string>("");
   const [targetWeeks, setTargetWeeks] = useState<string>("12");
 

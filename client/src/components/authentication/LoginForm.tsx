@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import Input from "../common/Input";
 import { AuthenticationService } from "../../services/authentication-service";
 import { LoginDto } from "../../models/authentication";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useProfile } from "../../hooks/useProfile";
 
 export default function LoginForm() {
   const [formData, setFormData] = useState<LoginDto>({
@@ -13,6 +14,7 @@ export default function LoginForm() {
   });
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const navigate = useNavigate();
+  const { checkProfile } = useProfile();
 
   const authenticationService = new AuthenticationService();
 
@@ -22,7 +24,7 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-   
+
     const result = await authenticationService.login(formData);
     if (result.success) {
       toast.success("Login successful");
