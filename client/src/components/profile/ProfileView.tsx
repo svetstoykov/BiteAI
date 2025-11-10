@@ -2,6 +2,7 @@ import React from 'react';
 import { UserProfile } from '../../models/profile';
 import { Genders, ActivityLevels } from '../../models/calorie';
 import { DietTypes, DietTypeDescriptions } from '../../models/meals';
+import { useEnums } from '../../hooks/useEnums';
 
 interface ProfileViewProps {
   profile: UserProfile;
@@ -9,23 +10,22 @@ interface ProfileViewProps {
 }
 
 const ProfileView: React.FC<ProfileViewProps> = ({ profile, onEdit }) => {
+  const { genders, activityLevels, dietTypes } = useEnums();
+
   const getGenderLabel = (gender: Genders) => {
-    return gender === Genders.Male ? 'Male' : 'Female';
+    const genderOption = genders.find(g => g.key === gender);
+    return genderOption ? genderOption.value : 'Unknown';
   };
 
   const getActivityLabel = (activity: ActivityLevels) => {
-    switch (activity) {
-      case ActivityLevels.Sedentary: return 'Sedentary';
-      case ActivityLevels.LightlyActive: return 'Lightly Active';
-      case ActivityLevels.ModeratelyActive: return 'Moderately Active';
-      case ActivityLevels.VeryActive: return 'Very Active';
-      case ActivityLevels.ExtraActive: return 'Extra Active';
-      default: return 'Unknown';
-    }
+    const activityOption = activityLevels.find(a => a.key === activity);
+    return activityOption ? activityOption.value : 'Unknown';
   };
 
   const getDietLabel = (diet?: DietTypes) => {
-    return diet ? DietTypeDescriptions[diet] : 'Not specified';
+    if (!diet) return 'Not specified';
+    const dietOption = dietTypes.find(d => d.key === diet);
+    return dietOption ? dietOption.value : DietTypeDescriptions[diet];
   };
 
   const calculateCompleteness = () => {

@@ -12,6 +12,7 @@ import Layout from "./components/Layout";
 import MealPlanComponent from "./components/meals/MealPlanComponent";
 import GroceryListView from "./components/groceries/GroceryListView";
 import ProfileGuard from "./components/profile/ProfileGuard";
+import ProfilePage from "./components/profile/ProfilePage";
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
          <Route path="/setup" element={<TargetSetup />} />
          <Route path="/calculate" element={<CalorieCalculationForm />} />
          <Route path="/results" element={<CalorieResults />} />
+         <Route path="/profile" element={<ProfilePage />} />
          <Route path="/meal-plan" element={<ProfileGuard><MealPlanComponent /></ProfileGuard>} />
          <Route path="/grocery-list" element={<ProfileGuard><GroceryListView /></ProfileGuard>} />
          <Route path="*" element={<NotFoundPage />} />

@@ -18,7 +18,7 @@ public class ProfileController(IUserProfileService profileService) : BaseApiCont
     public async Task<IActionResult> Create([FromBody] CreateUserProfileDto dto, CancellationToken cancellationToken = default)
     {
         var result = await profileService.CreateMyProfileAsync(dto, cancellationToken);
-        if (result.IsFailure) return this.ToActionResult(result);
+            if (result.IsFailure) return this.ToActionResult(result);
         return this.Created($"/api/profile/me", new { data = result.Data });
     }
 

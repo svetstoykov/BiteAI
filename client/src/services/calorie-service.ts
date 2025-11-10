@@ -46,9 +46,10 @@ export class CalorieService {
         caloricGoalsDto,
         targetIntakeCalories
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
       return ResultWithData.failure<CalorieCalculationResult>(
-        err.response?.data?.message || "Something went wrong. Please try again."
+        error.response?.data?.message || "Something went wrong. Please try again."
       );
     }
   }

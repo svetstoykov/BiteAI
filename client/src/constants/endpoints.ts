@@ -24,6 +24,21 @@ export const CREATE_WEEKLY_MEAL_PLAN = "/api/Meals/weekly-meal-plan";
 export const CREATE_DAILY_MEAL_PLAN = "/api/Meals/daily-meal-plan";
 export const GET_LATEST_MEAL_PLAN = "/api/Meals/latest-meal-plan";
 
+// Profile endpoints
+export const GET_MY_PROFILE = "/api/profile/me";
+export const CREATE_PROFILE = "/api/profile";
+export const UPDATE_PROFILE = "/api/profile";
+export const DELETE_PROFILE = "/api/profile";
+export const CHECK_PROFILE_EXISTS = "/api/profile/exists";
+
+// Enum endpoints
+export const GET_ACTIVITY_LEVELS = "/api/enums/activity-levels";
+export const GET_DIET_TYPES = "/api/enums/diet-types";
+export const GET_GENDERS = "/api/enums/genders";
+export const GET_MEAL_TYPES = "/api/enums/meal-types";
+export const GET_ALLERGIES = "/api/enums/allergies";
+export const GET_FOOD_DISLIKES = "/api/enums/food-dislikes";
+
 //Grocery list endpoints
 export const CREATE_GROCERY_LIST = "/api/grocery-list/{mealPlanId}";
 export const GET_GROCERY_LIST = "/api/grocery-list";

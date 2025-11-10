@@ -72,7 +72,7 @@ const MealPlanComponent = () => {
   }, [activeDay]);
 
   const handleGenerateNewMealClick = async () => {
-    let caloriesToUse = dailyCalories;
+    const caloriesToUse = dailyCalories;
     let dietToUse = dietType;
 
     // Use profile preferences if available and no calorie target set
